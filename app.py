@@ -206,7 +206,7 @@ def render_main(match_id):
             .score-divider { width: 1px; height: 60px; background: rgba(255,255,255,0.15); }
             .score-col { text-align: center; }
             .lbl { color: rgba(255,255,255,0.5); font-family: 'Roboto Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; display: block; margin-bottom: 2px; }
-            .val { color: #ffffff; font-family: 'Oswald', sans-serif; font-size: 72px; font-weight: 700; display: block; line-height: 1; }
+            .val { color: #ffffff; font-family: 'Oswald', sans-serif; font-size: 54px; font-weight: 700; display: block; line-height: 1; }
 
             .target-bar {
                 background: rgba(240,192,64,0.12); border: 1px solid rgba(240,192,64,0.3);
@@ -415,8 +415,12 @@ def render_main(match_id):
         else:
             st.markdown('<div class="target-bar">✅ Target achieved!</div>', unsafe_allow_html=True)
 
-    # ── Run buttons ──
-    c1, c2, c3 = st.columns(3)
+    # ── Run buttons (row 1: 0, 1, 2, 3) ──
+    c0, c1, c2, c3 = st.columns(4)
+    with c0:
+        st.markdown('<div class="main-btn">', unsafe_allow_html=True)
+        if st.button("0", key="b0", use_container_width=True): update_score(match_id, 0, 1); st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
     with c1:
         st.markdown('<div class="main-btn">', unsafe_allow_html=True)
         if st.button("1", key="b1", use_container_width=True): update_score(match_id, 1, 1); st.rerun()
@@ -430,6 +434,7 @@ def render_main(match_id):
         if st.button("3", key="b3", use_container_width=True): update_score(match_id, 3, 1); st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
+    # ── Run buttons (row 2: 4, 6, UNDO) ──
     c4, c5, c6 = st.columns(3)
     with c4:
         st.markdown('<div class="main-btn btn-four">', unsafe_allow_html=True)
@@ -443,13 +448,6 @@ def render_main(match_id):
         st.markdown('<div class="btn-undo">', unsafe_allow_html=True)
         if st.button("UNDO", key="bun", use_container_width=True): update_score(match_id, 0, 0, is_undo=True); st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
-
-    # ── Dot ball ──
-    st.markdown('<div class="section-hdr">Dot Ball</div>', unsafe_allow_html=True)
-    st.markdown('<div class="extra-btn">', unsafe_allow_html=True)
-    if st.button("• DOT", key="dot", use_container_width=True):
-        update_score(match_id, 0, 1); st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
 
     # ── Wides ──
     st.markdown('<div class="section-hdr">Wides</div>', unsafe_allow_html=True)
