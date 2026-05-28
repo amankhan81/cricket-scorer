@@ -7,8 +7,8 @@ import string
 
 # --- DB CONNECTION ---
 # Replace these with your own Supabase project URL and anon/public key
-URL = "YOUR_SUPABASE_URL"
-KEY = "YOUR_SUPABASE_ANON_KEY"
+URL = "https://pnuyhhbvdzfursvnngwq.supabase.co"
+KEY = "sb_publishable_Lmh7sO4LnBkSWgmSjanplg_9qgT7svQ"
 supabase = create_client(URL, KEY)
 
 # --- HELPERS ---
