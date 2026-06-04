@@ -408,7 +408,7 @@ def render_main(match_id):
     st.markdown('<div class="innings-badge"><span>' + batting_team + ' &mdash; ' + ("1st" if innings == 1 else "2nd") + ' Innings</span></div>', unsafe_allow_html=True)
     whatsapp_share_url = "https://easyscoring.streamlit.app/?match=" + match_id
     whatsapp_link = "https://wa.me/?text=" + whatsapp_share_url
-    st.markdown(f'<div style="text-align:center;margin-bottom:12px;"><a href="{whatsapp_link}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:rgba(37,211,102,0.15);color:#25d366;font-family:\'Roboto Condensed\',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:6px 18px;border-radius:20px;border:1px solid rgba(37,211,102,0.35);text-decoration:none;">📲 SHARE ON WHATSAPP</a></div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="text-align:center;margin-bottom:12px;"><a href="{whatsapp_link}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:rgba(37,211,102,0.15);color:#25d366;font-family:\'Roboto Condensed\',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:6px 18px;border-radius:20px;border:1px solid rgba(37,211,102,0.35);text-decoration:none;">📲 Share Scoring</a></div>', unsafe_allow_html=True)
 
     st.markdown(f"""
         <div class="score-header">
