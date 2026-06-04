@@ -203,6 +203,14 @@ def render_main(match_id):
                 letter-spacing: 3px; text-transform: uppercase;
                 padding: 3px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
             }
+            .share-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; }
+            .share-btn button {
+                height: 28px !important; padding: 0 12px !important;
+                background: rgba(240,192,64,0.15) !important; color: #f0c040 !important;
+                font-family: 'Roboto Condensed', sans-serif !important; font-size: 11px !important; font-weight: 700 !important;
+                letter-spacing: 2px !important; border: 1px solid rgba(240,192,64,0.3) !important;
+                border-radius: 20px !important; white-space: nowrap !important;
+            }
             .score-header {
                 display: flex; justify-content: space-around; align-items: center;
                 background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
@@ -398,7 +406,15 @@ def render_main(match_id):
 
     # ── ACTIVE SCORING ──
     st.markdown('<div class="innings-badge"><span>' + batting_team + ' &mdash; ' + ("1st" if innings == 1 else "2nd") + ' Innings</span></div>', unsafe_allow_html=True)
-    st.markdown('<div class="match-id-badge"><span>MATCH&nbsp;&nbsp;' + match_id + '</span></div>', unsafe_allow_html=True)
+    col_mid, col_share = st.columns([3, 1])
+    with col_mid:
+        st.markdown('<div class="match-id-badge"><span>MATCH&nbsp;&nbsp;' + match_id + '</span></div>', unsafe_allow_html=True)
+    with col_share:
+        st.markdown('<div class="share-btn">', unsafe_allow_html=True)
+        if st.button("🔗 SHARE", key="share_btn", use_container_width=True):
+            st.write(f'<script>navigator.clipboard.writeText("{scorer_url}")</script>', unsafe_allow_html=True)
+            st.toast("Link copied! 📋", icon="✅")
+        st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown(f"""
         <div class="score-header">
