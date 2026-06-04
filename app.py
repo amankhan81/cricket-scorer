@@ -151,8 +151,6 @@ def render_overlay(match_id):
     else:
         batting_team = team2_name if batting_first == 1 else team1_name
     batting_abbrev = team_abbrev(batting_team)
-    innings_lbl    = batting_abbrev + " INN" + str(innings)
-
     t  = '<div class="ticker">'
     t += '<div class="ticker-accent"></div>'
     t += '<div class="ticker-body">'
@@ -171,8 +169,7 @@ def render_overlay(match_id):
         t += '<div class="ticker-sep"></div>'
         t += '<div class="ticker-overs"><div class="ticker-overs-lbl">Need</div><div class="ticker-overs-val" style="color:' + need_color + ';">' + str(need_val) + '</div></div>'
 
-    t += '<div class="ticker-sep"></div>'
-    t += '<div class="ticker-overs"><div class="ticker-innings">' + innings_lbl + '</div><div class="ticker-match-id">' + match_id + '</div></div>'
+
     t += '</div></div>'
 
     st.markdown(t, unsafe_allow_html=True)
