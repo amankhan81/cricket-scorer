@@ -28,7 +28,7 @@ def team_abbrev(name):
 
 def get_match(match_id):
     """Fetch match row by match_id. Returns None if not found."""
-    res = supabase.table("matches").select("*").eq("match_id", match_id).execute()
+    res = supabase.table("match_data").select("*").eq("match_id", match_id).execute()
     if res.data and len(res.data) > 0:
         d = res.data[0]
         if not d.get("history"):       d["history"]       = "[]"
@@ -42,7 +42,7 @@ def get_match(match_id):
 
 def create_match(match_id, match_overs, team1_name="Team 1", team2_name="Team 2", batting_first=1):
     """Insert a new match row."""
-    supabase.table("matches").insert({
+    supabase.table("match_data").insert({
         "match_id":      match_id,
         "match_overs":   match_overs,
         "runs":          0,
@@ -63,27 +63,27 @@ def update_score(match_id, runs_inc, balls_inc, is_undo=False):
     if is_undo:
         if len(history) > 0:
             last = history.pop()
-            supabase.table("matches").update({
+            supabase.table("match_data").update({
                 "runs":    max(0, d["runs"]  - last["r"]),
                 "balls":   max(0, d["balls"] - last["b"]),
                 "history": json.dumps(history)
             }).eq("match_id", match_id).execute()
     else:
         history.append({"r": runs_inc, "b": balls_inc})
-        supabase.table("matches").update({
+        supabase.table("match_data").update({
             "runs":    d["runs"]  + runs_inc,
             "balls":   d["balls"] + balls_inc,
             "history": json.dumps(history)
         }).eq("match_id", match_id).execute()
 
 def reset_match(match_id):
-    supabase.table("matches").update({
+    supabase.table("match_data").update({
         "runs": 0, "balls": 0, "history": "[]",
         "innings": 1, "innings1_runs": 0
     }).eq("match_id", match_id).execute()
 
 def start_second_innings(match_id, innings1_score):
-    supabase.table("matches").update({
+    supabase.table("match_data").update({
         "innings": 2, "innings1_runs": innings1_score,
         "runs": 0, "balls": 0, "history": "[]"
     }).eq("match_id", match_id).execute()
