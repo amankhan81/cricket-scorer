@@ -6,7 +6,6 @@ import random
 import string
 
 # --- DB CONNECTION ---
-# Replace these with your own Supabase project URL and anon/public key
 URL = "https://pnuyhhbvdzfursvnngwq.supabase.co"
 KEY = "sb_publishable_Lmh7sO4LnBkSWgmSjanplg_9qgT7svQ"
 supabase = create_client(URL, KEY)
@@ -14,20 +13,16 @@ supabase = create_client(URL, KEY)
 # --- HELPERS ---
 
 def generate_match_id(length=6):
-    """Generate a short random uppercase alphanumeric match ID."""
     chars = string.ascii_uppercase + string.digits
     return ''.join(random.choices(chars, k=length))
 
 def team_abbrev(name):
-    """Return initials if multi-word, first 3 letters if single word."""
     words = name.strip().split()
     if len(words) > 1:
         return "".join(w[0].upper() for w in words)
     return name[:3].upper()
 
-
 def get_match(match_id):
-    """Fetch match row by match_id. Returns None if not found."""
     res = supabase.table("match_data").select("*").eq("match_id", match_id).execute()
     if res.data and len(res.data) > 0:
         d = res.data[0]
@@ -41,8 +36,7 @@ def get_match(match_id):
     return None
 
 def create_match(match_id, match_overs, team1_name="Team 1", team2_name="Team 2", batting_first=1):
-    """Insert a new match row."""
-    supabase.table("match_data").insert({
+    res = supabase.table("match_data").insert({
         "match_id":      match_id,
         "match_overs":   match_overs,
         "runs":          0,
@@ -54,6 +48,7 @@ def create_match(match_id, match_overs, team1_name="Team 1", team2_name="Team 2"
         "team2_name":    team2_name,
         "batting_first": batting_first
     }).execute()
+    return res
 
 def update_score(match_id, runs_inc, balls_inc, is_undo=False):
     d = get_match(match_id)
@@ -88,22 +83,14 @@ def start_second_innings(match_id, innings1_score):
         "runs": 0, "balls": 0, "history": "[]"
     }).eq("match_id", match_id).execute()
 
-# --- SHARED CSS ---
-SHARED_CSS = """
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Roboto+Condensed:wght@400;700&display=swap');
-</style>
-"""
-
 # ════════════════════════════════════════════════════════
-#  OVERLAY MODE  (?mode=overlay&match=XXXXXX)
+#  OVERLAY MODE
 # ════════════════════════════════════════════════════════
 
 def render_overlay(match_id):
     st.markdown("""
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Roboto+Condensed:wght@700&display=swap');
-
             html, body { background: transparent !important; background-color: transparent !important; }
             .stApp { background: transparent !important; background-color: transparent !important; }
             [data-testid="stAppViewContainer"] { background: transparent !important; }
@@ -117,7 +104,6 @@ def render_overlay(match_id):
             section[data-testid="stSidebar"]   { display: none !important; }
             header, footer, #MainMenu          { display: none !important; }
             .block-container { padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
-
             .ticker {
                 position: fixed; top: 14px; left: 14px;
                 display: inline-flex; align-items: stretch;
@@ -157,19 +143,15 @@ def render_overlay(match_id):
     need_val      = max(0, needed)
     need_color    = "#ff6b6b" if needed > 0 else "#6fcf97"
 
-    # Determine batting team abbreviation
     team1_name    = d.get("team1_name") or "Team 1"
     team2_name    = d.get("team2_name") or "Team 2"
     batting_first = int(d.get("batting_first") or 1)
     if innings == 1:
         batting_team = team1_name if batting_first == 1 else team2_name
-        bowling_team = team2_name if batting_first == 1 else team1_name
     else:
         batting_team = team2_name if batting_first == 1 else team1_name
-        bowling_team = team1_name if batting_first == 1 else team2_name
     batting_abbrev = team_abbrev(batting_team)
-    bowling_abbrev = team_abbrev(bowling_team)
-    innings_lbl   = batting_abbrev + " INN" + str(innings)
+    innings_lbl    = batting_abbrev + " INN" + str(innings)
 
     t  = '<div class="ticker">'
     t += '<div class="ticker-accent"></div>'
@@ -206,7 +188,6 @@ def render_main(match_id):
     st.markdown("""
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Roboto+Condensed:wght@400;700&display=swap');
-
             header, footer, #MainMenu { display: none !important; }
             .stApp { background: linear-gradient(160deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important; min-height: 100vh; }
             .block-container { padding: 16px 12px 24px 12px !important; max-width: 480px !important; margin: 0 auto !important; }
@@ -225,7 +206,6 @@ def render_main(match_id):
                 letter-spacing: 3px; text-transform: uppercase;
                 padding: 3px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
             }
-
             .score-header {
                 display: flex; justify-content: space-around; align-items: center;
                 background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
@@ -236,13 +216,11 @@ def render_main(match_id):
             .score-col { text-align: center; }
             .lbl { color: rgba(255,255,255,0.5); font-family: 'Roboto Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; display: block; margin-bottom: 2px; }
             .val { color: #ffffff; font-family: 'Oswald', sans-serif; font-size: 54px; font-weight: 700; display: block; line-height: 1; }
-
             .target-bar {
                 background: rgba(240,192,64,0.12); border: 1px solid rgba(240,192,64,0.3);
                 border-radius: 10px; padding: 8px 16px; text-align: center; margin-bottom: 12px;
                 font-family: 'Roboto Condensed', sans-serif; color: #f0c040; font-size: 15px; font-weight: 700; letter-spacing: 1px;
             }
-
             .overlay-box {
                 background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
                 border-radius: 14px; padding: 14px 16px; margin: 10px 0 4px 0;
@@ -252,10 +230,8 @@ def render_main(match_id):
             .overlay-link-icon { font-size: 16px; flex-shrink: 0; }
             .overlay-link-url { font-family: 'Roboto Condensed', sans-serif; font-size: 11px; color: #f0c040; letter-spacing: 0.3px; word-break: break-all; flex: 1; }
             .overlay-hint { font-family: 'Roboto Condensed', sans-serif; font-size: 10px; color: rgba(255,255,255,0.25); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 6px; text-align: center; }
-
             [data-testid="stHorizontalBlock"] { gap: 8px !important; flex-wrap: nowrap !important; }
             [data-testid="stColumn"] { padding: 0 !important; min-width: 0 !important; }
-
             .main-btn button {
                 width: 100% !important; height: 100px !important;
                 background: rgba(255,255,255,0.07) !important; color: white !important;
@@ -270,16 +246,13 @@ def render_main(match_id):
                 border-radius: 12px !important; color: #eb5757 !important;
                 font-family: 'Oswald', sans-serif !important; font-size: 20px !important; font-weight: 700 !important;
             }
-
             .section-hdr { color: rgba(255,255,255,0.45); font-family: 'Roboto Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; text-align: center; padding: 14px 0 6px 0; }
-
             .extra-btn button {
                 width: 100% !important; height: 52px !important;
                 background: rgba(255,255,255,0.06) !important; color: rgba(255,255,255,0.85) !important;
                 font-family: 'Roboto Condensed', sans-serif !important; font-size: 14px !important; font-weight: 700 !important;
                 border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 10px !important; padding: 0 !important;
             }
-
             .reset-btn button {
                 width: 100% !important; height: 52px !important;
                 background: rgba(235,87,87,0.1) !important; color: rgba(235,87,87,0.8) !important;
@@ -287,32 +260,26 @@ def render_main(match_id):
                 letter-spacing: 2px !important; border: 1px solid rgba(235,87,87,0.25) !important;
                 border-radius: 12px !important; margin-top: 14px !important;
             }
-
             .innings-over-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 32px 20px; text-align: center; margin: 20px 0; }
             .innings-over-box h2 { font-family: 'Oswald', sans-serif; color: #f0c040; font-size: 32px; margin-bottom: 8px; }
             .innings-over-box p  { font-family: 'Roboto Condensed', sans-serif; color: rgba(255,255,255,0.6); font-size: 16px; margin-bottom: 24px; }
             .innings-over-box .big-score { font-family: 'Oswald', sans-serif; color: white; font-size: 64px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
             .innings-over-box .big-score-lbl { font-family: 'Roboto Condensed', sans-serif; color: rgba(255,255,255,0.45); font-size: 12px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 28px; }
-
             .start-btn button {
                 width: 100% !important; height: 60px !important;
                 background: linear-gradient(135deg, #f0c040, #e6a817) !important; color: #1a1a2e !important;
                 font-family: 'Oswald', sans-serif !important; font-size: 22px !important; font-weight: 700 !important;
                 letter-spacing: 2px !important; border: none !important; border-radius: 14px !important;
             }
-
             .result-box { background: rgba(240,192,64,0.12); border: 1px solid rgba(240,192,64,0.35); border-radius: 20px; padding: 32px 20px; text-align: center; margin: 20px 0; }
             .result-box h2 { font-family: 'Oswald', sans-serif; color: #f0c040; font-size: 36px; margin-bottom: 10px; }
             .result-box p  { font-family: 'Roboto Condensed', sans-serif; color: rgba(255,255,255,0.7); font-size: 18px; margin-bottom: 24px; }
-
             .setup-title { font-family: 'Oswald', sans-serif; color: white; font-size: 36px; text-align: center; margin-bottom: 4px; }
             .setup-sub   { font-family: 'Roboto Condensed', sans-serif; color: rgba(255,255,255,0.4); font-size: 13px; letter-spacing: 3px; text-transform: uppercase; text-align: center; margin-bottom: 28px; }
             label, .stNumberInput label { color: rgba(255,255,255,0.6) !important; font-family: 'Roboto Condensed', sans-serif !important; font-size: 13px !important; letter-spacing: 2px !important; }
-
             .credit { text-align: center; margin-top: 28px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.07); }
             .credit span { font-family: 'Roboto Condensed', sans-serif; font-size: 11px; letter-spacing: 2px; color: rgba(255,255,255,0.2); text-transform: uppercase; }
             .credit strong { color: rgba(240,192,64,0.5); font-weight: 700; }
-
             .new-match-btn button {
                 width: 100% !important; height: 52px !important;
                 background: rgba(255,255,255,0.07) !important; color: rgba(255,255,255,0.7) !important;
@@ -323,34 +290,32 @@ def render_main(match_id):
         </style>
     """, unsafe_allow_html=True)
 
-    # Determine the base URL for overlay links
-    # Streamlit Cloud puts the app URL in a header; we construct it from the current URL params
     base_url = st.context.url if hasattr(st, 'context') and hasattr(st.context, 'url') else "https://your-app.streamlit.app"
-    # Strip any existing query params to get clean base
     if "?" in base_url:
         base_url = base_url.split("?")[0]
-
     overlay_url = base_url + "?mode=overlay&match=" + match_id
     scorer_url  = base_url + "?match=" + match_id
 
-    # ── NO match_id yet → LANDING / SETUP ──
+    # ── NO match_id yet → SETUP ──
     if not match_id:
         st.markdown("<div class='setup-title'>🏏 Smart Cricket Scorer</div>", unsafe_allow_html=True)
         st.markdown("<div class='setup-sub'>MATCH SETUP</div>", unsafe_allow_html=True)
 
         team1_in = st.text_input("TEAM 1 NAME", value="Team 1", placeholder="e.g. Pak Eagles Riyadh")
         team2_in = st.text_input("TEAM 2 NAME", value="Team 2", placeholder="e.g. Desert Lions")
-        batting_first = st.selectbox("WHO IS BATTING FIRST?", options=[team1_in, team2_in])
+        batting_first_sel = st.selectbox("WHO IS BATTING FIRST?", options=[team1_in, team2_in])
         ov_in = st.number_input("MATCH OVERS", min_value=1, max_value=50, value=10)
 
         st.markdown('<div class="start-btn">', unsafe_allow_html=True)
         if st.button("CREATE MATCH", use_container_width=True):
             new_id = generate_match_id()
-            batting_first_num = 1 if batting_first == team1_in else 2
-            create_match(new_id, ov_in, team1_in, team2_in, batting_first_num)
-            # Redirect to URL with match param
-            st.query_params["match"] = new_id
-            st.rerun()
+            batting_first_num = 1 if batting_first_sel == team1_in else 2
+            try:
+                create_match(new_id, ov_in, team1_in, team2_in, batting_first_num)
+                st.query_params["match"] = new_id
+                st.rerun()
+            except Exception as e:
+                st.error(f"Failed to create match: {e}")
         st.markdown('</div>', unsafe_allow_html=True)
         st.markdown('<div class="credit"><span>Created by <strong>Amanullah Khan</strong></span></div>', unsafe_allow_html=True)
         return
@@ -358,7 +323,7 @@ def render_main(match_id):
     # ── Fetch match data ──
     d = get_match(match_id)
     if not d:
-        st.error("Match not found. The match ID **" + match_id + "** doesn't exist.")
+        st.error("Match not found: " + match_id)
         st.markdown('<div class="new-match-btn">', unsafe_allow_html=True)
         if st.button("CREATE NEW MATCH", use_container_width=True):
             st.query_params.clear()
@@ -373,7 +338,6 @@ def render_main(match_id):
     current_runs  = int(d['runs'])
     innings_over  = current_balls >= max_balls
 
-    # Team names
     team1_name    = d.get("team1_name") or "Team 1"
     team2_name    = d.get("team2_name") or "Team 2"
     batting_first = int(d.get("batting_first") or 1)
@@ -410,7 +374,6 @@ def render_main(match_id):
 
     # ── INNINGS 2 COMPLETE → RESULT ──
     if innings == 2 and innings_over:
-        # batting_first==1 means team1 batted first (innings1), team2 batted second (innings2)
         team_inn1 = team1_name if batting_first == 1 else team2_name
         team_inn2 = team2_name if batting_first == 1 else team1_name
         if current_runs > innings1_runs:
@@ -463,7 +426,7 @@ def render_main(match_id):
         else:
             st.markdown('<div class="target-bar">✅ Target achieved!</div>', unsafe_allow_html=True)
 
-    # ── Run buttons (row 1: 0, 1, 2, 3) ──
+    # ── Run buttons row 1 ──
     c0, c1, c2, c3 = st.columns(4)
     with c0:
         st.markdown('<div class="main-btn">', unsafe_allow_html=True)
@@ -482,7 +445,7 @@ def render_main(match_id):
         if st.button("3", key="b3", use_container_width=True): update_score(match_id, 3, 1); st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # ── Run buttons (row 2: 4, 6, UNDO) ──
+    # ── Run buttons row 2 ──
     c4, c5, c6 = st.columns(3)
     with c4:
         st.markdown('<div class="main-btn btn-four">', unsafe_allow_html=True)
@@ -517,10 +480,8 @@ def render_main(match_id):
                 update_score(match_id, 1 + i, 0); st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
 
-    # ── Overlay link ──
     _render_overlay_box(overlay_url)
 
-    # ── Reset ──
     st.markdown('<div class="reset-btn">', unsafe_allow_html=True)
     if st.button("RESET MATCH", key="reset", use_container_width=True):
         reset_match(match_id)
