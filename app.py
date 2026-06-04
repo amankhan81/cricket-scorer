@@ -18,6 +18,14 @@ def generate_match_id(length=6):
     chars = string.ascii_uppercase + string.digits
     return ''.join(random.choices(chars, k=length))
 
+def team_abbrev(name):
+    """Return initials if multi-word, first 3 letters if single word."""
+    words = name.strip().split()
+    if len(words) > 1:
+        return "".join(w[0].upper() for w in words)
+    return name[:3].upper()
+
+
 def get_match(match_id):
     """Fetch match row by match_id. Returns None if not found."""
     res = supabase.table("matches").select("*").eq("match_id", match_id).execute()
@@ -26,19 +34,25 @@ def get_match(match_id):
         if not d.get("history"):       d["history"]       = "[]"
         if not d.get("innings"):       d["innings"]       = 1
         if not d.get("innings1_runs"): d["innings1_runs"] = 0
+        if not d.get("team1_name"):    d["team1_name"]    = "Team 1"
+        if not d.get("team2_name"):    d["team2_name"]    = "Team 2"
+        if not d.get("batting_first"): d["batting_first"] = 1
         return d
     return None
 
-def create_match(match_id, match_overs):
+def create_match(match_id, match_overs, team1_name="Team 1", team2_name="Team 2", batting_first=1):
     """Insert a new match row."""
     supabase.table("matches").insert({
-        "match_id":     match_id,
-        "match_overs":  match_overs,
-        "runs":         0,
-        "balls":        0,
-        "history":      "[]",
-        "innings":      1,
-        "innings1_runs": 0
+        "match_id":      match_id,
+        "match_overs":   match_overs,
+        "runs":          0,
+        "balls":         0,
+        "history":       "[]",
+        "innings":       1,
+        "innings1_runs": 0,
+        "team1_name":    team1_name,
+        "team2_name":    team2_name,
+        "batting_first": batting_first
     }).execute()
 
 def update_score(match_id, runs_inc, balls_inc, is_undo=False):
@@ -136,7 +150,6 @@ def render_overlay(match_id):
     innings       = int(d.get("innings") or 1)
     overs_str     = str(d['balls'] // 6) + "." + str(d['balls'] % 6)
     max_overs     = int(d['match_overs'])
-    innings_lbl   = "INN " + str(innings)
     innings1_runs = int(d.get("innings1_runs") or 0)
     current_runs  = int(d["runs"])
     needed        = innings1_runs - current_runs + 1
@@ -144,10 +157,26 @@ def render_overlay(match_id):
     need_val      = max(0, needed)
     need_color    = "#ff6b6b" if needed > 0 else "#6fcf97"
 
+    # Determine batting team abbreviation
+    team1_name    = d.get("team1_name") or "Team 1"
+    team2_name    = d.get("team2_name") or "Team 2"
+    batting_first = int(d.get("batting_first") or 1)
+    if innings == 1:
+        batting_team = team1_name if batting_first == 1 else team2_name
+        bowling_team = team2_name if batting_first == 1 else team1_name
+    else:
+        batting_team = team2_name if batting_first == 1 else team1_name
+        bowling_team = team1_name if batting_first == 1 else team2_name
+    batting_abbrev = team_abbrev(batting_team)
+    bowling_abbrev = team_abbrev(bowling_team)
+    innings_lbl   = batting_abbrev + " INN" + str(innings)
+
     t  = '<div class="ticker">'
     t += '<div class="ticker-accent"></div>'
     t += '<div class="ticker-body">'
     t += '<div class="ticker-icon">🏏</div>'
+    t += '<div class="ticker-overs"><div class="ticker-overs-lbl">Batting</div><div class="ticker-overs-val" style="color:#f0c040;font-size:16px;">' + batting_abbrev + '</div></div>'
+    t += '<div class="ticker-sep"></div>'
     t += '<div class="ticker-score">' + str(current_runs) + '</div>'
     t += '<div class="ticker-sep"></div>'
     t += '<div class="ticker-overs"><div class="ticker-overs-lbl">Overs</div><div class="ticker-overs-val">' + overs_str + '</div></div>'
@@ -306,14 +335,19 @@ def render_main(match_id):
 
     # ── NO match_id yet → LANDING / SETUP ──
     if not match_id:
-        st.markdown("<div class='setup-title'>🏏 Cricket Scorer</div>", unsafe_allow_html=True)
+        st.markdown("<div class='setup-title'>🏏 Smart Cricket Scorer</div>", unsafe_allow_html=True)
         st.markdown("<div class='setup-sub'>MATCH SETUP</div>", unsafe_allow_html=True)
+
+        team1_in = st.text_input("TEAM 1 NAME", value="Team 1", placeholder="e.g. Pak Eagles Riyadh")
+        team2_in = st.text_input("TEAM 2 NAME", value="Team 2", placeholder="e.g. Desert Lions")
+        batting_first = st.selectbox("WHO IS BATTING FIRST?", options=[team1_in, team2_in])
         ov_in = st.number_input("MATCH OVERS", min_value=1, max_value=50, value=10)
 
         st.markdown('<div class="start-btn">', unsafe_allow_html=True)
         if st.button("CREATE MATCH", use_container_width=True):
             new_id = generate_match_id()
-            create_match(new_id, ov_in)
+            batting_first_num = 1 if batting_first == team1_in else 2
+            create_match(new_id, ov_in, team1_in, team2_in, batting_first_num)
             # Redirect to URL with match param
             st.query_params["match"] = new_id
             st.rerun()
@@ -339,14 +373,25 @@ def render_main(match_id):
     current_runs  = int(d['runs'])
     innings_over  = current_balls >= max_balls
 
+    # Team names
+    team1_name    = d.get("team1_name") or "Team 1"
+    team2_name    = d.get("team2_name") or "Team 2"
+    batting_first = int(d.get("batting_first") or 1)
+    if innings == 1:
+        batting_team = team1_name if batting_first == 1 else team2_name
+        bowling_team = team2_name if batting_first == 1 else team1_name
+    else:
+        batting_team = team2_name if batting_first == 1 else team1_name
+        bowling_team = team1_name if batting_first == 1 else team2_name
+
     # ── INNINGS 1 COMPLETE ──
     if innings == 1 and innings_over:
         st.markdown(f"""
             <div class="innings-over-box">
                 <h2>Innings Over</h2>
                 <div class="big-score">{current_runs}</div>
-                <div class="big-score-lbl">1st Innings Score</div>
-                <p>Ready to chase? Start the 2nd innings.</p>
+                <div class="big-score-lbl">{batting_team} — 1st Innings Score</div>
+                <p>{bowling_team} to chase. Start the 2nd innings.</p>
             </div>
         """, unsafe_allow_html=True)
         st.markdown('<div class="start-btn">', unsafe_allow_html=True)
@@ -365,10 +410,13 @@ def render_main(match_id):
 
     # ── INNINGS 2 COMPLETE → RESULT ──
     if innings == 2 and innings_over:
+        # batting_first==1 means team1 batted first (innings1), team2 batted second (innings2)
+        team_inn1 = team1_name if batting_first == 1 else team2_name
+        team_inn2 = team2_name if batting_first == 1 else team1_name
         if current_runs > innings1_runs:
-            result = "Team 2 wins by " + str(current_runs - innings1_runs) + " runs! 🎉"
+            result = team_inn2 + " wins by " + str(current_runs - innings1_runs) + " runs! 🎉"
         elif current_runs < innings1_runs:
-            result = "Team 1 wins by " + str(innings1_runs - current_runs) + " runs! 🎉"
+            result = team_inn1 + " wins by " + str(innings1_runs - current_runs) + " runs! 🎉"
         else:
             result = "It's a tie! 🤝"
         st.markdown(f"""
@@ -376,7 +424,7 @@ def render_main(match_id):
                 <h2>Match Over</h2>
                 <p>{result}</p>
                 <div style="font-family:'Roboto Condensed',sans-serif;color:rgba(255,255,255,0.5);font-size:13px;letter-spacing:2px;">
-                    TEAM 1: {innings1_runs} &nbsp;|&nbsp; TEAM 2: {current_runs}
+                    {team_inn1}: {innings1_runs} &nbsp;|&nbsp; {team_inn2}: {current_runs}
                 </div>
             </div>
         """, unsafe_allow_html=True)
@@ -389,7 +437,7 @@ def render_main(match_id):
         return
 
     # ── ACTIVE SCORING ──
-    st.markdown('<div class="innings-badge"><span>' + ("1st" if innings == 1 else "2nd") + ' Innings</span></div>', unsafe_allow_html=True)
+    st.markdown('<div class="innings-badge"><span>' + batting_team + ' &mdash; ' + ("1st" if innings == 1 else "2nd") + ' Innings</span></div>', unsafe_allow_html=True)
     st.markdown('<div class="match-id-badge"><span>MATCH&nbsp;&nbsp;' + match_id + '</span></div>', unsafe_allow_html=True)
 
     st.markdown(f"""
