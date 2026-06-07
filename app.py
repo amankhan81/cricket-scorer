@@ -346,8 +346,92 @@ def render_main(match_id):
                 letter-spacing: 2px !important; border: 1px solid rgba(255,255,255,0.15) !important;
                 border-radius: 12px !important; margin-top: 8px !important;
             }
+            .theme-btn button {
+                width: 100% !important; height: 52px !important;
+                background: rgba(255,255,255,0.08) !important; color: rgba(255,255,255,0.75) !important;
+                font-family: 'Roboto Condensed', sans-serif !important; font-size: 15px !important; font-weight: 700 !important;
+                letter-spacing: 1px !important; border: 1px solid rgba(255,255,255,0.18) !important;
+                border-radius: 12px !important; margin-top: 0 !important;
+            }
+            /* ── Light mode overrides ── */
+            .light-mode .stApp {
+                background: linear-gradient(160deg, #f0f4ff 0%, #e8eef8 50%, #dce8f5 100%) !important;
+            }
+            .light-mode .score-header {
+                background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.1) !important;
+            }
+            .light-mode .lbl { color: rgba(0,0,0,0.45) !important; }
+            .light-mode .val { color: #1a1a2e !important; }
+            .light-mode .main-btn button {
+                background: rgba(0,0,0,0.06) !important; color: #1a1a2e !important;
+                border-color: rgba(0,0,0,0.12) !important;
+            }
+            .light-mode .btn-undo button { background: rgba(235,87,87,0.12) !important; }
+            .light-mode .section-hdr { color: rgba(0,0,0,0.45) !important; }
+            .light-mode .extra-btn button {
+                background: rgba(0,0,0,0.05) !important; color: rgba(0,0,0,0.75) !important;
+                border-color: rgba(0,0,0,0.1) !important;
+            }
+            .light-mode .overlay-box { background: rgba(0,0,0,0.03) !important; border-color: rgba(0,0,0,0.1) !important; }
+            .light-mode .overlay-box-title { color: rgba(0,0,0,0.35) !important; }
+            .light-mode .overlay-link-row { background: rgba(0,0,0,0.05) !important; }
+            .light-mode .overlay-hint { color: rgba(0,0,0,0.3) !important; }
+            .light-mode .reset-btn button {
+                background: rgba(235,87,87,0.08) !important; color: rgba(200,50,50,0.9) !important;
+                border-color: rgba(235,87,87,0.25) !important;
+            }
+            .light-mode .theme-btn button {
+                background: rgba(0,0,0,0.06) !important; color: rgba(0,0,0,0.7) !important;
+                border-color: rgba(0,0,0,0.15) !important;
+            }
+            .light-mode .innings-badge span { background: rgba(200,150,10,0.15) !important; }
+            .light-mode .match-id-badge span { background: rgba(0,0,0,0.05) !important; color: rgba(0,0,0,0.4) !important; border-color: rgba(0,0,0,0.1) !important; }
+            .light-mode .target-bar { background: rgba(200,150,10,0.1) !important; }
+            .light-mode .credit span { color: rgba(0,0,0,0.25) !important; }
+            .light-mode .confirm-box { background: rgba(235,87,87,0.06) !important; }
+            .light-mode .confirm-box p { color: rgba(0,0,0,0.7) !important; }
+            .light-mode .innings-over-box { background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.1) !important; }
+            .light-mode .innings-over-box .big-score { color: #1a1a2e !important; }
+            .light-mode label, .light-mode .stNumberInput label { color: rgba(0,0,0,0.55) !important; }
         </style>
     """, unsafe_allow_html=True)
+
+    # ── Apply light/dark mode class to the app root ──
+    if st.session_state.get("light_mode"):
+        st.markdown("""
+            <script>
+                document.querySelector('.stApp').classList.add('light-mode');
+                document.querySelector('[data-testid="stAppViewContainer"]') &&
+                    document.querySelector('[data-testid="stAppViewContainer"]').classList.add('light-mode');
+            </script>
+        """, unsafe_allow_html=True)
+        st.markdown("""
+            <style>
+                .stApp { background: linear-gradient(160deg, #f0f4ff 0%, #e8eef8 50%, #dce8f5 100%) !important; }
+                .score-header { background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.1) !important; }
+                .lbl { color: rgba(0,0,0,0.45) !important; }
+                .val { color: #1a1a2e !important; }
+                .main-btn button { background: rgba(0,0,0,0.06) !important; color: #1a1a2e !important; border-color: rgba(0,0,0,0.12) !important; }
+                .btn-undo button { background: rgba(235,87,87,0.12) !important; }
+                .section-hdr { color: rgba(0,0,0,0.45) !important; }
+                .extra-btn button { background: rgba(0,0,0,0.05) !important; color: rgba(0,0,0,0.75) !important; border-color: rgba(0,0,0,0.1) !important; }
+                .overlay-box { background: rgba(0,0,0,0.03) !important; border-color: rgba(0,0,0,0.1) !important; }
+                .overlay-box-title { color: rgba(0,0,0,0.35) !important; }
+                .overlay-link-row { background: rgba(0,0,0,0.05) !important; }
+                .overlay-hint { color: rgba(0,0,0,0.3) !important; }
+                .reset-btn button { background: rgba(235,87,87,0.08) !important; color: rgba(200,50,50,0.9) !important; border-color: rgba(235,87,87,0.25) !important; }
+                .theme-btn button { background: rgba(0,0,0,0.06) !important; color: rgba(0,0,0,0.7) !important; border-color: rgba(0,0,0,0.15) !important; }
+                .innings-badge span { background: rgba(200,150,10,0.15) !important; }
+                .match-id-badge span { background: rgba(0,0,0,0.05) !important; color: rgba(0,0,0,0.4) !important; border-color: rgba(0,0,0,0.1) !important; }
+                .target-bar { background: rgba(200,150,10,0.1) !important; }
+                .credit span { color: rgba(0,0,0,0.25) !important; }
+                .confirm-box { background: rgba(235,87,87,0.06) !important; }
+                .confirm-box p { color: rgba(0,0,0,0.7) !important; }
+                .innings-over-box { background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.1) !important; }
+                .innings-over-box .big-score { color: #1a1a2e !important; }
+                label, .stNumberInput label { color: rgba(0,0,0,0.55) !important; }
+            </style>
+        """, unsafe_allow_html=True)
 
     base_url = st.context.url if hasattr(st, 'context') and hasattr(st.context, 'url') else "https://your-app.streamlit.app"
     if "?" in base_url:
@@ -423,28 +507,7 @@ def render_main(match_id):
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
         _render_overlay_box(overlay_url)
-        if st.session_state.get("confirm_reset_mid"):
-            st.markdown('<div class="confirm-box"><p>⚠️ Reset match? All scores will be cleared.</p></div>', unsafe_allow_html=True)
-            cy2, cn2 = st.columns(2)
-            with cy2:
-                st.markdown('<div class="confirm-yes">', unsafe_allow_html=True)
-                if st.button("YES, RESET", key="confirm_yes_mid", use_container_width=True):
-                    reset_match(match_id)
-                    st.session_state.confirm_reset_mid = False
-                    st.rerun()
-                st.markdown('</div>', unsafe_allow_html=True)
-            with cn2:
-                st.markdown('<div class="confirm-no">', unsafe_allow_html=True)
-                if st.button("CANCEL", key="confirm_no_mid", use_container_width=True):
-                    st.session_state.confirm_reset_mid = False
-                    st.rerun()
-                st.markdown('</div>', unsafe_allow_html=True)
-        else:
-            st.markdown('<div class="reset-btn">', unsafe_allow_html=True)
-            if st.button("RESET MATCH", key="reset_mid", use_container_width=True):
-                st.session_state.confirm_reset_mid = True
-                st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
+        _render_reset_and_theme(match_id, confirm_key="confirm_reset_mid", yes_key="confirm_yes_mid", no_key="confirm_no_mid", reset_key="reset_mid")
         st.markdown('<div class="credit"><span>Created by <strong>Amanullah Khan</strong></span></div>', unsafe_allow_html=True)
         return
     if innings == 2 and innings_over:
@@ -603,31 +666,45 @@ def render_main(match_id):
     st.markdown('</div>', unsafe_allow_html=True)
 
     _render_overlay_box(overlay_url)
+    _render_reset_and_theme(match_id, confirm_key="confirm_reset_active", yes_key="confirm_yes_active", no_key="confirm_no_active", reset_key="reset")
 
-    if st.session_state.get("confirm_reset_active"):
+    st.markdown('<div class="credit"><span>Created by <strong>Amanullah Khan</strong></span></div>', unsafe_allow_html=True)
+
+
+def _render_reset_and_theme(match_id, confirm_key, yes_key, no_key, reset_key):
+    """Renders Reset Match + Dark/Light Mode toggle side by side, with confirm dialog."""
+    if st.session_state.get(confirm_key):
         st.markdown('<div class="confirm-box"><p>⚠️ Reset match? All scores will be cleared.</p></div>', unsafe_allow_html=True)
         cy, cn = st.columns(2)
         with cy:
             st.markdown('<div class="confirm-yes">', unsafe_allow_html=True)
-            if st.button("YES, RESET", key="confirm_yes_active", use_container_width=True):
+            if st.button("YES, RESET", key=yes_key, use_container_width=True):
                 reset_match(match_id)
-                st.session_state.confirm_reset_active = False
+                st.session_state[confirm_key] = False
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
         with cn:
             st.markdown('<div class="confirm-no">', unsafe_allow_html=True)
-            if st.button("CANCEL", key="confirm_no_active", use_container_width=True):
-                st.session_state.confirm_reset_active = False
+            if st.button("CANCEL", key=no_key, use_container_width=True):
+                st.session_state[confirm_key] = False
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
     else:
-        st.markdown('<div class="reset-btn">', unsafe_allow_html=True)
-        if st.button("RESET MATCH", key="reset", use_container_width=True):
-            st.session_state.confirm_reset_active = True
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown('<div class="credit"><span>Created by <strong>Amanullah Khan</strong></span></div>', unsafe_allow_html=True)
+        col_reset, col_theme = st.columns(2)
+        with col_reset:
+            st.markdown('<div class="reset-btn">', unsafe_allow_html=True)
+            if st.button("🔄 RESET MATCH", key=reset_key, use_container_width=True):
+                st.session_state[confirm_key] = True
+                st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
+        with col_theme:
+            is_light = st.session_state.get("light_mode", False)
+            label = "☀️ LIGHT MODE" if not is_light else "🌙 DARK MODE"
+            st.markdown('<div class="theme-btn">', unsafe_allow_html=True)
+            if st.button(label, key="theme_toggle_" + reset_key, use_container_width=True):
+                st.session_state["light_mode"] = not is_light
+                st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
 
 
 def _render_overlay_box(overlay_url):
