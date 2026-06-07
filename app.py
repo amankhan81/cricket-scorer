@@ -629,29 +629,11 @@ def _render_overlay_box(overlay_url):
             <div class="overlay-link-row">
                 <div class="overlay-link-icon">🔗</div>
                 <div class="overlay-link-url">{overlay_url}</div>
-                <input id="{input_id}" type="text" value="{overlay_url}"
-                    style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;" readonly/>
-                <button id="{copy_id}" onclick="
-                    var inp = document.getElementById('{input_id}');
-                    inp.style.opacity='1';
-                    inp.select();
-                    inp.setSelectionRange(0,9999);
-                    var ok = document.execCommand('copy');
-                    inp.style.opacity='0';
-                    var b = document.getElementById('{copy_id}');
-                    b.innerHTML = ok ? '✅' : '⚠️';
-                    setTimeout(function(){{ b.innerHTML='📋'; }}, 2000);
-                " style="
-                    flex-shrink:0; width:32px; height:32px; cursor:pointer;
-                    background:rgba(240,192,64,0.15); color:#f0c040;
-                    font-size:15px; border:1px solid rgba(240,192,64,0.35);
-                    border-radius:7px; padding:0; line-height:1;">
-                    📋
-                </button>
             </div>
             <div class="overlay-hint">Add as browser source in OBS / CameraFi / PrismLive</div>
         </div>
     """, unsafe_allow_html=True)
+    st.code(overlay_url, language=None)
 
 
 # ════════════════════════════════════════════════════════
