@@ -236,7 +236,7 @@ def render_main(match_id):
             .score-header {
                 display: flex; justify-content: space-around; align-items: center;
                 background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-                border-radius: 16px; padding: 14px 10px 10px; margin-bottom: 14px;
+                border-radius: 16px; padding: 10px 10px 8px; margin-bottom: 10px;
                 backdrop-filter: blur(10px);
             }
             .score-divider { width: 1px; height: 60px; background: rgba(255,255,255,0.15); }
@@ -250,21 +250,24 @@ def render_main(match_id):
             }
             .overlay-box {
                 background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-                border-radius: 14px; padding: 14px 16px; margin: 10px 0 4px 0;
+                border-radius: 14px; padding: 10px 14px; margin: 6px 0 2px 0;
             }
             .overlay-box-title { font-family: 'Roboto Condensed', sans-serif; font-size: 10px; letter-spacing: 3px; color: rgba(255,255,255,0.35); text-transform: uppercase; margin-bottom: 8px; }
             .overlay-link-row { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(240,192,64,0.2); border-radius: 8px; padding: 8px 12px; }
             .overlay-link-icon { font-size: 16px; flex-shrink: 0; }
             .overlay-link-url { font-family: 'Roboto Condensed', sans-serif; font-size: 11px; color: #f0c040; letter-spacing: 0.3px; word-break: break-all; flex: 1; }
             .overlay-hint { font-family: 'Roboto Condensed', sans-serif; font-size: 10px; color: rgba(255,255,255,0.25); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 6px; text-align: center; }
-            [data-testid="stHorizontalBlock"] { gap: 8px !important; flex-wrap: nowrap !important; }
+            [data-testid="stHorizontalBlock"] { gap: 6px !important; flex-wrap: nowrap !important; }
             [data-testid="stColumn"] { padding: 0 !important; min-width: 0 !important; }
             /* Kill default Streamlit vertical gaps between elements */
             [data-testid="stVerticalBlockBorderWrapper"] { gap: 0 !important; }
             [data-testid="stVerticalBlock"] > * { margin-bottom: 0 !important; }
             div[data-testid="stVerticalBlock"] > div { gap: 0 !important; }
+            /* Global element gap reduction */
+            [data-testid="element-container"] { margin: 0 !important; padding: 0 !important; }
+            .stButton { margin: 0 !important; padding: 0 !important; }
             /* Tighten all button wrapper gaps */
-            .main-btn { margin-bottom: 8px !important; }
+            .main-btn { margin-bottom: 6px !important; }
             .extra-btn { margin-bottom: 0 !important; }
             .main-btn button {
                 width: 100% !important; height: 80px !important;
@@ -313,11 +316,11 @@ def render_main(match_id):
                 border-radius: 10px !important;
             }
             .reset-btn button {
-                width: 100% !important; height: 52px !important;
+                width: 100% !important; height: 44px !important;
                 background: rgba(235,87,87,0.1) !important; color: rgba(235,87,87,0.8) !important;
-                font-family: 'Roboto Condensed', sans-serif !important; font-size: 16px !important; font-weight: 700 !important;
-                letter-spacing: 2px !important; border: 1px solid rgba(235,87,87,0.25) !important;
-                border-radius: 12px !important; margin-top: 0 !important;
+                font-family: 'Roboto Condensed', sans-serif !important; font-size: 13px !important; font-weight: 700 !important;
+                letter-spacing: 1.5px !important; border: 1px solid rgba(235,87,87,0.25) !important;
+                border-radius: 10px !important; margin-top: 0 !important;
             }
             .innings-over-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 32px 20px; text-align: center; margin: 20px 0; }
             .innings-over-box h2 { font-family: 'Oswald', sans-serif; color: #f0c040; font-size: 32px; margin-bottom: 8px; }
@@ -347,11 +350,11 @@ def render_main(match_id):
                 border-radius: 12px !important; margin-top: 8px !important;
             }
             .theme-btn button {
-                width: 100% !important; height: 52px !important;
+                width: 100% !important; height: 44px !important;
                 background: rgba(255,255,255,0.08) !important; color: rgba(255,255,255,0.75) !important;
-                font-family: 'Roboto Condensed', sans-serif !important; font-size: 15px !important; font-weight: 700 !important;
-                letter-spacing: 1px !important; border: 1px solid rgba(255,255,255,0.18) !important;
-                border-radius: 12px !important; margin-top: 0 !important;
+                font-family: 'Roboto Condensed', sans-serif !important; font-size: 13px !important; font-weight: 700 !important;
+                letter-spacing: 1.5px !important; border: 1px solid rgba(255,255,255,0.18) !important;
+                border-radius: 10px !important; margin-top: 0 !important;
             }
             /* ── Light mode overrides ── */
             .light-mode .stApp {
@@ -506,8 +509,27 @@ def render_main(match_id):
             start_second_innings(match_id, current_runs)
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
-        _render_overlay_box(overlay_url)
-        _render_reset_and_theme(match_id, confirm_key="confirm_reset_mid", yes_key="confirm_yes_mid", no_key="confirm_no_mid", reset_key="reset_mid")
+        if st.session_state.get("confirm_reset_mid"):
+            st.markdown('<div class="confirm-box"><p>⚠️ Reset match? All scores will be cleared.</p></div>', unsafe_allow_html=True)
+            cy2, cn2 = st.columns(2)
+            with cy2:
+                st.markdown('<div class="confirm-yes">', unsafe_allow_html=True)
+                if st.button("YES, RESET", key="confirm_yes_mid", use_container_width=True):
+                    reset_match(match_id)
+                    st.session_state.confirm_reset_mid = False
+                    st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
+            with cn2:
+                st.markdown('<div class="confirm-no">', unsafe_allow_html=True)
+                if st.button("CANCEL", key="confirm_no_mid", use_container_width=True):
+                    st.session_state.confirm_reset_mid = False
+                    st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
+            _render_overlay_box(overlay_url)
+        else:
+            _render_overlay_box(overlay_url, match_id=match_id,
+                                confirm_key="confirm_reset_mid",
+                                reset_key="reset_mid", show_reset=True)
         st.markdown('<div class="credit"><span>Created by <strong>Amanullah Khan</strong></span></div>', unsafe_allow_html=True)
         return
     if innings == 2 and innings_over:
@@ -665,31 +687,70 @@ def render_main(match_id):
             st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    _render_overlay_box(overlay_url)
-    _render_reset_and_theme(match_id, confirm_key="confirm_reset_active", yes_key="confirm_yes_active", no_key="confirm_no_active", reset_key="reset")
-
-    st.markdown('<div class="credit"><span>Created by <strong>Amanullah Khan</strong></span></div>', unsafe_allow_html=True)
-
-
-def _render_reset_and_theme(match_id, confirm_key, yes_key, no_key, reset_key):
-    """Renders Reset Match + Dark/Light Mode toggle side by side, with confirm dialog."""
-    if st.session_state.get(confirm_key):
+    if st.session_state.get("confirm_reset_active"):
         st.markdown('<div class="confirm-box"><p>⚠️ Reset match? All scores will be cleared.</p></div>', unsafe_allow_html=True)
         cy, cn = st.columns(2)
         with cy:
             st.markdown('<div class="confirm-yes">', unsafe_allow_html=True)
-            if st.button("YES, RESET", key=yes_key, use_container_width=True):
+            if st.button("YES, RESET", key="confirm_yes_active", use_container_width=True):
                 reset_match(match_id)
-                st.session_state[confirm_key] = False
+                st.session_state.confirm_reset_active = False
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
         with cn:
             st.markdown('<div class="confirm-no">', unsafe_allow_html=True)
-            if st.button("CANCEL", key=no_key, use_container_width=True):
-                st.session_state[confirm_key] = False
+            if st.button("CANCEL", key="confirm_no_active", use_container_width=True):
+                st.session_state.confirm_reset_active = False
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
+        _render_overlay_box(overlay_url)
     else:
+        _render_overlay_box(overlay_url, match_id=match_id,
+                            confirm_key="confirm_reset_active",
+                            reset_key="reset", show_reset=True)
+
+    st.markdown('<div class="credit"><span>Created by <strong>Amanullah Khan</strong></span></div>', unsafe_allow_html=True)
+
+
+def _render_overlay_box(overlay_url, match_id=None, confirm_key=None, reset_key=None, show_reset=False):
+    """Renders the Copy Overlay Link button + URL display, then Reset/Theme buttons below."""
+    components.html(f"""
+        <style>
+            * {{ margin:0; padding:0; box-sizing:border-box; }}
+            body {{ background:transparent; font-family:'Roboto Condensed',sans-serif; }}
+            .wrap {{ display:flex; flex-direction:column; gap:5px; }}
+            .copy-btn {{
+                width:100%; height:40px; cursor:pointer;
+                background:rgba(240,192,64,0.18); color:#f0c040;
+                font-size:13px; font-weight:700; letter-spacing:2px;
+                border:1px solid rgba(240,192,64,0.4); border-radius:8px;
+            }}
+            .copy-btn:hover {{ background:rgba(240,192,64,0.28); }}
+            .url-box {{
+                background:rgba(0,0,0,0.35); border:1px solid rgba(240,192,64,0.2);
+                border-radius:8px; padding:7px 10px;
+                display:flex; align-items:center; gap:8px;
+            }}
+            .url-text {{ font-size:11px; color:#f0c040; word-break:break-all; flex:1; }}
+            .hint {{ font-size:9px; color:rgba(255,255,255,0.3); letter-spacing:1.5px; text-transform:uppercase; text-align:center; }}
+        </style>
+        <div class="wrap">
+            <button class="copy-btn" onclick="
+                navigator.clipboard.writeText('{overlay_url}').then(function(){{
+                    this.innerText='✅ Copied!';
+                    var s=this; setTimeout(function(){{s.innerText='📋 Copy Overlay Link';}},2000);
+                }}.bind(this)).catch(function(){{
+                    this.innerText='⚠️ Failed';
+                    var s=this; setTimeout(function(){{s.innerText='📋 Copy Overlay Link';}},2000);
+                }}.bind(this));">📋 Copy Overlay Link</button>
+            <div class="url-box"><span>🔗</span><span class="url-text">{overlay_url}</span></div>
+            <div class="hint">Add as browser source in OBS / CameraFi / PrismLive</div>
+        </div>
+    """, height=105)
+
+    if show_reset:
+        is_light = st.session_state.get("light_mode", False)
+        theme_label = "☀️ LIGHT MODE" if not is_light else "🌙 DARK MODE"
         col_reset, col_theme = st.columns(2)
         with col_reset:
             st.markdown('<div class="reset-btn">', unsafe_allow_html=True)
@@ -698,46 +759,11 @@ def _render_reset_and_theme(match_id, confirm_key, yes_key, no_key, reset_key):
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
         with col_theme:
-            is_light = st.session_state.get("light_mode", False)
-            label = "☀️ LIGHT MODE" if not is_light else "🌙 DARK MODE"
             st.markdown('<div class="theme-btn">', unsafe_allow_html=True)
-            if st.button(label, key="theme_toggle_" + reset_key, use_container_width=True):
+            if st.button(theme_label, key="theme_toggle_" + reset_key, use_container_width=True):
                 st.session_state["light_mode"] = not is_light
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
-
-
-def _render_overlay_box(overlay_url):
-    components.html(f"""
-        <button onclick="
-            navigator.clipboard.writeText('{overlay_url}').then(function(){{
-                this.innerText='✅ Copied!';
-                var self=this;
-                setTimeout(function(){{self.innerText='📋 Copy Overlay Link';}},2000);
-            }}.bind(this)).catch(function(){{
-                this.innerText='⚠️ Failed';
-                var self=this;
-                setTimeout(function(){{self.innerText='📋 Copy Overlay Link';}},2000);
-            }}.bind(this));" style="
-            width:100%; height:42px; cursor:pointer;
-            background:rgba(240,192,64,0.18); color:#f0c040;
-            font-family:'Roboto Condensed',sans-serif; font-size:13px; font-weight:700;
-            letter-spacing:2px; border:1px solid rgba(240,192,64,0.4); border-radius:10px;
-            margin:0; padding:0;">
-            📋 Copy Overlay Link
-        </button>
-    """, height=52)
-    st.markdown(f"""
-        <div class="overlay-box">
-            <div class="overlay-box-title">📺 &nbsp;Your Score Overlay Link</div>
-            <div class="overlay-link-row">
-                <div class="overlay-link-icon">🔗</div>
-                <div class="overlay-link-url">{overlay_url}</div>
-            </div>
-            <div class="overlay-hint">Add as browser source in OBS / CameraFi / PrismLive</div>
-        </div>
-    """, unsafe_allow_html=True)
-    st.code(overlay_url, language=None)
 
 
 # ════════════════════════════════════════════════════════
