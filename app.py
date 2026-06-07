@@ -674,7 +674,7 @@ def render_main(match_id):
             if st.button(f"W+{i}", key=f"w{i}", use_container_width=True):
                 update_score(match_id, 1 + i, 0); st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown('<div style="border-top:1px solid rgba(255,255,255,0.08);margin:8px 0 0 0;"></div>', unsafe_allow_html=True)
+
     st.markdown('<div class="section-hdr">No Ball</div>', unsafe_allow_html=True)
     ncols = st.columns(7)
     for i in range(7):
