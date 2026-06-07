@@ -621,23 +621,27 @@ def render_main(match_id):
 
 
 def _render_overlay_box(overlay_url):
-    copy_id = "copy-btn-" + overlay_url[-6:]
+    copy_id   = "copy-btn-" + overlay_url[-6:]
+    input_id  = "copy-inp-" + overlay_url[-6:]
     st.markdown(f"""
         <div class="overlay-box">
             <div class="overlay-box-title">📺 &nbsp;Your Score Overlay Link</div>
             <div class="overlay-link-row">
                 <div class="overlay-link-icon">🔗</div>
                 <div class="overlay-link-url">{overlay_url}</div>
+                <input id="{input_id}" type="text" value="{overlay_url}"
+                    style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;" readonly/>
                 <button id="{copy_id}" onclick="
-                    navigator.clipboard.writeText('{overlay_url}').then(function(){{
-                        var b=document.getElementById('{copy_id}');
-                        b.innerHTML='✅';
-                        setTimeout(function(){{b.innerHTML='📋';}},2000);
-                    }}).catch(function(){{
-                        var b=document.getElementById('{copy_id}');
-                        b.innerHTML='⚠️';
-                        setTimeout(function(){{b.innerHTML='📋';}},2000);
-                    }});" style="
+                    var inp = document.getElementById('{input_id}');
+                    inp.style.opacity='1';
+                    inp.select();
+                    inp.setSelectionRange(0,9999);
+                    var ok = document.execCommand('copy');
+                    inp.style.opacity='0';
+                    var b = document.getElementById('{copy_id}');
+                    b.innerHTML = ok ? '✅' : '⚠️';
+                    setTimeout(function(){{ b.innerHTML='📋'; }}, 2000);
+                " style="
                     flex-shrink:0; width:32px; height:32px; cursor:pointer;
                     background:rgba(240,192,64,0.15); color:#f0c040;
                     font-size:15px; border:1px solid rgba(240,192,64,0.35);
