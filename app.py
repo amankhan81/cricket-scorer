@@ -665,7 +665,6 @@ def render_main(match_id):
         st.markdown('<div class="btn-undo">', unsafe_allow_html=True)
         if st.button("UNDO", key="bun", use_container_width=True): update_score(match_id, 0, 0, is_undo=True); st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
-
     # ── Wides + No Ball grouped ──
     st.markdown('<div style="border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:10px 10px 10px 10px;background:rgba(255,255,255,0.02);margin:0;">', unsafe_allow_html=True)
     st.markdown('<div class="section-hdr">Wides</div>', unsafe_allow_html=True)
