@@ -621,42 +621,31 @@ def render_main(match_id):
 
 
 def _render_overlay_box(overlay_url):
-    wa_url = "https://wa.me/?text=" + overlay_url
-    share_id = "share-overlay-" + overlay_url[-6:]  # unique enough per match
+    copy_id = "copy-btn-" + overlay_url[-6:]
     st.markdown(f"""
         <div class="overlay-box">
             <div class="overlay-box-title">📺 &nbsp;Your Score Overlay Link</div>
             <div class="overlay-link-row">
                 <div class="overlay-link-icon">🔗</div>
                 <div class="overlay-link-url">{overlay_url}</div>
-            </div>
-            <div class="overlay-hint">Add as browser source in OBS / CameraFi / PrismLive</div>
-            <div style="display:flex;gap:8px;margin-top:10px;">
-                <a href="{wa_url}" target="_blank" style="
-                    flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
-                    height:40px; text-decoration:none; cursor:pointer;
-                    background:rgba(37,211,102,0.18); color:#25d366;
-                    font-family:'Roboto Condensed',sans-serif; font-size:13px; font-weight:700;
-                    letter-spacing:1.5px; border:1px solid rgba(37,211,102,0.4); border-radius:10px;">
-                    📲 WhatsApp
-                </a>
-                <button id="{share_id}" onclick="
+                <button id="{copy_id}" onclick="
                     navigator.clipboard.writeText('{overlay_url}').then(function(){{
-                        var b=document.getElementById('{share_id}');
-                        b.innerHTML='✅ Copied!';
-                        setTimeout(function(){{b.innerHTML='📋 Copy Link';}},2000);
+                        var b=document.getElementById('{copy_id}');
+                        b.innerHTML='✅';
+                        setTimeout(function(){{b.innerHTML='📋';}},2000);
                     }}).catch(function(){{
-                        var b=document.getElementById('{share_id}');
-                        b.innerHTML='⚠️ Copy failed';
-                        setTimeout(function(){{b.innerHTML='📋 Copy Link';}},2000);
+                        var b=document.getElementById('{copy_id}');
+                        b.innerHTML='⚠️';
+                        setTimeout(function(){{b.innerHTML='📋';}},2000);
                     }});" style="
-                    flex:1; height:40px; cursor:pointer;
-                    background:rgba(240,192,64,0.18); color:#f0c040;
-                    font-family:'Roboto Condensed',sans-serif; font-size:13px; font-weight:700;
-                    letter-spacing:1.5px; border:1px solid rgba(240,192,64,0.4); border-radius:10px;">
-                    📋 Copy Link
+                    flex-shrink:0; width:32px; height:32px; cursor:pointer;
+                    background:rgba(240,192,64,0.15); color:#f0c040;
+                    font-size:15px; border:1px solid rgba(240,192,64,0.35);
+                    border-radius:7px; padding:0; line-height:1;">
+                    📋
                 </button>
             </div>
+            <div class="overlay-hint">Add as browser source in OBS / CameraFi / PrismLive</div>
         </div>
     """, unsafe_allow_html=True)
 
