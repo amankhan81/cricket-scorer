@@ -259,11 +259,19 @@ def render_main(match_id):
             .overlay-hint { font-family: 'Roboto Condensed', sans-serif; font-size: 10px; color: rgba(255,255,255,0.25); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 6px; text-align: center; }
             [data-testid="stHorizontalBlock"] { gap: 8px !important; flex-wrap: nowrap !important; }
             [data-testid="stColumn"] { padding: 0 !important; min-width: 0 !important; }
+            /* Kill default Streamlit vertical gaps between elements */
+            [data-testid="stVerticalBlockBorderWrapper"] { gap: 0 !important; }
+            [data-testid="stVerticalBlock"] > * { margin-bottom: 0 !important; }
+            div[data-testid="stVerticalBlock"] > div { gap: 0 !important; }
+            /* Tighten all button wrapper gaps */
+            .main-btn { margin-bottom: 8px !important; }
+            .extra-btn { margin-bottom: 0 !important; }
             .main-btn button {
-                width: 100% !important; height: 100px !important;
+                width: 100% !important; height: 80px !important;
                 background: rgba(255,255,255,0.07) !important; color: white !important;
                 font-family: 'Oswald', sans-serif !important; font-size: 42px !important; font-weight: 700 !important;
                 border: 1px solid rgba(255,255,255,0.12) !important; border-radius: 12px !important; padding: 0 !important;
+                margin-bottom: 0 !important;
             }
             .btn-four button { background: rgba(52,168,83,0.2)  !important; border-color: rgba(52,168,83,0.4)  !important; color: #6fcf97 !important; }
             .btn-six  button { background: rgba(240,192,64,0.2)  !important; border-color: rgba(240,192,64,0.4) !important; color: #f0c040 !important; }
@@ -275,7 +283,7 @@ def render_main(match_id):
             }
             .btn-four button { background: rgba(34,197,94,0.28)  !important; border-color: rgba(34,197,94,0.6)   !important; color: #4ade80 !important; }
             .btn-six  button { background: rgba(234,179,8,0.28)   !important; border-color: rgba(234,179,8,0.6)   !important; color: #facc15 !important; }
-            .section-hdr { color: rgba(255,255,255,0.55); font-family: 'Roboto Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; text-align: center; padding: 14px 0 6px 0; }
+            .section-hdr { color: rgba(255,255,255,0.55); font-family: 'Roboto Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; text-align: center; padding: 8px 0 4px 0; margin: 0 !important; }
             .extra-btn button {
                 width: 100% !important; height: 52px !important;
                 background: rgba(255,255,255,0.06) !important; color: rgba(255,255,255,0.85) !important;
@@ -309,7 +317,7 @@ def render_main(match_id):
                 background: rgba(235,87,87,0.1) !important; color: rgba(235,87,87,0.8) !important;
                 font-family: 'Roboto Condensed', sans-serif !important; font-size: 16px !important; font-weight: 700 !important;
                 letter-spacing: 2px !important; border: 1px solid rgba(235,87,87,0.25) !important;
-                border-radius: 12px !important; margin-top: 14px !important;
+                border-radius: 12px !important; margin-top: 0 !important;
             }
             .innings-over-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 32px 20px; text-align: center; margin: 20px 0; }
             .innings-over-box h2 { font-family: 'Oswald', sans-serif; color: #f0c040; font-size: 32px; margin-bottom: 8px; }
@@ -573,7 +581,8 @@ def render_main(match_id):
         if st.button("UNDO", key="bun", use_container_width=True): update_score(match_id, 0, 0, is_undo=True); st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # ── Wides ──
+    # ── Wides + No Ball grouped ──
+    st.markdown('<div style="border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:10px 10px 10px 10px;background:rgba(255,255,255,0.02);margin:0;">', unsafe_allow_html=True)
     st.markdown('<div class="section-hdr">Wides</div>', unsafe_allow_html=True)
     wcols = st.columns(5)
     for i in range(5):
@@ -582,8 +591,7 @@ def render_main(match_id):
             if st.button(f"W+{i}", key=f"w{i}", use_container_width=True):
                 update_score(match_id, 1 + i, 0); st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
-
-    # ── No Ball ──
+    st.markdown('<div style="border-top:1px solid rgba(255,255,255,0.08);margin:8px 0 0 0;"></div>', unsafe_allow_html=True)
     st.markdown('<div class="section-hdr">No Ball</div>', unsafe_allow_html=True)
     ncols = st.columns(7)
     for i in range(7):
@@ -592,6 +600,7 @@ def render_main(match_id):
             if st.button(f"N+{i}", key=f"n{i}", use_container_width=True):
                 update_score(match_id, 1 + i, 0); st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
     _render_overlay_box(overlay_url)
 
