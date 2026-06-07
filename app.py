@@ -125,6 +125,7 @@ def render_overlay(match_id):
             .ticker-overs-val { font-size: 20px; font-weight: 700; color: #f0c040; line-height: 1; }
             .ticker-match-id  { font-family: 'Roboto Condensed', sans-serif; font-size: 9px; letter-spacing: 1.5px; color: rgba(255,255,255,0.5); text-transform: uppercase; align-self: flex-end; padding-bottom: 2px; }
             .ticker-innings   { font-family: 'Roboto Condensed', sans-serif; font-size: 9px; letter-spacing: 1.5px; color: rgba(255,255,255,1); text-transform: uppercase; align-self: flex-end; padding-bottom: 2px; }
+            .ticker-winner    { font-family: 'Roboto Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; color: #4ade80; text-transform: uppercase; align-self: center; padding: 2px 8px; background: rgba(74,222,128,0.15); border: 1px solid rgba(74,222,128,0.35); border-radius: 6px; white-space: nowrap; }
         </style>
     """, unsafe_allow_html=True)
 
@@ -134,7 +135,9 @@ def render_overlay(match_id):
         return
 
     innings       = int(d.get("innings") or 1)
-    overs_str     = str(d['balls'] // 6) + "." + str(d['balls'] % 6)
+    max_balls     = int(d['match_overs']) * 6
+    current_balls = int(d['balls'])
+    overs_str     = str(current_balls // 6) + "." + str(current_balls % 6)
     max_overs     = int(d['match_overs'])
     innings1_runs = int(d.get("innings1_runs") or 0)
     current_runs  = int(d["runs"])
@@ -142,15 +145,31 @@ def render_overlay(match_id):
     target_val    = innings1_runs + 1
     need_val      = max(0, needed)
     need_color    = "#ff6b6b" if needed > 0 else "#6fcf97"
+    innings_over  = current_balls >= max_balls
 
     team1_name    = d.get("team1_name") or "Team 1"
     team2_name    = d.get("team2_name") or "Team 2"
     batting_first = int(d.get("batting_first") or 1)
+    team_inn1     = team1_name if batting_first == 1 else team2_name
+    team_inn2     = team2_name if batting_first == 1 else team1_name
     if innings == 1:
-        batting_team = team1_name if batting_first == 1 else team2_name
+        batting_team = team_inn1
     else:
-        batting_team = team2_name if batting_first == 1 else team1_name
+        batting_team = team_inn2
     batting_abbrev = team_abbrev(batting_team)
+
+    # Determine if match is over and compute winner
+    match_over = innings == 2 and innings_over
+    if match_over:
+        if current_runs > innings1_runs:
+            winner_text = team_inn2 + " WON"
+        elif current_runs < innings1_runs:
+            winner_text = team_inn1 + " WON"
+        else:
+            winner_text = "TIE"
+    else:
+        winner_text = ""
+
     t  = '<div class="ticker">'
     t += '<div class="ticker-accent"></div>'
     t += '<div class="ticker-body">'
@@ -163,12 +182,14 @@ def render_overlay(match_id):
     t += '<div class="ticker-sep"></div>'
     t += '<div class="ticker-overs"><div class="ticker-overs-lbl">Max</div><div class="ticker-overs-val">' + str(max_overs) + '</div></div>'
 
-    if innings == 2:
+    if match_over:
+        t += '<div class="ticker-sep"></div>'
+        t += '<div class="ticker-winner">🏆 ' + winner_text + '</div>'
+    elif innings == 2:
         t += '<div class="ticker-sep"></div>'
         t += '<div class="ticker-overs"><div class="ticker-overs-lbl">Target</div><div class="ticker-overs-val" style="color:#c8c8c8;">' + str(target_val) + '</div></div>'
         t += '<div class="ticker-sep"></div>'
         t += '<div class="ticker-overs"><div class="ticker-overs-lbl">Need</div><div class="ticker-overs-val" style="color:' + need_color + ';">' + str(need_val) + '</div></div>'
-
 
     t += '</div></div>'
 
@@ -251,12 +272,48 @@ def render_main(match_id):
                 border-radius: 12px !important; color: #eb5757 !important;
                 font-family: 'Oswald', sans-serif !important; font-size: 20px !important; font-weight: 700 !important;
             }
-            .section-hdr { color: rgba(255,255,255,0.45); font-family: 'Roboto Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; text-align: center; padding: 14px 0 6px 0; }
+            .btn-four button { background: rgba(34,197,94,0.28)  !important; border-color: rgba(34,197,94,0.6)   !important; color: #4ade80 !important; }
+            .btn-six  button { background: rgba(234,179,8,0.28)   !important; border-color: rgba(234,179,8,0.6)   !important; color: #facc15 !important; }
+            .extras-box {
+                border: 1px solid rgba(255,255,255,0.12); border-radius: 14px;
+                padding: 10px 12px 14px 12px; margin: 10px 0 0 0;
+                background: rgba(255,255,255,0.03);
+            }
+            .section-hdr { color: rgba(255,255,255,0.55); font-family: 'Roboto Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; text-align: center; padding: 6px 0 8px 0; }
             .extra-btn button {
                 width: 100% !important; height: 52px !important;
                 background: rgba(255,255,255,0.06) !important; color: rgba(255,255,255,0.85) !important;
                 font-family: 'Roboto Condensed', sans-serif !important; font-size: 14px !important; font-weight: 700 !important;
                 border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 10px !important; padding: 0 !important;
+            }
+            .copy-overlay-btn button {
+                width: 100% !important; height: 40px !important;
+                background: rgba(240,192,64,0.18) !important; color: #f0c040 !important;
+                font-family: 'Roboto Condensed', sans-serif !important; font-size: 13px !important; font-weight: 700 !important;
+                letter-spacing: 2px !important; border: 1px solid rgba(240,192,64,0.4) !important;
+                border-radius: 10px !important; margin-top: 10px !important;
+            }
+            .confirm-box {
+                background: rgba(235,87,87,0.1); border: 1px solid rgba(235,87,87,0.35);
+                border-radius: 14px; padding: 16px; margin-top: 10px; text-align: center;
+            }
+            .confirm-box p {
+                font-family: 'Roboto Condensed', sans-serif; color: rgba(255,255,255,0.75);
+                font-size: 15px; font-weight: 700; letter-spacing: 1px; margin-bottom: 12px;
+            }
+            .confirm-yes button {
+                width: 100% !important; height: 46px !important;
+                background: rgba(235,87,87,0.3) !important; color: #ff8080 !important;
+                font-family: 'Roboto Condensed', sans-serif !important; font-size: 15px !important; font-weight: 700 !important;
+                letter-spacing: 2px !important; border: 1px solid rgba(235,87,87,0.5) !important;
+                border-radius: 10px !important;
+            }
+            .confirm-no button {
+                width: 100% !important; height: 46px !important;
+                background: rgba(255,255,255,0.07) !important; color: rgba(255,255,255,0.6) !important;
+                font-family: 'Roboto Condensed', sans-serif !important; font-size: 15px !important; font-weight: 700 !important;
+                letter-spacing: 2px !important; border: 1px solid rgba(255,255,255,0.15) !important;
+                border-radius: 10px !important;
             }
             .reset-btn button {
                 width: 100% !important; height: 52px !important;
@@ -368,16 +425,31 @@ def render_main(match_id):
             start_second_innings(match_id, current_runs)
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown('<div class="reset-btn">', unsafe_allow_html=True)
-        if st.button("RESET MATCH", key="reset_mid", use_container_width=True):
-            reset_match(match_id)
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
         _render_overlay_box(overlay_url)
+        if st.session_state.get("confirm_reset_mid"):
+            st.markdown('<div class="confirm-box"><p>⚠️ Reset match? All scores will be cleared.</p></div>', unsafe_allow_html=True)
+            cy2, cn2 = st.columns(2)
+            with cy2:
+                st.markdown('<div class="confirm-yes">', unsafe_allow_html=True)
+                if st.button("YES, RESET", key="confirm_yes_mid", use_container_width=True):
+                    reset_match(match_id)
+                    st.session_state.confirm_reset_mid = False
+                    st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
+            with cn2:
+                st.markdown('<div class="confirm-no">', unsafe_allow_html=True)
+                if st.button("CANCEL", key="confirm_no_mid", use_container_width=True):
+                    st.session_state.confirm_reset_mid = False
+                    st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
+        else:
+            st.markdown('<div class="reset-btn">', unsafe_allow_html=True)
+            if st.button("RESET MATCH", key="reset_mid", use_container_width=True):
+                st.session_state.confirm_reset_mid = True
+                st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
         st.markdown('<div class="credit"><span>Created by <strong>Amanullah Khan</strong></span></div>', unsafe_allow_html=True)
         return
-
-    # ── INNINGS 2 COMPLETE → RESULT ──
     if innings == 2 and innings_over:
         team_inn1 = team1_name if batting_first == 1 else team2_name
         team_inn2 = team2_name if batting_first == 1 else team1_name
@@ -468,6 +540,7 @@ def render_main(match_id):
         st.markdown('</div>', unsafe_allow_html=True)
 
     # ── Wides ──
+    st.markdown('<div class="extras-box">', unsafe_allow_html=True)
     st.markdown('<div class="section-hdr">Wides</div>', unsafe_allow_html=True)
     wcols = st.columns(5)
     for i in range(5):
@@ -476,8 +549,10 @@ def render_main(match_id):
             if st.button(f"W+{i}", key=f"w{i}", use_container_width=True):
                 update_score(match_id, 1 + i, 0); st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
     # ── No Ball ──
+    st.markdown('<div class="extras-box">', unsafe_allow_html=True)
     st.markdown('<div class="section-hdr">No Ball</div>', unsafe_allow_html=True)
     ncols = st.columns(7)
     for i in range(7):
@@ -486,14 +561,32 @@ def render_main(match_id):
             if st.button(f"N+{i}", key=f"n{i}", use_container_width=True):
                 update_score(match_id, 1 + i, 0); st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
     _render_overlay_box(overlay_url)
 
-    st.markdown('<div class="reset-btn">', unsafe_allow_html=True)
-    if st.button("RESET MATCH", key="reset", use_container_width=True):
-        reset_match(match_id)
-        st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+    if st.session_state.get("confirm_reset_active"):
+        st.markdown('<div class="confirm-box"><p>⚠️ Reset match? All scores will be cleared.</p></div>', unsafe_allow_html=True)
+        cy, cn = st.columns(2)
+        with cy:
+            st.markdown('<div class="confirm-yes">', unsafe_allow_html=True)
+            if st.button("YES, RESET", key="confirm_yes_active", use_container_width=True):
+                reset_match(match_id)
+                st.session_state.confirm_reset_active = False
+                st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
+        with cn:
+            st.markdown('<div class="confirm-no">', unsafe_allow_html=True)
+            if st.button("CANCEL", key="confirm_no_active", use_container_width=True):
+                st.session_state.confirm_reset_active = False
+                st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
+    else:
+        st.markdown('<div class="reset-btn">', unsafe_allow_html=True)
+        if st.button("RESET MATCH", key="reset", use_container_width=True):
+            st.session_state.confirm_reset_active = True
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown('<div class="credit"><span>Created by <strong>Amanullah Khan</strong></span></div>', unsafe_allow_html=True)
 
@@ -508,8 +601,23 @@ def _render_overlay_box(overlay_url):
             </div>
             <div class="overlay-hint">Add as browser source in OBS / CameraFi / PrismLive</div>
         </div>
+        <script>
+        function copyOverlayUrl() {{
+            navigator.clipboard.writeText("{overlay_url}").then(function() {{
+                var btn = document.getElementById("copy-overlay-btn");
+                btn.innerText = "✅  Copied!";
+                setTimeout(function() {{ btn.innerText = "📋  Copy Overlay Link"; }}, 2000);
+            }});
+        }}
+        </script>
+        <button id="copy-overlay-btn" onclick="copyOverlayUrl()" style="
+            width:100%; margin-top:10px; height:40px; cursor:pointer;
+            background:rgba(240,192,64,0.18); color:#f0c040;
+            font-family:'Roboto Condensed',sans-serif; font-size:13px; font-weight:700;
+            letter-spacing:2px; border:1px solid rgba(240,192,64,0.4); border-radius:10px;">
+            📋  Copy Overlay Link
+        </button>
     """, unsafe_allow_html=True)
-    st.code(overlay_url, language=None)
 
 
 # ════════════════════════════════════════════════════════
