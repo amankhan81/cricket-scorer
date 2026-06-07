@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 from supabase import create_client
 import json
 import time
@@ -621,8 +622,6 @@ def render_main(match_id):
 
 
 def _render_overlay_box(overlay_url):
-    copy_id   = "copy-btn-" + overlay_url[-6:]
-    input_id  = "copy-inp-" + overlay_url[-6:]
     st.markdown(f"""
         <div class="overlay-box">
             <div class="overlay-box-title">📺 &nbsp;Your Score Overlay Link</div>
@@ -633,6 +632,25 @@ def _render_overlay_box(overlay_url):
             <div class="overlay-hint">Add as browser source in OBS / CameraFi / PrismLive</div>
         </div>
     """, unsafe_allow_html=True)
+    components.html(f"""
+        <button onclick="
+            navigator.clipboard.writeText('{overlay_url}').then(function(){{
+                this.innerText='✅ Copied!';
+                var self=this;
+                setTimeout(function(){{self.innerText='📋 Copy Overlay Link';}},2000);
+            }}.bind(this)).catch(function(){{
+                this.innerText='⚠️ Failed';
+                var self=this;
+                setTimeout(function(){{self.innerText='📋 Copy Overlay Link';}},2000);
+            }}.bind(this));" style="
+            width:100%; height:42px; cursor:pointer;
+            background:rgba(240,192,64,0.18); color:#f0c040;
+            font-family:'Roboto Condensed',sans-serif; font-size:13px; font-weight:700;
+            letter-spacing:2px; border:1px solid rgba(240,192,64,0.4); border-radius:10px;
+            margin:0; padding:0;">
+            📋 Copy Overlay Link
+        </button>
+    """, height=52)
     st.code(overlay_url, language=None)
 
 
