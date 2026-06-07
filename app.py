@@ -631,16 +631,6 @@ def render_main(match_id):
 
 
 def _render_overlay_box(overlay_url):
-    st.markdown(f"""
-        <div class="overlay-box">
-            <div class="overlay-box-title">📺 &nbsp;Your Score Overlay Link</div>
-            <div class="overlay-link-row">
-                <div class="overlay-link-icon">🔗</div>
-                <div class="overlay-link-url">{overlay_url}</div>
-            </div>
-            <div class="overlay-hint">Add as browser source in OBS / CameraFi / PrismLive</div>
-        </div>
-    """, unsafe_allow_html=True)
     components.html(f"""
         <button onclick="
             navigator.clipboard.writeText('{overlay_url}').then(function(){{
@@ -660,6 +650,16 @@ def _render_overlay_box(overlay_url):
             📋 Copy Overlay Link
         </button>
     """, height=52)
+    st.markdown(f"""
+        <div class="overlay-box">
+            <div class="overlay-box-title">📺 &nbsp;Your Score Overlay Link</div>
+            <div class="overlay-link-row">
+                <div class="overlay-link-icon">🔗</div>
+                <div class="overlay-link-url">{overlay_url}</div>
+            </div>
+            <div class="overlay-hint">Add as browser source in OBS / CameraFi / PrismLive</div>
+        </div>
+    """, unsafe_allow_html=True)
     st.code(overlay_url, language=None)
 
 
