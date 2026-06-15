@@ -11,8 +11,6 @@ URL = "https://pnuyhhbvdzfursvnngwq.supabase.co"
 KEY = "sb_publishable_Lmh7sO4LnBkSWgmSjanplg_9qgT7svQ"
 supabase = create_client(URL, KEY)
 
-# --- HELPERS ---
-
 def generate_match_id(length=6):
     chars = string.ascii_uppercase + string.digits
     return ''.join(random.choices(chars, k=length))
@@ -36,6 +34,13 @@ def get_match(match_id):
         return d
     return None
 
+def get_wickets(history_str):
+    try:
+        hist = json.loads(history_str or "[]")
+        return sum(1 for ball in hist if isinstance(ball, dict) and ball.get("w") == 1)
+    except Exception:
+        return 0
+
 def create_match(match_id, match_overs, team1_name="Team 1", team2_name="Team 2", batting_first=1):
     res = supabase.table("matches").insert({
         "match_id":      match_id,
@@ -51,7 +56,7 @@ def create_match(match_id, match_overs, team1_name="Team 1", team2_name="Team 2"
     }).execute()
     return res
 
-def update_score(match_id, runs_inc, balls_inc, is_undo=False):
+def update_score(match_id, runs_inc, balls_inc, is_wicket=False, is_undo=False):
     d = get_match(match_id)
     if not d:
         return
@@ -60,12 +65,12 @@ def update_score(match_id, runs_inc, balls_inc, is_undo=False):
         if len(history) > 0:
             last = history.pop()
             supabase.table("matches").update({
-                "runs":    max(0, d["runs"]  - last["r"]),
-                "balls":   max(0, d["balls"] - last["b"]),
+                "runs":    max(0, d["runs"]  - last.get("r", 0)),
+                "balls":   max(0, d["balls"] - last.get("b", 0)),
                 "history": json.dumps(history)
             }).eq("match_id", match_id).execute()
     else:
-        history.append({"r": runs_inc, "b": balls_inc})
+        history.append({"r": runs_inc, "b": balls_inc, "w": 1 if is_wicket else 0})
         supabase.table("matches").update({
             "runs":    d["runs"]  + runs_inc,
             "balls":   d["balls"] + balls_inc,
@@ -83,10 +88,6 @@ def start_second_innings(match_id, innings1_score):
         "innings": 2, "innings1_runs": innings1_score,
         "runs": 0, "balls": 0, "history": "[]"
     }).eq("match_id", match_id).execute()
-
-# ════════════════════════════════════════════════════════
-#  OVERLAY MODE
-# ════════════════════════════════════════════════════════
 
 def render_overlay(match_id):
     st.markdown("""
@@ -147,6 +148,7 @@ def render_overlay(match_id):
     need_val      = max(0, needed)
     need_color    = "#ff6b6b" if needed > 0 else "#6fcf97"
     innings_over  = current_balls >= max_balls
+    wickets       = get_wickets(d.get("history"))
 
     team1_name    = d.get("team1_name") or "Team 1"
     team2_name    = d.get("team2_name") or "Team 2"
@@ -177,7 +179,7 @@ def render_overlay(match_id):
     t += '<div class="ticker-icon">🏏</div>'
     t += '<div class="ticker-overs"><div class="ticker-overs-lbl">Batting</div><div class="ticker-overs-val" style="color:#f0c040;font-size:16px;">' + batting_abbrev + '</div></div>'
     t += '<div class="ticker-sep"></div>'
-    t += '<div class="ticker-score">' + str(current_runs) + '</div>'
+    t += '<div class="ticker-score">' + str(current_runs) + '/' + str(wickets) + '</div>'
     t += '<div class="ticker-sep"></div>'
     t += '<div class="ticker-overs"><div class="ticker-overs-lbl">Overs</div><div class="ticker-overs-val">' + overs_str + '</div></div>'
     t += '<div class="ticker-sep"></div>'
@@ -197,11 +199,6 @@ def render_overlay(match_id):
     st.markdown(t, unsafe_allow_html=True)
     time.sleep(2)
     st.rerun()
-
-
-# ════════════════════════════════════════════════════════
-#  MAIN SCORING APP
-# ════════════════════════════════════════════════════════
 
 def render_main(match_id):
     st.markdown("""
@@ -276,16 +273,23 @@ def render_main(match_id):
                 border: 1px solid rgba(255,255,255,0.12) !important; border-radius: 12px !important; padding: 0 !important;
                 margin-bottom: 0 !important;
             }
-            .btn-four button { background: rgba(52,168,83,0.2)  !important; border-color: rgba(52,168,83,0.4)  !important; color: #6fcf97 !important; }
-            .btn-six  button { background: rgba(240,192,64,0.2)  !important; border-color: rgba(240,192,64,0.4) !important; color: #f0c040 !important; }
             .btn-undo button {
-                width: 100% !important; height: 100px !important;
+                width: 100% !important; height: 80px !important;
                 background: rgba(235,87,87,0.15) !important; border: 1px solid rgba(235,87,87,0.3) !important;
                 border-radius: 12px !important; color: #eb5757 !important;
                 font-family: 'Oswald', sans-serif !important; font-size: 20px !important; font-weight: 700 !important;
             }
             .btn-four button { background: rgba(34,197,94,0.28)  !important; border-color: rgba(34,197,94,0.6)   !important; color: #4ade80 !important; }
             .btn-six  button { background: rgba(234,179,8,0.28)   !important; border-color: rgba(234,179,8,0.6)   !important; color: #facc15 !important; }
+            
+            /* Out Button custom style */
+            .btn-out button {
+                width: 100% !important; height: 80px !important;
+                background: rgba(239, 68, 68, 0.28) !important; border: 1px solid rgba(239, 68, 68, 0.6) !important;
+                border-radius: 12px !important; color: #f87171 !important;
+                font-family: 'Oswald', sans-serif !important; font-size: 24px !important; font-weight: 700 !important;
+            }
+
             .section-hdr { color: rgba(255,255,255,0.55); font-family: 'Roboto Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; text-align: center; padding: 8px 0 4px 0; margin: 0 !important; }
             .extra-btn button {
                 width: 100% !important; height: 52px !important;
@@ -356,50 +360,9 @@ def render_main(match_id):
                 letter-spacing: 1.5px !important; border: 1px solid rgba(255,255,255,0.18) !important;
                 border-radius: 10px !important; margin-top: 0 !important;
             }
-            /* ── Light mode overrides ── */
-            .light-mode .stApp {
-                background: linear-gradient(160deg, #f0f4ff 0%, #e8eef8 50%, #dce8f5 100%) !important;
-            }
-            .light-mode .score-header {
-                background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.1) !important;
-            }
-            .light-mode .lbl { color: rgba(0,0,0,0.45) !important; }
-            .light-mode .val { color: #1a1a2e !important; }
-            .light-mode .main-btn button {
-                background: rgba(0,0,0,0.06) !important; color: #1a1a2e !important;
-                border-color: rgba(0,0,0,0.12) !important;
-            }
-            .light-mode .btn-undo button { background: rgba(235,87,87,0.12) !important; }
-            .light-mode .section-hdr { color: rgba(0,0,0,0.45) !important; }
-            .light-mode .extra-btn button {
-                background: rgba(0,0,0,0.05) !important; color: rgba(0,0,0,0.75) !important;
-                border-color: rgba(0,0,0,0.1) !important;
-            }
-            .light-mode .overlay-box { background: rgba(0,0,0,0.03) !important; border-color: rgba(0,0,0,0.1) !important; }
-            .light-mode .overlay-box-title { color: rgba(0,0,0,0.35) !important; }
-            .light-mode .overlay-link-row { background: rgba(0,0,0,0.05) !important; }
-            .light-mode .overlay-hint { color: rgba(0,0,0,0.3) !important; }
-            .light-mode .reset-btn button {
-                background: rgba(235,87,87,0.08) !important; color: rgba(200,50,50,0.9) !important;
-                border-color: rgba(235,87,87,0.25) !important;
-            }
-            .light-mode .theme-btn button {
-                background: rgba(0,0,0,0.06) !important; color: rgba(0,0,0,0.7) !important;
-                border-color: rgba(0,0,0,0.15) !important;
-            }
-            .light-mode .innings-badge span { background: rgba(200,150,10,0.15) !important; }
-            .light-mode .match-id-badge span { background: rgba(0,0,0,0.05) !important; color: rgba(0,0,0,0.4) !important; border-color: rgba(0,0,0,0.1) !important; }
-            .light-mode .target-bar { background: rgba(200,150,10,0.1) !important; }
-            .light-mode .credit span { color: rgba(0,0,0,0.25) !important; }
-            .light-mode .confirm-box { background: rgba(235,87,87,0.06) !important; }
-            .light-mode .confirm-box p { color: rgba(0,0,0,0.7) !important; }
-            .light-mode .innings-over-box { background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.1) !important; }
-            .light-mode .innings-over-box .big-score { color: #1a1a2e !important; }
-            .light-mode label, .light-mode .stNumberInput label { color: rgba(0,0,0,0.55) !important; }
         </style>
     """, unsafe_allow_html=True)
 
-    # ── Apply light/dark mode class to the app root ──
     if st.session_state.get("light_mode"):
         st.markdown("""
             <script>
@@ -416,6 +379,11 @@ def render_main(match_id):
                 .val { color: #1a1a2e !important; }
                 .main-btn button { background: rgba(0,0,0,0.06) !important; color: #1a1a2e !important; border-color: rgba(0,0,0,0.12) !important; }
                 .btn-undo button { background: rgba(235,87,87,0.12) !important; }
+                .btn-out button {
+                    background: rgba(239, 68, 68, 0.15) !important;
+                    border-color: rgba(239, 68, 68, 0.4) !important;
+                    color: #dc2626 !important;
+                }
                 .section-hdr { color: rgba(0,0,0,0.45) !important; }
                 .extra-btn button { background: rgba(0,0,0,0.05) !important; color: rgba(0,0,0,0.75) !important; border-color: rgba(0,0,0,0.1) !important; }
                 .overlay-box { background: rgba(0,0,0,0.03) !important; border-color: rgba(0,0,0,0.1) !important; }
@@ -483,6 +451,7 @@ def render_main(match_id):
     current_balls = int(d['balls'])
     current_runs  = int(d['runs'])
     innings_over  = current_balls >= max_balls
+    wickets       = get_wickets(d.get("history"))
 
     team1_name    = d.get("team1_name") or "Team 1"
     team2_name    = d.get("team2_name") or "Team 2"
@@ -499,7 +468,7 @@ def render_main(match_id):
         st.markdown(f"""
             <div class="innings-over-box">
                 <h2>Innings Over</h2>
-                <div class="big-score">{current_runs}</div>
+                <div class="big-score">{current_runs}/{wickets}</div>
                 <div class="big-score-lbl">{batting_team} — 1st Innings Score</div>
                 <p>{bowling_team} to chase. Start the 2nd innings.</p>
             </div>
@@ -546,7 +515,7 @@ def render_main(match_id):
                 <h2>Match Over</h2>
                 <p>{result}</p>
                 <div style="font-family:'Roboto Condensed',sans-serif;color:rgba(255,255,255,0.5);font-size:13px;letter-spacing:2px;">
-                    {team_inn1}: {innings1_runs} &nbsp;|&nbsp; {team_inn2}: {current_runs}
+                    {team_inn1}: {innings1_runs} &nbsp;|&nbsp; {team_inn2}: {current_runs}/{wickets}
                 </div>
             </div>
         """, unsafe_allow_html=True)
@@ -568,7 +537,7 @@ def render_main(match_id):
         <div class="score-header">
             <div class="score-col">
                 <span class="lbl">Score</span>
-                <span class="val">{current_runs}</span>
+                <span class="val">{current_runs}/{wickets}</span>
             </div>
             <div class="score-divider"></div>
             <div class="score-col">
@@ -605,7 +574,6 @@ def render_main(match_id):
         with ea:
             st.markdown('<div class="start-btn">', unsafe_allow_html=True)
             if st.button("END MATCH", key="end_match_target", use_container_width=True):
-                start_second_innings_end = True
                 # Trigger innings over by setting balls to max
                 supabase.table("matches").update({"balls": max_balls}).eq("match_id", match_id).execute()
                 st.rerun()
@@ -651,20 +619,37 @@ def render_main(match_id):
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # ── Run buttons row 2 ──
-    c4, c5, c6 = st.columns(3)
+    # ── Run buttons row 2 (Now including OUT) ──
+    c4, c5, c_out, c6 = st.columns(4)
     with c4:
         st.markdown('<div class="main-btn btn-four">', unsafe_allow_html=True)
-        if st.button("4", key="b4", use_container_width=True): update_score(match_id, 4, 1); st.rerun()
+        if st.button("4", key="b4", use_container_width=True): 
+            update_score(match_id, 4, 1)
+            st.session_state.continue_after_target = False
+            st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     with c5:
         st.markdown('<div class="main-btn btn-six">', unsafe_allow_html=True)
-        if st.button("6", key="b6", use_container_width=True): update_score(match_id, 6, 1); st.rerun()
+        if st.button("6", key="b6", use_container_width=True): 
+            update_score(match_id, 6, 1)
+            st.session_state.continue_after_target = False
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+    with c_out:
+        st.markdown('<div class="btn-out">', unsafe_allow_html=True)
+        if st.button("OUT", key="bout", use_container_width=True): 
+            update_score(match_id, 0, 1, is_wicket=True)
+            st.session_state.continue_after_target = False
+            st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     with c6:
         st.markdown('<div class="btn-undo">', unsafe_allow_html=True)
-        if st.button("UNDO", key="bun", use_container_width=True): update_score(match_id, 0, 0, is_undo=True); st.rerun()
+        if st.button("UNDO", key="bun", use_container_width=True): 
+            update_score(match_id, 0, 0, is_undo=True)
+            st.session_state.continue_after_target = False
+            st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
+
     # ── Wides + No Ball grouped ──
     st.markdown('<div class="section-hdr">Wides</div>', unsafe_allow_html=True)
     wcols = st.columns(5)
@@ -672,7 +657,9 @@ def render_main(match_id):
         with wcols[i]:
             st.markdown('<div class="extra-btn">', unsafe_allow_html=True)
             if st.button(f"W+{i}", key=f"w{i}", use_container_width=True):
-                update_score(match_id, 1 + i, 0); st.rerun()
+                update_score(match_id, 1 + i, 0)
+                st.session_state.continue_after_target = False
+                st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown('<div class="section-hdr">No Ball</div>', unsafe_allow_html=True)
@@ -681,7 +668,9 @@ def render_main(match_id):
         with ncols[i]:
             st.markdown('<div class="extra-btn">', unsafe_allow_html=True)
             if st.button(f"N+{i}", key=f"n{i}", use_container_width=True):
-                update_score(match_id, 1 + i, 0); st.rerun()
+                update_score(match_id, 1 + i, 0)
+                st.session_state.continue_after_target = False
+                st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -708,7 +697,6 @@ def render_main(match_id):
                             reset_key="reset", show_reset=True)
 
     st.markdown('<div class="credit"><span>Created by <strong>Amanullah Khan</strong></span></div>', unsafe_allow_html=True)
-
 
 def _render_overlay_box(overlay_url, match_id=None, confirm_key=None, reset_key=None, show_reset=False):
     """Renders the Copy Overlay Link button + URL display, then Reset/Theme buttons below."""
@@ -762,7 +750,6 @@ def _render_overlay_box(overlay_url, match_id=None, confirm_key=None, reset_key=
                 st.session_state["light_mode"] = not is_light
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
-
 
 # ════════════════════════════════════════════════════════
 #  ROUTER
