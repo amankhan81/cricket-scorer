@@ -752,7 +752,124 @@ def _render_overlay_box(overlay_url, match_id=None, confirm_key=None, reset_key=
             st.markdown('</div>', unsafe_allow_html=True)
 
 # ════════════════════════════════════════════════════════
-#  ROUTER
+#  OVERLAY MODE
+# ════════════════════════════════════════════════════════
+
+def render_overlay(match_id):
+    st.markdown("""
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Roboto+Condensed:wght@700&display=swap');
+            html, body { background: transparent !important; background-color: transparent !important; }
+            .stApp { background: transparent !important; background-color: transparent !important; }
+            [data-testid="stAppViewContainer"] { background: transparent !important; }
+            [data-testid="stHeader"]           { display: none !important; }
+            [data-testid="stToolbar"]          { display: none !important; }
+            [data-testid="stDecoration"]       { display: none !important; }
+            [data-testid="stStatusWidget"]     { display: none !important; }
+            [data-testid="stMainBlockContainer"]{ background: transparent !important; }
+            [data-testid="block-container"]    { background: transparent !important; }
+            .main { background: transparent !important; }
+            section[data-testid="stSidebar"]   { display: none !important; }
+            header, footer, #MainMenu          { display: none !important; }
+            .block-container { padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
+            .ticker {
+                position: fixed; bottom: 14px; left: 14px;
+                display: inline-flex; align-items: stretch;
+                border-radius: 8px; overflow: hidden;
+                box-shadow: 0 4px 24px rgba(0,0,0,0.5), 0 1px 4px rgba(0,0,0,0.3);
+                font-family: 'Oswald', sans-serif;
+            }
+            .ticker-accent { width: 5px; background: linear-gradient(180deg, #f0c040, #c8960a); flex-shrink: 0; }
+            .ticker-body {
+                background: rgba(10, 10, 20, 0.88);
+                backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+                padding: 10px 16px 10px 12px; display: flex; align-items: center; gap: 10px;
+            }
+            .ticker-icon  { font-size: 18px; line-height: 1; opacity: 0.85; }
+            .ticker-score { font-size: 42px; font-weight: 700; color: #ffffff; line-height: 1; letter-spacing: -1px; }
+            .ticker-sep   { width: 1px; height: 36px; background: rgba(255,255,255,0.15); flex-shrink: 0; }
+            .ticker-overs { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; }
+            .ticker-overs-lbl { font-family: 'Roboto Condensed', sans-serif; font-size: 9px; letter-spacing: 2px; color: rgba(255,255,255,1); text-transform: uppercase; }
+            .ticker-overs-val { font-size: 20px; font-weight: 700; color: #f0c040; line-height: 1; }
+            .ticker-match-id  { font-family: 'Roboto Condensed', sans-serif; font-size: 9px; letter-spacing: 1.5px; color: rgba(255,255,255,0.5); text-transform: uppercase; align-self: flex-end; padding-bottom: 2px; }
+            .ticker-innings   { font-family: 'Roboto Condensed', sans-serif; font-size: 9px; letter-spacing: 1.5px; color: rgba(255,255,255,1); text-transform: uppercase; align-self: flex-end; padding-bottom: 2px; }
+            .ticker-winner    { font-family: 'Roboto Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; color: #4ade80; text-transform: uppercase; align-self: center; padding: 2px 8px; background: rgba(74,222,128,0.15); border: 1px solid rgba(74,222,128,0.35); border-radius: 6px; white-space: nowrap; }
+        </style>
+    """, unsafe_allow_html=True)
+
+    d = get_match(match_id)
+    if not d:
+        st.markdown("<div style='color:red;font-family:monospace;padding:10px;'>Match not found: " + match_id + "</div>", unsafe_allow_html=True)
+        return
+
+    innings       = int(d.get("innings") or 1)
+    max_balls     = int(d['match_overs']) * 6
+    current_balls = int(d['balls'])
+    overs_str     = str(current_balls // 6) + "." + str(current_balls % 6)
+    max_overs     = int(d['match_overs'])
+    innings1_runs = int(d.get("innings1_runs") or 0)
+    current_runs  = int(d["runs"])
+    needed        = innings1_runs - current_runs + 1
+    target_val    = innings1_runs + 1
+    need_val      = max(0, needed)
+    balls_left    = max(0, max_balls - current_balls)
+    need_color    = "#ff6b6b" if needed > 0 else "#6fcf97"
+    innings_over  = current_balls >= max_balls
+    wickets       = get_wickets(d.get("history"))
+
+    team1_name    = d.get("team1_name") or "Team 1"
+    team2_name    = d.get("team2_name") or "Team 2"
+    batting_first = int(d.get("batting_first") or 1)
+    team_inn1     = team1_name if batting_first == 1 else team2_name
+    team_inn2     = team2_name if batting_first == 1 else team1_name
+    if innings == 1:
+        batting_team = team_inn1
+    else:
+        batting_team = team_inn2
+    batting_abbrev = team_abbrev(batting_team)
+
+    # Determine if match is over and compute winner
+    match_over = innings == 2 and innings_over
+    if match_over:
+        if current_runs > innings1_runs:
+            winner_text = team_inn2 + " WON"
+        elif current_runs < innings1_runs:
+            winner_text = team_inn1 + " WON"
+        else:
+            winner_text = "TIE"
+    else:
+        winner_text = ""
+
+    t  = '<div class="ticker">'
+    t += '<div class="ticker-accent"></div>'
+    t += '<div class="ticker-body">'
+    t += '<div class="ticker-icon">🏏</div>'
+    t += '<div class="ticker-overs"><div class="ticker-overs-lbl">Batting</div><div class="ticker-overs-val" style="color:#f0c040;font-size:16px;">' + batting_abbrev + '</div></div>'
+    t += '<div class="ticker-sep"></div>'
+    t += '<div class="ticker-score">' + str(current_runs) + '/' + str(wickets) + '</div>'
+    t += '<div class="ticker-sep"></div>'
+    t += '<div class="ticker-overs"><div class="ticker-overs-lbl">Overs</div><div class="ticker-overs-val">' + overs_str + '</div></div>'
+    t += '<div class="ticker-sep"></div>'
+    t += '<div class="ticker-overs"><div class="ticker-overs-lbl">Max</div><div class="ticker-overs-val">' + str(max_overs) + '</div></div>'
+
+    if match_over:
+        t += '<div class="ticker-sep"></div>'
+        t += '<div class="ticker-winner">🏆 ' + winner_text + '</div>'
+    elif innings == 2:
+        t += '<div class="ticker-sep"></div>'
+        t += '<div class="ticker-overs"><div class="ticker-overs-lbl">Target</div><div class="ticker-overs-val" style="color:#c8c8c8;">' + str(target_val) + '</div></div>'
+        t += '<div class="ticker-sep"></div>'
+        t += '<div class="ticker-overs"><div class="ticker-overs-lbl">Need</div><div class="ticker-overs-val" style="color:' + need_color + ';">' + f"{need_val} off {balls_left}" + '</div></div>'
+
+    t += '</div></div>'
+
+    st.markdown(t, unsafe_allow_html=True)
+    time.sleep(2)
+    st.rerun()
+
+
+# ════════════════════════════════════════════════════════
+#  MAIN SCORING APP
 # ════════════════════════════════════════════════════════
 
 params   = st.query_params
