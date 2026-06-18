@@ -89,56 +89,149 @@ def start_second_innings(match_id, innings1_score):
         "runs": 0, "balls": 0, "history": "[]"
     }).eq("match_id", match_id).execute()
 
+# --- HELPER SVG FOR PREMIUM LOGO ---
+SVG_LOGO_MARKUP = """
+<svg viewBox="0 0 110 90" width="46" height="40" style="filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5));">
+    <g transform="rotate(-32 50 45)">
+        <!-- Bat grip -->
+        <rect x="47" y="5" width="6" height="22" rx="2" fill="url(#gripGrad)" />
+        <line x1="47" y1="10" x2="53" y2="10" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
+        <line x1="47" y1="15" x2="53" y2="15" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
+        <line x1="47" y1="20" x2="53" y2="20" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
+        <!-- Bat wood transition -->
+        <path d="M44,27 L56,27 L57,32 L43,32 Z" fill="#b07f3c" />
+        <!-- Bat body -->
+        <rect x="43" y="32" width="14" height="48" rx="2" fill="url(#woodGrad)" />
+    </g>
+    <!-- Shiny Leather Ball -->
+    <circle cx="75" cy="62" r="11" fill="url(#ballGrad)" />
+    <!-- White Seam -->
+    <path d="M66,62 Q75,54 84,62" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-dasharray="1.5, 1" />
+    <defs>
+        <linearGradient id="gripGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#6930c3" />
+            <stop offset="100%" stop-color="#3f1c73" />
+        </linearGradient>
+        <linearGradient id="woodGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#e2b170" />
+            <stop offset="50%" stop-color="#bc8646" />
+            <stop offset="100%" stop-color="#8c581a" />
+        </linearGradient>
+        <linearGradient id="ballGrad" x1="30%" y1="30%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ff4444" />
+            <stop offset="60%" stop-color="#bd0000" />
+            <stop offset="100%" stop-color="#540000" />
+        </linearGradient>
+    </defs>
+</svg>
+"""
+
 def render_main(match_id):
-    # Base Premium CSS covering glossy bevel elements, squircle buttons & custom colors
+    # Injection of custom styling optimized for zero scrolling and a premium metallic theme
     st.markdown("""
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Roboto+Condensed:wght@400;700&display=swap');
             header, footer, #MainMenu { display: none !important; }
             
-            /* Background matches image_f143bf.png radial gradient */
+            /* Radial Dark Metallic theme */
             .stApp { 
-                background: radial-gradient(circle at top, #14223f 0%, #0a0f1d 100%) !important; 
+                background: radial-gradient(circle at top, #141c2c 0%, #080a10 100%) !important; 
                 min-height: 100vh; 
             }
-            .block-container { padding: 12px 10px 16px 10px !important; max-width: 440px !important; margin: 0 auto !important; }
+            
+            /* Tight container spacing to fit active viewport */
+            .block-container { 
+                padding: 10px 8px 12px 8px !important; 
+                max-width: 440px !important; 
+                margin: 0 auto !important; 
+            }
 
-            /* Badges & Headers */
-            .innings-badge { text-align: center; margin-bottom: 8px; }
+            /* Sub-badge spacing rules */
+            .innings-badge { text-align: center; margin-bottom: 6px; }
             .innings-badge span {
-                background: rgba(195, 164, 105, 0.12); color: #c3a469;
-                font-family: 'Roboto Condensed', sans-serif; font-size: 13px; font-weight: 700;
-                letter-spacing: 2.5px; text-transform: uppercase;
-                padding: 5px 20px; border-radius: 20px; border: 1.5px solid rgba(195, 164, 105, 0.4);
+                background: rgba(195, 164, 105, 0.1); color: #c3a469;
+                font-family: 'Roboto Condensed', sans-serif; font-size: 11px; font-weight: 700;
+                letter-spacing: 2px; text-transform: uppercase;
+                padding: 3px 14px; border-radius: 20px; border: 1px solid rgba(195, 164, 105, 0.35);
             }
             
-            /* Share Scoring Pill Style */
             .share-pill {
-                display: inline-flex; align-items: center; gap: 6px; 
-                background: rgba(37, 211, 102, 0.12); color: #25d366; 
-                font-family: 'Roboto Condensed', sans-serif; font-size: 11px; 
-                font-weight: 700; letter-spacing: 2px; text-transform: uppercase; 
-                padding: 6px 16px; border-radius: 20px; 
-                border: 1.5px solid rgba(37, 211, 102, 0.35); text-decoration: none;
-                transition: background 0.2s;
+                display: inline-flex; align-items: center; gap: 4px; 
+                background: rgba(37, 211, 102, 0.08); color: #25d366; 
+                font-family: 'Roboto Condensed', sans-serif; font-size: 10px; 
+                font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; 
+                padding: 4px 12px; border-radius: 16px; 
+                border: 1px solid rgba(37, 211, 102, 0.25); text-decoration: none;
             }
-            .share-pill:hover { background: rgba(37, 211, 102, 0.22); }
 
-            /* Score Card Box styling from image_f143bf.png */
-            .score-header {
-                display: flex; justify-content: space-around; align-items: center;
-                background: linear-gradient(180deg, rgba(20, 31, 58, 0.8) 0%, rgba(10, 16, 32, 0.9) 100%);
-                border: 1.5px solid rgba(255,255,255,0.08);
-                border-radius: 24px; padding: 12px 10px; margin-bottom: 14px;
-                box-shadow: inset 0 2px 2px rgba(255,255,255,0.05), 0 10px 25px rgba(0,0,0,0.5);
+            /* PREMIUM OVERLAY STYLE TICKER BAR (as seen in Screenshot 2026-06-18 120122.png) */
+            .broadcast-ticker {
+                display: flex; align-items: center; justify-content: space-between;
+                background: linear-gradient(180deg, #24282c 0%, #0f1113 100%);
+                border: 1.5px solid #3c4045; border-radius: 14px;
+                padding: 6px 10px; margin-bottom: 12px;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 10px 20px rgba(0,0,0,0.6);
+                position: relative; overflow: hidden; width: 100%;
+                font-family: 'Roboto Condensed', sans-serif;
             }
-            .score-divider { width: 1.5px; height: 50px; background: rgba(255,255,255,0.08); }
-            .score-col { text-align: center; }
-            .lbl { color: rgba(255,255,255,0.4); font-family: 'Roboto Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; display: block; margin-bottom: 2px; }
-            .val { color: #ffffff; font-family: 'Oswald', sans-serif; font-size: 48px; font-weight: 700; display: block; line-height: 1; }
+            .ticker-gold-bar {
+                position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+                background: linear-gradient(180deg, #ffb700, #c38400);
+                box-shadow: 0 0 6px rgba(255, 183, 0, 0.5);
+            }
+            .ticker-logo-box {
+                margin-left: 4px; margin-right: 6px;
+                display: flex; align-items: center; justify-content: center;
+            }
+            .ticker-divider {
+                width: 3px; height: 36px;
+                background: linear-gradient(180deg, #7f8285, #3a3c3e, #7f8285);
+                border-left: 1px solid #111; border-right: 1px solid #555;
+                margin: 0 4px; opacity: 0.8;
+            }
+            .ticker-section {
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                text-align: center;
+            }
+            .batting-sec { flex: 1.1; }
+            .ticker-lbl {
+                color: #ffffff; font-size: 10px; font-weight: 700;
+                letter-spacing: 1px; text-transform: uppercase; margin-bottom: 1px;
+            }
+            .ticker-team-box {
+                border: 1.5px solid #c3a469; border-radius: 4px;
+                padding: 1px 8px; background: rgba(195, 164, 105, 0.08);
+                color: #ffcc00; font-family: 'Oswald', sans-serif;
+                font-size: 14px; font-weight: 700; text-shadow: 0 0 4px rgba(255, 204, 0, 0.4);
+                line-height: 1.1;
+            }
+            .score-sec { flex: 1.6; }
+            .ticker-val-score {
+                color: #ffffff; font-family: 'Oswald', sans-serif;
+                font-size: 38px; font-weight: 700; line-height: 1; letter-spacing: -1px;
+            }
+            .overs-sec { flex: 1.4; position: relative; }
+            .overs-arch-wrap { display: flex; flex-direction: column; align-items: center; position: relative; }
+            .overs-arch {
+                position: absolute; top: -4px; width: 28px; height: 4px;
+                border-top: 1.5px solid rgba(255, 255, 255, 0.35);
+                border-radius: 50% 50% 0 0;
+            }
+            .ticker-val-overs {
+                color: #ffd700; font-family: 'Oswald', sans-serif;
+                font-size: 24px; font-weight: 700; line-height: 1;
+                text-shadow: 0 0 8px rgba(255, 215, 0, 0.5), 0 0 15px rgba(255, 215, 0, 0.2);
+            }
+            .max-sec { flex: 1; }
+            .ticker-max-box {
+                border: 1px solid #5c6065; border-radius: 4px;
+                padding: 1px 8px; background: rgba(255,255,255,0.05);
+                color: #ffffff; font-family: 'Oswald', sans-serif;
+                font-size: 14px; font-weight: 700; line-height: 1.1;
+            }
 
-            /* Clean layout structures */
-            [data-testid="stHorizontalBlock"] { gap: 8px !important; flex-wrap: nowrap !important; }
+            /* Clean layout structures to squeeze spacing completely */
+            [data-testid="stHorizontalBlock"] { gap: 6px !important; flex-wrap: nowrap !important; }
             [data-testid="stColumn"] { padding: 0 !important; min-width: 0 !important; }
             [data-testid="stVerticalBlockBorderWrapper"] { gap: 0 !important; }
             [data-testid="stVerticalBlock"] > * { margin-bottom: 0 !important; }
@@ -146,210 +239,194 @@ def render_main(match_id):
             [data-testid="element-container"] { margin: 0 !important; padding: 0 !important; }
             .stButton { margin: 0 !important; padding: 0 !important; }
 
-            /* GLOSSY BUTTON GENERATOR matches image_f143bf.png exactly */
+            /* SCORING GRID BUTTONS: Glassy, deep-blue translucent appearance (as requested) */
             .glossy-btn-container button {
-                background: linear-gradient(180deg, #20355c 0%, #111d33 100%) !important;
-                border: 2.5px solid #bda064 !important;
-                border-radius: 22px !important;
-                box-shadow: inset 0 2px 4px rgba(255,255,255,0.15), inset 0 -4px 8px rgba(0,0,0,0.6), 0 6px 14px rgba(0,0,0,0.5) !important;
+                background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
+                border: 2px solid rgba(195, 164, 105, 0.6) !important;
+                border-radius: 18px !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4) !important;
                 color: #ffffff !important;
                 font-family: 'Oswald', sans-serif !important;
-                font-size: 34px !important;
+                font-size: 28px !important;
                 font-weight: 700 !important;
-                height: 84px !important;
+                height: 70px !important;
                 width: 100% !important;
-                text-shadow: 0 2px 4px rgba(0,0,0,0.6) !important;
-                transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+                text-shadow: 0 2px 3px rgba(0,0,0,0.7) !important;
+                transition: transform 0.08s ease, box-shadow 0.08s ease !important;
             }
             .glossy-btn-container button:active {
-                transform: scale(0.96) !important;
-                box-shadow: inset 0 3px 5px rgba(0,0,0,0.8) !important;
+                transform: scale(0.95) !important;
+                box-shadow: inset 0 2px 4px rgba(0,0,0,0.7) !important;
             }
             
-            /* Custom Colors for Keys */
+            /* High-contrast color assignments */
             .btn-four button { color: #f3c64f !important; }
             .btn-six button { color: #52d273 !important; }
-            .btn-out button { color: #ec4849 !important; font-size: 26px !important; }
-            .btn-undo button { color: #4da6ff !important; font-size: 20px !important; }
+            .btn-out button { color: #ec4849 !important; font-size: 22px !important; }
+            .btn-undo button { color: #4da6ff !important; font-size: 18px !important; }
 
-            /* ADD EXTRAS Premium Pill Button matches image_f143bf.png and app new interface.png */
+            /* ADD EXTRAS: Single full-width pill button positioned cleanly underneath scoring grid */
             .add-extras-btn button {
-                background: linear-gradient(180deg, #234075 0%, #12213f 100%) !important;
-                border: 2.5px solid #bda064 !important;
-                border-radius: 30px !important;
-                box-shadow: inset 0 3px 6px rgba(255,255,255,0.2), inset 0 -3px 6px rgba(0,0,0,0.4), 0 8px 16px rgba(0,0,0,0.6) !important;
+                background: linear-gradient(180deg, #182e54 0%, #0b1528 100%) !important;
+                border: 2px solid #bda064 !important;
+                border-radius: 24px !important;
+                box-shadow: inset 0 2px 4px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.4), 0 6px 12px rgba(0,0,0,0.5) !important;
+                color: #ffffff !important;
+                font-family: 'Oswald', sans-serif !important;
+                font-size: 20px !important;
+                font-weight: 700 !important;
+                height: 54px !important;
+                width: 100% !important;
+                letter-spacing: 1px;
+                text-shadow: 0 1px 3px rgba(0,0,0,0.6) !important;
+                margin: 10px 0 !important;
+            }
+            .add-extras-btn button:active {
+                transform: scale(0.97) !important;
+            }
+
+            /* POPUP EXTRAS DIALOG CARD (Screenshot 2026-06-18 114423.png) */
+            .extras-modal {
+                background: #11203b !important;
+                border: 2px solid #bda064 !important;
+                border-radius: 20px !important;
+                overflow: hidden !important;
+                box-shadow: inset 0 2px 3px rgba(255,255,255,0.1), 0 12px 28px rgba(0,0,0,0.6) !important;
+                margin: 6px 0 !important;
+            }
+            .extras-header {
+                background: linear-gradient(180deg, #9b814a 0%, #766236 100%) !important;
+                color: #ffffff !important;
+                font-family: 'Oswald', sans-serif !important;
+                font-size: 18px !important;
+                font-weight: 700 !important;
+                text-align: center !important;
+                padding: 10px 0 !important;
+                letter-spacing: 2px !important;
+                text-shadow: 0 1.5px 3px rgba(0,0,0,0.6) !important;
+                text-transform: uppercase !important;
+                border-bottom: 2px solid #bda064 !important;
+            }
+            .extras-body {
+                padding: 16px 12px !important;
+            }
+
+            /* Extra button rows inside Dialog Card */
+            .extra-wide-btn button {
+                background: linear-gradient(180deg, #1b2e50 0%, #0d1729 100%) !important;
+                border: 2px solid #bda064 !important;
+                border-radius: 16px !important;
+                box-shadow: inset 0 2px 3px rgba(255,255,255,0.1), inset 0 -3px 5px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.4) !important;
                 color: #ffffff !important;
                 font-family: 'Oswald', sans-serif !important;
                 font-size: 24px !important;
                 font-weight: 700 !important;
                 height: 64px !important;
                 width: 100% !important;
-                letter-spacing: 1.5px !important;
-                text-shadow: 0 2px 4px rgba(0,0,0,0.6) !important;
-                margin: 12px 0 !important;
-            }
-            .add-extras-btn button:active {
-                transform: scale(0.98) !important;
-            }
-
-            /* POPUP EXTRAS MODAL matches image_f143bf.png exactly */
-            .extras-modal {
-                background: #12213f !important;
-                border: 2.5px solid #bda064 !important;
-                border-radius: 22px !important;
-                overflow: hidden !important;
-                box-shadow: inset 0 2px 4px rgba(255,255,255,0.1), 0 12px 30px rgba(0,0,0,0.7) !important;
-                margin: 10px 0 !important;
-            }
-            .extras-header {
-                background: linear-gradient(180deg, #9b814a 0%, #766236 100%) !important;
-                color: #ffffff !important;
-                font-family: 'Oswald', sans-serif !important;
-                font-size: 22px !important;
-                font-weight: 700 !important;
-                text-align: center !important;
-                padding: 12px 0 !important;
-                letter-spacing: 2.5px !important;
-                text-shadow: 0 2px 4px rgba(0,0,0,0.6) !important;
-                text-transform: uppercase !important;
-                border-bottom: 2px solid #bda064 !important;
-            }
-            .extras-body {
-                padding: 24px 16px !important;
-            }
-
-            /* Wide Buttons in modal (4 col) matching image_f143bf.png */
-            .extra-wide-btn button {
-                background: linear-gradient(180deg, #20355c 0%, #111d33 100%) !important;
-                border: 2.5px solid #bda064 !important;
-                border-radius: 20px !important;
-                box-shadow: inset 0 2px 4px rgba(255,255,255,0.15), inset 0 -4px 8px rgba(0,0,0,0.6), 0 6px 14px rgba(0,0,0,0.5) !important;
-                color: #ffffff !important;
-                font-family: 'Oswald', sans-serif !important;
-                font-size: 28px !important;
-                font-weight: 700 !important;
-                height: 76px !important;
-                width: 100% !important;
-                text-shadow: 0 2px 3px rgba(0,0,0,0.6) !important;
+                text-shadow: 0 1.5px 2px rgba(0,0,0,0.6) !important;
             }
             
-            /* No Ball Buttons in modal (6 col) matching image_f143bf.png */
             .extra-no-btn button {
-                background: linear-gradient(180deg, #20355c 0%, #111d33 100%) !important;
-                border: 2px solid #bda064 !important;
-                border-radius: 16px !important;
-                box-shadow: inset 0 2px 3px rgba(255,255,255,0.15), inset 0 -3px 5px rgba(0,0,0,0.6), 0 5px 10px rgba(0,0,0,0.5) !important;
+                background: linear-gradient(180deg, #1b2e50 0%, #0d1729 100%) !important;
+                border: 1.5px solid #bda064 !important;
+                border-radius: 14px !important;
+                box-shadow: inset 0 1.5px 2.5px rgba(255,255,255,0.1), inset 0 -2.5px 4px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.4) !important;
                 color: #ffffff !important;
                 font-family: 'Oswald', sans-serif !important;
-                font-size: 18px !important;
+                font-size: 16px !important;
                 font-weight: 700 !important;
-                height: 52px !important;
+                height: 46px !important;
                 width: 100% !important;
                 padding: 0 !important;
                 text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
             }
 
-            /* Cancel Pill Button matching image_f143bf.png exactly */
+            /* Gold/Red outline Cancel pill button matching Screenshot 2026-06-18 114423.png */
             .extra-cancel-btn button {
                 background: transparent !important;
-                border: 2.5px solid #bda064 !important;
-                border-radius: 24px !important;
+                border: 2px solid #bda064 !important;
+                border-radius: 20px !important;
                 color: #ff5252 !important;
                 font-family: 'Oswald', sans-serif !important;
-                font-size: 16px !important;
+                font-size: 15px !important;
                 font-weight: 700 !important;
-                height: 42px !important;
-                width: 140px !important;
-                margin: 20px auto 5px auto !important;
+                height: 38px !important;
+                width: 130px !important;
+                margin: 15px auto 4px auto !important;
                 display: block !important;
                 text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
-                transition: background 0.2s, transform 0.1s !important;
                 text-transform: uppercase !important;
-                letter-spacing: 1px !important;
-            }
-            .extra-cancel-btn button:active {
-                transform: scale(0.96) !important;
+                letter-spacing: 1.5px !important;
             }
 
-            /* Redesigned Utility Buttons matching scoring buttons' glossy 3D gold-bevel style */
+            /* Settings/Themes Redesigned Utility controls matching visual tokens */
             .premium-reset-btn button {
-                background: linear-gradient(180deg, #3d1515 0%, #1f0b0b 100%) !important;
-                border: 2.5px solid #ff5252 !important;
-                border-radius: 18px !important;
-                box-shadow: inset 0 2px 3px rgba(255,255,255,0.1), inset 0 -4px 8px rgba(0,0,0,0.6), 0 5px 12px rgba(0,0,0,0.5) !important;
+                background: linear-gradient(180deg, #321010 0%, #190808 100%) !important;
+                border: 2px solid #ff5252 !important;
+                border-radius: 16px !important;
+                box-shadow: inset 0 1.5px 2px rgba(255,255,255,0.1), inset 0 -3px 6px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.4) !important;
                 color: #ff5252 !important;
                 font-family: 'Oswald', sans-serif !important;
-                font-size: 14px !important;
+                font-size: 13px !important;
                 font-weight: 700 !important;
-                height: 48px !important;
-                letter-spacing: 1.5px !important;
+                height: 44px !important;
+                letter-spacing: 1px !important;
                 text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
                 text-transform: uppercase !important;
                 width: 100% !important;
-                transition: transform 0.1s ease !important;
             }
-            .premium-reset-btn button:active {
-                transform: scale(0.96) !important;
-            }
-            
             .premium-theme-btn button {
-                background: linear-gradient(180deg, #20355c 0%, #111d33 100%) !important;
-                border: 2.5px solid #bda064 !important;
-                border-radius: 18px !important;
-                box-shadow: inset 0 2px 3px rgba(255,255,255,0.1), inset 0 -4px 8px rgba(0,0,0,0.6), 0 5px 12px rgba(0,0,0,0.5) !important;
-                color: #f0c040 !important;
+                background: linear-gradient(180deg, #1b2e50 0%, #0d1729 100%) !important;
+                border: 2px solid #bda064 !important;
+                border-radius: 16px !important;
+                box-shadow: inset 0 1.5px 2px rgba(255,255,255,0.1), inset 0 -3px 6px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.4) !important;
+                color: #f3c64f !important;
                 font-family: 'Oswald', sans-serif !important;
-                font-size: 14px !important;
+                font-size: 13px !important;
                 font-weight: 700 !important;
-                height: 48px !important;
-                letter-spacing: 1.5px !important;
+                height: 44px !important;
+                letter-spacing: 1px !important;
                 text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
                 text-transform: uppercase !important;
                 width: 100% !important;
-                transition: transform 0.1s ease !important;
-            }
-            .premium-theme-btn button:active {
-                transform: scale(0.96) !important;
             }
 
-            /* Other layouts */
             .target-bar {
-                background: rgba(195, 164, 105, 0.1); border: 1px solid rgba(195, 164, 105, 0.3);
-                border-radius: 12px; padding: 8px 16px; text-align: center; margin-bottom: 12px;
-                font-family: 'Roboto Condensed', sans-serif; color: #e5c185; font-size: 14px; font-weight: 700; letter-spacing: 1px;
+                background: rgba(195, 164, 105, 0.08); border: 1.5px solid rgba(195, 164, 105, 0.3);
+                border-radius: 10px; padding: 6px 12px; text-align: center; margin-bottom: 10px;
+                font-family: 'Roboto Condensed', sans-serif; color: #e5c185; font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
             }
-            .credit { text-align: center; margin-top: 15px; padding-top: 10px; border-top: 1.5px solid rgba(255,255,255,0.05); }
-            .credit span { font-family: 'Roboto Condensed', sans-serif; font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.25); text-transform: uppercase; }
-            .credit strong { color: rgba(195, 164, 105, 0.6); font-weight: 700; }
+            .credit { text-align: center; margin-top: 12px; padding-top: 8px; border-top: 1.5px solid rgba(255,255,255,0.05); }
+            .credit span { font-family: 'Roboto Condensed', sans-serif; font-size: 9px; letter-spacing: 1.5px; color: rgba(255,255,255,0.2); text-transform: uppercase; }
+            .credit strong { color: rgba(195, 164, 105, 0.5); font-weight: 700; }
         </style>
     """, unsafe_allow_html=True)
 
+    # Specific theme override for Light Mode
     if st.session_state.get("light_mode"):
         st.markdown("""
             <style>
-                .stApp { background: radial-gradient(circle at top, #eef3f9 0%, #d5e0ee 100%) !important; }
-                .score-header { background: linear-gradient(180deg, #ffffff 0%, #e6effa 100%) !important; border-color: rgba(0,0,0,0.1) !important; }
-                .lbl { color: rgba(0,0,0,0.5) !important; }
-                .val { color: #14223f !important; }
+                .stApp { background: radial-gradient(circle at top, #f0f4fa 0%, #d4dfec 100%) !important; }
+                .broadcast-ticker { background: linear-gradient(180deg, #ffffff 0%, #eef3fb 100%) !important; border-color: rgba(0,0,0,0.15) !important; box-shadow: 0 6px 15px rgba(0,0,0,0.08); }
+                .ticker-val-score { color: #141c2c !important; }
+                .ticker-lbl { color: #555555 !important; }
+                .ticker-max-box { border-color: rgba(0,0,0,0.2) !important; background: rgba(0,0,0,0.03) !important; color: #141c2c !important; }
                 .glossy-btn-container button {
-                    background: linear-gradient(180deg, #ffffff 0%, #e2ebf6 100%) !important;
-                    color: #14223f !important;
-                    border-color: #bda064 !important;
-                    box-shadow: inset 0 2px 4px rgba(255,255,255,1), 0 4px 8px rgba(0,0,0,0.15) !important;
+                    background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(230,238,248,0.95) 100%) !important;
+                    color: #141c2c !important; border-color: #bda064 !important;
+                    box-shadow: inset 0 1.5px 3px rgba(255,255,255,1), 0 4px 8px rgba(0,0,0,0.08) !important;
                 }
                 .add-extras-btn button {
-                    background: linear-gradient(180deg, #ffffff 0%, #e2ebf6 100%) !important;
-                    color: #14223f !important;
-                    border-color: #bda064 !important;
+                    background: linear-gradient(180deg, #ffffff 0%, #eef3fb 100%) !important;
+                    color: #141c2c !important; border-color: #bda064 !important;
                 }
-                .extras-modal { background: #eef3f9 !important; border-color: #7a6637 !important; }
+                .extras-modal { background: #f0f4fa !important; border-color: #9b814a !important; }
                 .extra-wide-btn button, .extra-no-btn button {
-                    background: linear-gradient(180deg, #ffffff 0%, #e2ebf6 100%) !important;
-                    color: #14223f !important;
-                    border-color: #7a6637 !important;
+                    background: linear-gradient(180deg, #ffffff 0%, #eef3fb 100%) !important;
+                    color: #141c2c !important; border-color: #9b814a !important;
                 }
-                .extra-cancel-btn button { background: rgba(0,0,0,0.03) !important; border-color: #ff5252 !important; }
-                .target-bar { background: rgba(0,0,0,0.03) !important; color: #7a6637 !important; }
+                .extra-cancel-btn button { background: rgba(0,0,0,0.02) !important; border-color: #bda064 !important; }
+                .target-bar { background: rgba(0,0,0,0.03) !important; color: #8c581a !important; border-color: rgba(140,88,26,0.2) !important; }
                 .credit span { color: rgba(0,0,0,0.4) !important; }
             </style>
         """, unsafe_allow_html=True)
@@ -359,9 +436,10 @@ def render_main(match_id):
         base_url = base_url.split("?")[0]
     overlay_url = base_url + "?mode=overlay&match=" + match_id
 
+    # Create / Setup state
     if not match_id:
-        st.markdown("<div style='color:white;text-align:center;font-family:Oswald;font-size:32px;margin-top:40px;margin-bottom:5px;'>🏏 Smart Cricket Scorer</div>", unsafe_allow_html=True)
-        st.markdown("<div style='color:rgba(255,255,255,0.4);text-align:center;font-family:Roboto Condensed;font-size:12px;letter-spacing:3px;text-transform:uppercase;margin-bottom:30px;'>MATCH SETUP</div>", unsafe_allow_html=True)
+        st.markdown("<div style='color:white;text-align:center;font-family:Oswald;font-size:30px;margin-top:35px;margin-bottom:4px;'>🏏 Smart Cricket Scorer</div>", unsafe_allow_html=True)
+        st.markdown("<div style='color:rgba(255,255,255,0.4);text-align:center;font-family:Roboto Condensed;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:24px;'>MATCH SETUP</div>", unsafe_allow_html=True)
 
         team1_in = st.text_input("TEAM 1 NAME", value="Team 1", placeholder="e.g. Desert Lions")
         team2_in = st.text_input("TEAM 2 NAME", value="Team 2", placeholder="e.g. Pak Eagles")
@@ -382,6 +460,7 @@ def render_main(match_id):
         st.markdown('<div class="credit"><span>Created by <strong>Amanullah Khan</strong></span></div>', unsafe_allow_html=True)
         return
 
+    # Load parameters
     d = get_match(match_id)
     if not d:
         st.error("Match not found: " + match_id)
@@ -411,13 +490,14 @@ def render_main(match_id):
         batting_team = team2_name if batting_first == 1 else team1_name
         bowling_team = team1_name if batting_first == 1 else team2_name
 
+    # Check innings boundaries
     if innings == 1 and innings_over:
         st.markdown(f"""
-            <div style="background:rgba(20,31,58,0.5); border:1.5px solid rgba(255,255,255,0.08); border-radius:24px; padding:30px 10px; text-align:center; margin:20px 0;">
-                <h2 style="font-family:'Oswald',sans-serif; color:#f0c040; font-size:28px; margin-bottom:10px;">Innings Over</h2>
-                <div style="font-family:'Oswald',sans-serif; color:white; font-size:60px; font-weight:700; line-height:1; margin-bottom:4px;">{current_runs}/{wickets}</div>
-                <div style="font-family:'Roboto Condensed',sans-serif; color:rgba(255,255,255,0.45); font-size:12px; letter-spacing:3px; text-transform:uppercase; margin-bottom:20px;">{batting_team} — 1st Innings Score</div>
-                <p style="font-family:'Roboto Condensed',sans-serif; color:rgba(255,255,255,0.6); font-size:15px;">{bowling_team} to chase. Start 2nd innings.</p>
+            <div style="background:rgba(20,31,58,0.5); border:1.5px solid rgba(255,255,255,0.08); border-radius:20px; padding:24px 10px; text-align:center; margin:15px 0;">
+                <h2 style="font-family:'Oswald',sans-serif; color:#f0c040; font-size:24px; margin-bottom:8px;">Innings Over</h2>
+                <div style="font-family:'Oswald',sans-serif; color:white; font-size:52px; font-weight:700; line-height:1; margin-bottom:4px;">{current_runs}/{wickets}</div>
+                <div style="font-family:'Roboto Condensed',sans-serif; color:rgba(255,255,255,0.45); font-size:11px; letter-spacing:2.5px; text-transform:uppercase; margin-bottom:15px;">{batting_team} — 1st Innings Score</div>
+                <p style="font-family:'Roboto Condensed',sans-serif; color:rgba(255,255,255,0.6); font-size:14px;">{bowling_team} to chase. Start 2nd innings.</p>
             </div>
         """, unsafe_allow_html=True)
         st.markdown('<div class="add-extras-btn">', unsafe_allow_html=True)
@@ -438,10 +518,10 @@ def render_main(match_id):
         else:
             result = "It's a tie! 🤝"
         st.markdown(f"""
-            <div style="background:rgba(195,164,105,0.12); border:1.5px solid rgba(195,164,105,0.35); border-radius:24px; padding:32px 20px; text-align:center; margin:20px 0;">
-                <h2 style="font-family:'Oswald',sans-serif; color:#f0c040; font-size:32px; margin-bottom:10px;">Match Over</h2>
-                <p style="font-family:'Roboto Condensed',sans-serif; color:rgba(255,255,255,0.7); font-size:18px; margin-bottom:24px;">{result}</p>
-                <div style="font-family:'Roboto Condensed',sans-serif; color:rgba(255,255,255,0.5); font-size:13px; letter-spacing:2px;">
+            <div style="background:rgba(195,164,105,0.1); border:1.5px solid rgba(195,164,105,0.3); border-radius:20px; padding:26px 15px; text-align:center; margin:15px 0;">
+                <h2 style="font-family:'Oswald',sans-serif; color:#f0c040; font-size:28px; margin-bottom:8px;">Match Over</h2>
+                <p style="font-family:'Roboto Condensed',sans-serif; color:rgba(255,255,255,0.7); font-size:16px; margin-bottom:18px;">{result}</p>
+                <div style="font-family:'Roboto Condensed',sans-serif; color:rgba(255,255,255,0.5); font-size:12px; letter-spacing:1.5px;">
                     {team_inn1}: {innings1_runs} &nbsp;|&nbsp; {team_inn2}: {current_runs}/{wickets}
                 </div>
             </div>
@@ -456,24 +536,43 @@ def render_main(match_id):
     st.markdown('<div class="innings-badge"><span>' + batting_team + ' &mdash; ' + ("1st" if innings == 1 else "2nd") + ' Innings</span></div>', unsafe_allow_html=True)
     whatsapp_share_url = "https://easyscoring.streamlit.app/?match=" + match_id
     whatsapp_link = "https://wa.me/?text=" + whatsapp_share_url
-    st.markdown(f'<div style="text-align:center;margin-bottom:12px;"><a class="share-pill" href="{whatsapp_link}" target="_blank">📲 Share Scoring</a></div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="text-align:center;margin-bottom:8px;"><a class="share-pill" href="{whatsapp_link}" target="_blank">📲 Share Scoring</a></div>', unsafe_allow_html=True)
 
-    # Score Board View from image_f143bf.png
+    # Render Premium Scoreboard Overhaul Ticker at the top
+    batting_abbrev = team_abbrev(batting_team)
+    overs_val = f"{current_balls//6}.{current_balls%6}"
+    max_overs_val = str(d['match_overs'])
+    
     st.markdown(f"""
-        <div class="score-header">
-            <div class="score-col">
-                <span class="lbl">Score</span>
-                <span class="val">{current_runs}/{wickets}</span>
+        <div class="broadcast-ticker">
+            <div class="ticker-gold-bar"></div>
+            <div class="ticker-logo-box">
+                {SVG_LOGO_MARKUP}
             </div>
-            <div class="score-divider"></div>
-            <div class="score-col">
-                <span class="lbl">Overs</span>
-                <span class="val">{current_balls//6}.{current_balls%6}</span>
+            <div class="ticker-section batting-sec">
+                <span class="ticker-lbl">BATTING</span>
+                <div class="ticker-team-box">{batting_abbrev}</div>
+            </div>
+            <div class="ticker-divider"></div>
+            <div class="ticker-section score-sec">
+                <span class="ticker-val-score">{current_runs}/{wickets}</span>
+            </div>
+            <div class="ticker-divider"></div>
+            <div class="ticker-section overs-sec">
+                <div class="overs-arch-wrap">
+                    <div class="overs-arch"></div>
+                    <span class="ticker-lbl">OVERS</span>
+                </div>
+                <span class="ticker-val-overs">{overs_val}</span>
+            </div>
+            <div class="ticker-divider"></div>
+            <div class="ticker-section max-sec">
+                <span class="ticker-lbl">MAX</span>
+                <div class="ticker-max-box">{max_overs_val}</div>
             </div>
         </div>
     """, unsafe_allow_html=True)
 
-    # Target statement for 2nd innings
     if innings == 2:
         needed     = innings1_runs - current_runs + 1
         balls_left = max_balls - current_balls
@@ -483,44 +582,41 @@ def render_main(match_id):
         else:
             st.markdown('<div class="target-bar">✅ Target achieved!</div>', unsafe_allow_html=True)
 
+    # POPUP EXTRAS MODAL FLOW
     if st.session_state.get("show_extras", False):
         st.markdown('<div class="extras-modal">', unsafe_allow_html=True)
         st.markdown('<div class="extras-header">ADD EXTRAS</div>', unsafe_allow_html=True)
         st.markdown('<div class="extras-body">', unsafe_allow_html=True)
         
-        # Row 1: Wides (w+1, w+2, w+3, w+4) as displayed in image_f143bf.png (lowercase)
-        st.markdown('<div style="margin-bottom: 5px; text-align: center; color: rgba(255,255,255,0.4); font-family:\'Roboto Condensed\', sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase;">Wide Balls</div>', unsafe_allow_html=True)
+        # Row 1: Wides [w+1], [w+2], [w+3], [w+4] (Lowercase)
+        st.markdown('<div style="margin-bottom: 5px; text-align: center; color: rgba(255,255,255,0.4); font-family:\'Roboto Condensed\', sans-serif; font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase;">Wide Balls</div>', unsafe_allow_html=True)
         wcols = st.columns(4)
-        w_options = [1, 2, 3, 4]
-        for idx, val in enumerate(w_options):
+        for idx, val in enumerate([1, 2, 3, 4]):
             with wcols[idx]:
                 st.markdown('<div class="extra-wide-btn">', unsafe_allow_html=True)
                 if st.button(f"w+{val}", key=f"popup_w_{val}", use_container_width=True):
-                    # Adds val runs, 0 legal balls recorded
                     update_score(match_id, val, 0)
                     st.session_state.show_extras = False
                     st.session_state.continue_after_target = False
                     st.rerun()
                 st.markdown('</div>', unsafe_allow_html=True)
         
-        st.markdown('<div style="height: 16px;"></div>', unsafe_allow_html=True)
+        st.markdown('<div style="height: 12px;"></div>', unsafe_allow_html=True)
         
-        # Row 2: No Balls (N+1, N+2, N+3, N+4, N+5, N+6) as displayed in image_f143bf.png (uppercase)
-        st.markdown('<div style="margin-bottom: 5px; text-align: center; color: rgba(255,255,255,0.4); font-family:\'Roboto Condensed\', sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase;">No Balls</div>', unsafe_allow_html=True)
+        # Row 2: No Balls [N+1] to [N+6] (Uppercase N)
+        st.markdown('<div style="margin-bottom: 5px; text-align: center; color: rgba(255,255,255,0.4); font-family:\'Roboto Condensed\', sans-serif; font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase;">No Balls</div>', unsafe_allow_html=True)
         ncols = st.columns(6)
-        n_options = [1, 2, 3, 4, 5, 6]
-        for idx, val in enumerate(n_options):
+        for idx, val in enumerate([1, 2, 3, 4, 5, 6]):
             with ncols[idx]:
                 st.markdown('<div class="extra-no-btn">', unsafe_allow_html=True)
                 if st.button(f"N+{val}", key=f"popup_n_{val}", use_container_width=True):
-                    # Adds val runs, 0 legal balls recorded
                     update_score(match_id, val, 0)
                     st.session_state.show_extras = False
                     st.session_state.continue_after_target = False
                     st.rerun()
                 st.markdown('</div>', unsafe_allow_html=True)
                 
-        # Cancel Button
+        # Cancel Outline Button (Bevel Gold/Red Capsule)
         st.markdown('<div class="extra-cancel-btn">', unsafe_allow_html=True)
         if st.button("Cancel", key="cancel_extras_popup", use_container_width=True):
             st.session_state.show_extras = False
@@ -529,33 +625,17 @@ def render_main(match_id):
         st.markdown('</div></div>', unsafe_allow_html=True)
 
     else:
-        
-        # Row 1: 0, 1, 2, 3
+        # MAIN SCORING CONTROLS AREA
+        # Row 1: 0, 1, 2, 3 (Glassy deep blue look)
         c0, c1, c2, c3 = st.columns(4)
-        with c0:
-            st.markdown('<div class="glossy-btn-container">', unsafe_allow_html=True)
-            if st.button("0", key="g0", use_container_width=True):
-                update_score(match_id, 0, 1)
-                st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
-        with c1:
-            st.markdown('<div class="glossy-btn-container">', unsafe_allow_html=True)
-            if st.button("1", key="g1", use_container_width=True):
-                update_score(match_id, 1, 1)
-                st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
-        with c2:
-            st.markdown('<div class="glossy-btn-container">', unsafe_allow_html=True)
-            if st.button("2", key="g2", use_container_width=True):
-                update_score(match_id, 2, 1)
-                st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
-        with c3:
-            st.markdown('<div class="glossy-btn-container">', unsafe_allow_html=True)
-            if st.button("3", key="g3", use_container_width=True):
-                update_score(match_id, 3, 1)
-                st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
+        for idx, val in enumerate(["0", "1", "2", "3"]):
+            col_target = [c0, c1, c2, c3][idx]
+            with col_target:
+                st.markdown('<div class="glossy-btn-container">', unsafe_allow_html=True)
+                if st.button(val, key=f"g{val}", use_container_width=True):
+                    update_score(match_id, int(val), 1)
+                    st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
 
         # Row 2: 4, 6, OUT, UNDO
         c4, c5, cout, cundo = st.columns(4)
@@ -584,14 +664,14 @@ def render_main(match_id):
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
 
-        # Huge Premium Pill Style 'ADD EXTRAS' Button
+        # Huge Premium Pill Style 'ADD EXTRAS' Button directly below
         st.markdown('<div class="add-extras-btn">', unsafe_allow_html=True)
         if st.button("ADD EXTRAS", key="trigger_extras_popup", use_container_width=True):
             st.session_state.show_extras = True
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # Render footer utilities & overlays
+    # Bottom Settings section
     if st.session_state.get("confirm_reset_active"):
         st.markdown("""
             <div style="background:rgba(235,87,87,0.12); border:1.5px solid rgba(235,87,87,0.35); border-radius:14px; padding:12px; margin-top:10px; text-align:center;">
@@ -671,6 +751,9 @@ def _render_overlay_box(overlay_url, match_id=None, confirm_key=None, reset_key=
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
 
+# ════════════════════════════════════════════════════════
+#  PREMIUM OVERLAY BROADCAST TICKER MODE (OBS & STREAMS)
+# ════════════════════════════════════════════════════════
 def render_overlay(match_id):
     st.markdown("""
         <style>
@@ -689,29 +772,67 @@ def render_overlay(match_id):
             header, footer, #MainMenu          { display: none !important; }
             .block-container { padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
             
-            /* Compact ticker bar overlay */
-            .ticker {
+            /* Premium Broadcast ticker layout exactly matching Screenshot 2026-06-18 120122.png */
+            .ticker-overlay-container {
                 position: fixed; bottom: 14px; left: 14px;
-                display: inline-flex; align-items: stretch;
-                border-radius: 8px; overflow: hidden;
-                box-shadow: 0 4px 24px rgba(0,0,0,0.5), 0 1px 4px rgba(0,0,0,0.3);
-                font-family: 'Oswald', sans-serif;
+                display: inline-flex; align-items: center;
+                background: linear-gradient(180deg, #24282c 0%, #0f1113 100%);
+                border: 2px solid #3c4045; border-radius: 16px;
+                padding: 8px 16px;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 12px 24px rgba(0,0,0,0.6);
+                overflow: hidden; font-family: 'Roboto Condensed', sans-serif;
             }
-            .ticker-accent { width: 5px; background: linear-gradient(180deg, #f0c040, #c8960a); flex-shrink: 0; }
-            .ticker-body {
-                background: rgba(10, 10, 20, 0.88);
-                backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-                padding: 10px 16px 10px 12px; display: flex; align-items: center; gap: 10px;
+            .ticker-accent-bar {
+                position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
+                background: linear-gradient(180deg, #ffb700, #c38400);
+                box-shadow: 0 0 8px rgba(255, 183, 0, 0.6);
             }
-            .ticker-icon  { font-size: 18px; line-height: 1; opacity: 0.85; }
-            .ticker-score { font-size: 42px; font-weight: 700; color: #ffffff; line-height: 1; letter-spacing: -1px; }
-            .ticker-sep   { width: 1px; height: 36px; background: rgba(255,255,255,0.15); flex-shrink: 0; }
-            .ticker-overs { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; }
-            .ticker-overs-lbl { font-family: 'Roboto Condensed', sans-serif; font-size: 9px; letter-spacing: 2px; color: rgba(255,255,255,1); text-transform: uppercase; }
-            .ticker-overs-val { font-size: 20px; font-weight: 700; color: #f0c040; line-height: 1; }
-            .ticker-match-id  { font-family: 'Roboto Condensed', sans-serif; font-size: 9px; letter-spacing: 1.5px; color: rgba(255,255,255,0.5); text-transform: uppercase; align-self: flex-end; padding-bottom: 2px; }
-            .ticker-innings   { font-family: 'Roboto Condensed', sans-serif; font-size: 9px; letter-spacing: 1.5px; color: rgba(255,255,255,1); text-transform: uppercase; align-self: flex-end; padding-bottom: 2px; }
-            .ticker-winner    { font-family: 'Roboto Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; color: #4ade80; text-transform: uppercase; align-self: center; padding: 2px 8px; background: rgba(74,222,128,0.15); border: 1px solid rgba(74,222,128,0.35); border-radius: 6px; white-space: nowrap; }
+            .ticker-logo-cell {
+                margin-left: 8px; margin-right: 12px;
+                display: flex; align-items: center; justify-content: center;
+            }
+            .ticker-vertical-divider {
+                width: 3px; height: 42px;
+                background: linear-gradient(180deg, #7f8285, #3a3c3e, #7f8285);
+                border-left: 1px solid #111; border-right: 1px solid #555;
+                margin: 0 12px; opacity: 0.8;
+            }
+            .ticker-cell {
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                text-align: center;
+            }
+            .ticker-label-text {
+                color: #ffffff; font-size: 11px; font-weight: 700;
+                letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 2px;
+            }
+            .ticker-box-gold {
+                border: 1.5px solid #c3a469; border-radius: 4px;
+                padding: 1px 12px; background: rgba(195, 164, 105, 0.08);
+                color: #ffcc00; font-family: 'Oswald', sans-serif;
+                font-size: 16px; font-weight: 700; text-shadow: 0 0 4px rgba(255, 204, 0, 0.5);
+                line-height: 1.2;
+            }
+            .ticker-score-giant {
+                color: #ffffff; font-family: 'Oswald', sans-serif;
+                font-size: 46px; font-weight: 700; line-height: 1; letter-spacing: -1px;
+            }
+            .ticker-overs-giant {
+                color: #ffd700; font-family: 'Oswald', sans-serif;
+                font-size: 28px; font-weight: 700; line-height: 1;
+                text-shadow: 0 0 10px rgba(255, 215, 0, 0.6), 0 0 20px rgba(255, 215, 0, 0.3);
+            }
+            .ticker-box-silver {
+                border: 1.5px solid #5c6065; border-radius: 4px;
+                padding: 1px 12px; background: rgba(255,255,255,0.06);
+                color: #ffffff; font-family: 'Oswald', sans-serif;
+                font-size: 16px; font-weight: 700; line-height: 1.2;
+            }
+            .ticker-winner {
+                font-family: 'Roboto Condensed', sans-serif; font-size: 12px; font-weight: 700;
+                letter-spacing: 2px; color: #4ade80; text-transform: uppercase;
+                padding: 4px 10px; background: rgba(74,222,128,0.15);
+                border: 1px solid rgba(74,222,128,0.35); border-radius: 6px; white-space: nowrap;
+            }
         </style>
     """, unsafe_allow_html=True)
 
@@ -758,33 +879,57 @@ def render_overlay(match_id):
     else:
         winner_text = ""
 
-    t  = '<div class="ticker">'
-    t += '<div class="ticker-accent"></div>'
-    t += '<div class="ticker-body">'
-    t += '<div class="ticker-icon">🏏</div>'
-    t += '<div class="ticker-overs"><div class="ticker-overs-lbl">Batting</div><div class="ticker-overs-val" style="color:#f0c040;font-size:16px;">' + batting_abbrev + '</div></div>'
-    t += '<div class="ticker-sep"></div>'
-    t += '<div class="ticker-score">' + str(current_runs) + '/' + str(wickets) + '</div>'
-    t += '<div class="ticker-sep"></div>'
-    t += '<div class="ticker-overs"><div class="ticker-overs-lbl">Overs</div><div class="ticker-overs-val">' + overs_str + '</div></div>'
-    t += '<div class="ticker-sep"></div>'
-    t += '<div class="ticker-overs"><div class="ticker-overs-lbl">Max</div><div class="ticker-overs-val">' + str(max_overs) + '</div></div>'
+    # Recreate the premium markup overlay seamlessly
+    t = f'<div class="ticker-overlay-container">'
+    t += '  <div class="ticker-accent-bar"></div>'
+    t += f'  <div class="ticker-logo-cell">{SVG_LOGO_MARKUP}</div>'
+    
+    t += '  <div class="ticker-cell" style="width: 70px;">'
+    t += '    <span class="ticker-label-text">BATTING</span>'
+    t += f'    <div class="ticker-box-gold">{batting_abbrev}</div>'
+    t += '  </div>'
+    
+    t += '  <div class="ticker-vertical-divider"></div>'
+    
+    t += '  <div class="ticker-cell" style="min-width: 90px;">'
+    t += f'    <span class="ticker-label-text" style="opacity: 0.7;">LIVE SCORE</span>'
+    t += f'    <span class="ticker-score-giant">{current_runs}/{wickets}</span>'
+    t += '  </div>'
+    
+    t += '  <div class="ticker-vertical-divider"></div>'
+    
+    t += '  <div class="ticker-cell" style="width: 75px; position: relative;">'
+    t += '    <div style="position: absolute; top:-2px; width:30px; height:4px; border-top:2px solid rgba(255,255,255,0.4); border-radius:50% 50% 0 0;"></div>'
+    t += '    <span class="ticker-label-text">OVERS</span>'
+    t += f'    <span class="ticker-overs-giant">{overs_str}</span>'
+    t += '  </div>'
+    
+    t += '  <div class="ticker-vertical-divider"></div>'
+    
+    t += '  <div class="ticker-cell" style="width: 65px;">'
+    t += '    <span class="ticker-label-text">MAX</span>'
+    t += f'    <div class="ticker-box-silver">{max_overs}</div>'
+    t += '  </div>'
 
     if match_over:
-        t += '<div class="ticker-sep"></div>'
-        t += '<div class="ticker-winner">🏆 ' + winner_text + '</div>'
+        t += '  <div class="ticker-vertical-divider"></div>'
+        t += f'  <div class="ticker-cell"><div class="ticker-winner">🏆 {winner_text}</div></div>'
     elif innings == 2:
-        t += '<div class="ticker-sep"></div>'
-        t += '<div class="ticker-overs"><div class="ticker-overs-lbl">Target</div><div class="ticker-overs-val" style="color:#c8c8c8;">' + str(target_val) + '</div></div>'
-        t += '<div class="ticker-sep"></div>'
-        t += '<div class="ticker-overs"><div class="ticker-overs-lbl">Need</div><div class="ticker-overs-val" style="color:' + need_color + ';">' + f"{need_val} off {balls_left}" + '</div></div>'
+        t += '  <div class="ticker-vertical-divider"></div>'
+        t += '  <div class="ticker-cell" style="padding: 0 4px;">'
+        t += '    <span class="ticker-label-text" style="color:#ffd700;">CHASE</span>'
+        t += f'    <span style="font-family:\'Oswald\'; font-weight:700; font-size:18px; color:{need_color};">{need_val} off {balls_left}</span>'
+        t += '  </div>'
 
-    t += '</div></div>'
+    t += '</div>'
 
     st.markdown(t, unsafe_allow_html=True)
     time.sleep(2)
     st.rerun()
 
+# ════════════════════════════════════════════════════════
+#  ROUTING INITIATOR
+# ════════════════════════════════════════════════════════
 params   = st.query_params
 mode     = params.get("mode", "")
 match_id = params.get("match", "").strip().upper()
