@@ -299,49 +299,102 @@ def render_main(match_id):
             [data-testid="element-container"] { margin: 0 !important; padding: 0 !important; }
             .stButton { margin: 0 !important; padding: 0 !important; }
 
-            /* SCORING BUTTONS GLOW & EXTRA-BOLD OVERHAUL (Oswald Font-Weight 800) */
-            .glossy-btn-container button {
+            /* SIBLING & :HAS() NATIVE STREAMLIT BUTTON OVERRIDES
+               This guarantees styling works 100% by targeting the button container adjacent to our wrapper markers!
+            */
+
+            /* 1. Base style for scoring buttons (0, 1, 2, 3) with gold-yellow neon glow borders and Oswald Extra-Bold */
+            div[data-testid="element-container"]:has(.glossy-btn-container) + div[data-testid="element-container"] button {
                 background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
                 border: 2.5px solid #ffd700 !important; /* Yellow glowy outline border */
-                border-radius: 18px !important;
-                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(255, 215, 0, 0.4) !important; /* Glow outline shadow */
-                color: #ffd700 !important;
+                border-radius: 20px !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(255, 215, 0, 0.4) !important;
+                color: #ffffff !important;
                 font-family: 'Oswald', sans-serif !important;
-                font-size: 30px !important;
-                font-weight: 800 !important; /* Make fonts extra bold */
+                font-size: 32px !important;
+                font-weight: 800 !important; /* Bold fonts */
                 height: 84px !important; /* Increased Height */
                 width: 100% !important;
-                text-shadow: 0 0 8px rgba(255, 215, 0, 0.7), 0 0 15px rgba(255, 215, 0, 0.3) !important;
-                transition: transform 0.08s ease, box-shadow 0.08s ease !important;
+                text-shadow: 0 0 8px rgba(255, 215, 0, 0.4) !important;
+                transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease !important;
             }
             
-            /* Anti-stick focus state overrides: force background & text colors to NOT get stuck on click */
-            .glossy-btn-container button:focus,
-            .glossy-btn-container button:focus-visible,
-            .glossy-btn-container button:active {
+            /* Settle down hover and active highlights to rest exactly to our theme styles */
+            div[data-testid="element-container"]:has(.glossy-btn-container) + div[data-testid="element-container"] button:focus,
+            div[data-testid="element-container"]:has(.glossy-btn-container) + div[data-testid="element-container"] button:active,
+            div[data-testid="element-container"]:has(.glossy-btn-container) + div[data-testid="element-container"] button:focus-visible {
                 outline: none !important;
                 transform: none !important;
                 background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
                 border-color: #ffd700 !important;
-                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 14px rgba(255, 215, 0, 0.6) !important;
-                color: #ffd700 !important;
-                text-shadow: 0 0 8px rgba(255, 215, 0, 0.7), 0 0 15px rgba(255, 215, 0, 0.3) !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(255, 215, 0, 0.4) !important;
+                color: #ffffff !important;
             }
             
-            /* Glowing Specific Overrides with Focus protection */
-            .btn-four button { border-color: #f3c64f !important; color: #f3c64f !important; text-shadow: 0 0 8px rgba(243, 198, 79, 0.7), 0 0 15px rgba(243, 198, 79, 0.3) !important; box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(243, 198, 79, 0.4) !important; }
-            .btn-four button:focus, .btn-four button:focus-visible { border-color: #f3c64f !important; color: #f3c64f !important; text-shadow: 0 0 8px rgba(243, 198, 79, 0.7), 0 0 15px rgba(243, 198, 79, 0.3) !important; }
+            /* 2. Button 4 (Custom gold text color) */
+            div[data-testid="element-container"]:has(.btn-four) + div[data-testid="element-container"] button {
+                border-color: #f3c64f !important;
+                color: #f3c64f !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(243, 198, 79, 0.4) !important;
+                text-shadow: 0 0 8px rgba(243, 198, 79, 0.6) !important;
+            }
+            div[data-testid="element-container"]:has(.btn-four) + div[data-testid="element-container"] button:focus,
+            div[data-testid="element-container"]:has(.btn-four) + div[data-testid="element-container"] button:active {
+                border-color: #f3c64f !important;
+                color: #f3c64f !important;
+                background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(243, 198, 79, 0.4) !important;
+            }
             
-            .btn-six button { border-color: #52d273 !important; color: #52d273 !important; text-shadow: 0 0 8px rgba(82, 210, 115, 0.7), 0 0 15px rgba(82, 210, 115, 0.3) !important; box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(82, 210, 115, 0.4) !important; }
-            .btn-six button:focus, .btn-six button:focus-visible { border-color: #52d273 !important; color: #52d273 !important; text-shadow: 0 0 8px rgba(82, 210, 115, 0.7), 0 0 15px rgba(82, 210, 115, 0.3) !important; }
+            /* 3. Button 6 (Custom green text color) */
+            div[data-testid="element-container"]:has(.btn-six) + div[data-testid="element-container"] button {
+                border-color: #52d273 !important;
+                color: #52d273 !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(82, 210, 115, 0.4) !important;
+                text-shadow: 0 0 8px rgba(82, 210, 115, 0.6) !important;
+            }
+            div[data-testid="element-container"]:has(.btn-six) + div[data-testid="element-container"] button:focus,
+            div[data-testid="element-container"]:has(.btn-six) + div[data-testid="element-container"] button:active {
+                border-color: #52d273 !important;
+                color: #52d273 !important;
+                background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(82, 210, 115, 0.4) !important;
+            }
             
-            .btn-out button { border-color: #ec4849 !important; color: #ec4849 !important; font-size: 24px !important; text-shadow: 0 0 8px rgba(236, 72, 73, 0.7), 0 0 15px rgba(236, 72, 73, 0.3) !important; box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(236, 72, 73, 0.4) !important; }
-            .btn-out button:focus, .btn-out button:focus-visible { border-color: #ec4849 !important; color: #ec4849 !important; text-shadow: 0 0 8px rgba(236, 72, 73, 0.7), 0 0 15px rgba(236, 72, 73, 0.3) !important; }
+            /* 4. Button OUT (Custom red text color) */
+            div[data-testid="element-container"]:has(.btn-out) + div[data-testid="element-container"] button {
+                border-color: #ec4849 !important;
+                color: #ec4849 !important;
+                font-size: 24px !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(236, 72, 73, 0.4) !important;
+                text-shadow: 0 0 8px rgba(236, 72, 73, 0.6) !important;
+            }
+            div[data-testid="element-container"]:has(.btn-out) + div[data-testid="element-container"] button:focus,
+            div[data-testid="element-container"]:has(.btn-out) + div[data-testid="element-container"] button:active {
+                border-color: #ec4849 !important;
+                color: #ec4849 !important;
+                background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(236, 72, 73, 0.4) !important;
+            }
             
-            .btn-undo button { border-color: #4da6ff !important; color: #4da6ff !important; font-size: 20px !important; text-shadow: 0 0 8px rgba(77, 166, 255, 0.7), 0 0 15px rgba(77, 166, 255, 0.3) !important; box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(77, 166, 255, 0.4) !important; }
-            .btn-undo button:focus, .btn-undo button:focus-visible { border-color: #4da6ff !important; color: #4da6ff !important; text-shadow: 0 0 8px rgba(77, 166, 255, 0.7), 0 0 15px rgba(77, 166, 255, 0.3) !important; }
+            /* 5. Button UNDO (Custom blue text color) */
+            div[data-testid="element-container"]:has(.btn-undo) + div[data-testid="element-container"] button {
+                border-color: #4da6ff !important;
+                color: #4da6ff !important;
+                font-size: 20px !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(77, 166, 255, 0.4) !important;
+                text-shadow: 0 0 8px rgba(77, 166, 255, 0.6) !important;
+            }
+            div[data-testid="element-container"]:has(.btn-undo) + div[data-testid="element-container"] button:focus,
+            div[data-testid="element-container"]:has(.btn-undo) + div[data-testid="element-container"] button:active {
+                border-color: #4da6ff !important;
+                color: #4da6ff !important;
+                background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(77, 166, 255, 0.4) !important;
+            }
 
-            .add-extras-btn button {
+            /* 6. Huge Add Extras Button */
+            div[data-testid="element-container"]:has(.add-extras-btn) + div[data-testid="element-container"] button {
                 background: linear-gradient(180deg, #182e54 0%, #0b1528 100%) !important;
                 border: 2px solid #bda064 !important;
                 border-radius: 24px !important;
@@ -356,10 +409,11 @@ def render_main(match_id):
                 text-shadow: 0 1px 3px rgba(0,0,0,0.6) !important;
                 margin: 10px 0 !important;
             }
-            .add-extras-btn button:active {
+            div[data-testid="element-container"]:has(.add-extras-btn) + div[data-testid="element-container"] button:active {
                 transform: scale(0.97) !important;
             }
 
+            /* 7. Popups: Wide and No Ball styling wrappers */
             .extras-modal {
                 background: #11203b !important;
                 border: 2px solid #bda064 !important;
@@ -385,7 +439,7 @@ def render_main(match_id):
                 padding: 16px 12px !important;
             }
 
-            .extra-wide-btn button {
+            div[data-testid="element-container"]:has(.extra-wide-btn) + div[data-testid="element-container"] button {
                 background: linear-gradient(180deg, #1b2e50 0%, #0d1729 100%) !important;
                 border: 2px solid #bda064 !important;
                 border-radius: 16px !important;
@@ -399,7 +453,7 @@ def render_main(match_id):
                 text-shadow: 0 1.5px 2px rgba(0,0,0,0.6) !important;
             }
             
-            .extra-no-btn button {
+            div[data-testid="element-container"]:has(.extra-no-btn) + div[data-testid="element-container"] button {
                 background: linear-gradient(180deg, #1b2e50 0%, #0d1729 100%) !important;
                 border: 1.5px solid #bda064 !important;
                 border-radius: 14px !important;
@@ -414,7 +468,7 @@ def render_main(match_id):
                 text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
             }
 
-            .extra-cancel-btn button {
+            div[data-testid="element-container"]:has(.extra-cancel-btn) + div[data-testid="element-container"] button {
                 background: transparent !important;
                 border: 2px solid #bda064 !important;
                 border-radius: 20px !important;
@@ -431,7 +485,8 @@ def render_main(match_id):
                 letter-spacing: 1.5px !important;
             }
 
-            .premium-reset-btn button {
+            /* Settings/Themes Redesigned Utility controls matching visual tokens */
+            div[data-testid="element-container"]:has(.premium-reset-btn) + div[data-testid="element-container"] button {
                 background: linear-gradient(180deg, #321010 0%, #190808 100%) !important;
                 border: 2px solid #ff5252 !important;
                 border-radius: 16px !important;
@@ -446,7 +501,7 @@ def render_main(match_id):
                 text-transform: uppercase !important;
                 width: 100% !important;
             }
-            .premium-theme-btn button {
+            div[data-testid="element-container"]:has(.premium-theme-btn) + div[data-testid="element-container"] button {
                 background: linear-gradient(180deg, #1b2e50 0%, #0d1729 100%) !important;
                 border: 2px solid #bda064 !important;
                 border-radius: 16px !important;
@@ -519,7 +574,7 @@ def render_main(match_id):
                 .ticker-val-score { color: #141c2c !important; }
                 .ticker-lbl { color: #555555 !important; }
                 .ticker-max-box { border-color: rgba(0,0,0,0.2) !important; background: rgba(0,0,0,0.03) !important; color: #141c2c !important; }
-                .glossy-btn-container button {
+                div[data-testid="element-container"]:has(.glossy-btn-container) + div[data-testid="element-container"] button {
                     background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(230,238,248,0.95) 100%) !important;
                     color: #141c2c !important; border-color: #ffd700 !important;
                     box-shadow: inset 0 1.5px 3px rgba(255,255,255,1), 0 4px 8px rgba(0,0,0,0.08) !important;
@@ -529,11 +584,12 @@ def render_main(match_id):
                     color: #141c2c !important; border-color: #bda064 !important;
                 }
                 .extras-modal { background: #f0f4fa !important; border-color: #9b814a !important; }
-                .extra-wide-btn button, .extra-no-btn button {
+                div[data-testid="element-container"]:has(.extra-wide-btn) + div[data-testid="element-container"] button,
+                div[data-testid="element-container"]:has(.extra-no-btn) + div[data-testid="element-container"] button {
                     background: linear-gradient(180deg, #ffffff 0%, #eef3fb 100%) !important;
                     color: #141c2c !important; border-color: #9b814a !important;
                 }
-                .extra-cancel-btn button { background: rgba(0,0,0,0.02) !important; border-color: #bda064 !important; }
+                div[data-testid="element-container"]:has(.extra-cancel-btn) + div[data-testid="element-container"] button { background: rgba(0,0,0,0.02) !important; border-color: #bda064 !important; }
                 .target-bar { background: rgba(0,0,0,0.03) !important; color: #8c581a !important; border-color: rgba(140,88,26,0.2) !important; }
                 .credit span { color: rgba(0,0,0,0.4) !important; }
                 .credit-link { color: #8c581a !important; }
