@@ -127,39 +127,75 @@ SVG_LOGO_MARKUP = """
 """
 
 def render_main(match_id):
+    # Injection of custom styling optimized for zero scrolling and a premium metallic theme
     render_html("""
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Roboto+Condensed:wght@400;700&display=swap');
             header, footer, #MainMenu { display: none !important; }
             
+            /* Radial Dark Metallic theme */
             .stApp { 
                 background: radial-gradient(circle at top, #141c2c 0%, #080a10 100%) !important; 
                 min-height: 100vh; 
             }
             
+            /* Tight container spacing to fit active viewport */
             .block-container { 
                 padding: 10px 8px 12px 8px !important; 
                 max-width: 440px !important; 
                 margin: 0 auto !important; 
             }
 
-            .innings-badge { text-align: center; margin-bottom: 6px; }
+            /* Innings badge redesigned into a premium golden-beveled dark-metallic capsule */
+            .innings-badge { text-align: center; margin-bottom: 10px; }
             .innings-badge span {
-                background: rgba(195, 164, 105, 0.1); color: #c3a469;
-                font-family: 'Roboto Condensed', sans-serif; font-size: 11px; font-weight: 700;
-                letter-spacing: 2px; text-transform: uppercase;
-                padding: 3px 14px; border-radius: 20px; border: 1px solid rgba(195, 164, 105, 0.35);
+                background: linear-gradient(180deg, #1d283f 0%, #0b111c 100%) !important;
+                color: #f3c64f !important;
+                font-family: 'Oswald', sans-serif !important;
+                font-size: 13px !important;
+                font-weight: 700 !important;
+                letter-spacing: 1.5px !important;
+                text-transform: uppercase !important;
+                padding: 6px 22px !important;
+                border-radius: 20px !important;
+                border: 2px solid #bda064 !important;
+                display: inline-block !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.4) !important;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.6) !important;
             }
             
-            .share-pill {
-                display: inline-flex; align-items: center; gap: 4px; 
-                background: rgba(37, 211, 102, 0.08); color: #25d366; 
-                font-family: 'Roboto Condensed', sans-serif; font-size: 10px; 
-                font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; 
-                padding: 4px 12px; border-radius: 16px; 
-                border: 1px solid rgba(37, 211, 102, 0.25); text-decoration: none;
+            /* Share scoring link redesigned into a premium glossy 3D green-beveled button */
+            .share-pill-wrapper { text-align: center; margin-bottom: 14px; }
+            a.share-pill {
+                display: inline-flex !important; 
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 6px !important; 
+                background: linear-gradient(180deg, #103822 0%, #081d11 100%) !important;
+                color: #52d273 !important; 
+                font-family: 'Oswald', sans-serif !important;
+                font-size: 12px !important; 
+                font-weight: 700 !important;
+                letter-spacing: 1.5px !important;
+                text-transform: uppercase !important; 
+                padding: 6px 18px !important;
+                border-radius: 20px !important; 
+                border: 2.5px solid #52d273 !important;
+                text-decoration: none !important;
+                border-bottom: none !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.3) !important;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.6) !important;
+                transition: transform 0.1s ease !important;
+            }
+            a.share-pill:hover, a.share-pill:active, a.share-pill:focus {
+                text-decoration: none !important;
+                color: #52d273 !important;
+                border-bottom: none !important;
+                transform: scale(0.96) !important;
+                outline: none !important;
             }
 
+            /* PREMIUM OVERLAY STYLE TICKER BAR (as seen in Screenshot 2026-06-18 120122.png) */
             .broadcast-ticker {
                 display: flex; align-items: center; justify-content: space-between;
                 background: linear-gradient(180deg, #24282c 0%, #0f1113 100%);
@@ -515,10 +551,21 @@ def render_main(match_id):
         st.markdown('</div>', unsafe_allow_html=True)
         return
 
-    st.markdown('<div class="innings-badge"><span>' + batting_team + ' &mdash; ' + ("1st" if innings == 1 else "2nd") + ' Innings</span></div>', unsafe_allow_html=True)
+    # Redesigned Innings Badge & Share Pill layout rendered cleanly via flattened HTML blocks
+    render_html(f"""
+        <div class="innings-badge">
+            <span>{batting_team} &mdash; {"1st" if innings == 1 else "2nd"} Innings</span>
+        </div>
+    """)
+    
     whatsapp_share_url = "https://easyscoring.streamlit.app/?match=" + match_id
     whatsapp_link = "https://wa.me/?text=" + whatsapp_share_url
-    st.markdown(f'<div style="text-align:center;margin-bottom:8px;"><a class="share-pill" href="{whatsapp_link}" target="_blank">📲 Share Scoring</a></div>', unsafe_allow_html=True)
+    
+    render_html(f"""
+        <div class="share-pill-wrapper">
+            <a class="share-pill" href="{whatsapp_link}" target="_blank">📲 Share Scoring</a>
+        </div>
+    """)
 
     # Render Premium Scoreboard Overhaul Ticker at the top
     batting_abbrev = team_abbrev(batting_team)
@@ -608,6 +655,7 @@ def render_main(match_id):
 
     else:
         # MAIN SCORING CONTROLS AREA
+        # Row 1: 0, 1, 2, 3 (Glassy deep blue look)
         c0, c1, c2, c3 = st.columns(4)
         for idx, val in enumerate(["0", "1", "2", "3"]):
             col_target = [c0, c1, c2, c3][idx]
@@ -618,6 +666,7 @@ def render_main(match_id):
                     st.rerun()
                 st.markdown('</div>', unsafe_allow_html=True)
 
+        # Row 2: 4, 6, OUT, UNDO
         c4, c5, cout, cundo = st.columns(4)
         with c4:
             st.markdown('<div class="glossy-btn-container btn-four">', unsafe_allow_html=True)
@@ -644,6 +693,7 @@ def render_main(match_id):
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
 
+        # Huge Premium Pill Style 'ADD EXTRAS' Button directly below
         st.markdown('<div class="add-extras-btn">', unsafe_allow_html=True)
         if st.button("ADD EXTRAS", key="trigger_extras_popup", use_container_width=True):
             st.session_state.show_extras = True
