@@ -94,23 +94,6 @@ def render_html(html_str):
     cleaned = " ".join(line.strip() for line in html_str.split("\n"))
     st.markdown(cleaned, unsafe_allow_html=True)
 
-# --- HELPER SVG FOR PREMIUM LOGO (BAT REMOVED FOR TEAM NAME SPACE) ---
-SVG_LOGO_MARKUP = """
-<svg viewBox="0 0 110 90" width="46" height="40" style="filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5));">
-    <!-- Center-aligned Shiny Leather Ball -->
-    <circle cx="55" cy="45" r="22" fill="url(#ballGrad)" />
-    <!-- Ball Seam -->
-    <path d="M37,45 Q55,29 73,45" fill="none" stroke="#ffffff" stroke-width="3" stroke-dasharray="3, 2" />
-    <defs>
-        <linearGradient id="ballGrad" x1="30%" y1="30%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#ff4444" />
-            <stop offset="60%" stop-color="#bd0000" />
-            <stop offset="100%" stop-color="#540000" />
-        </linearGradient>
-    </defs>
-</svg>
-"""
-
 # --- INJECTABLE SCRIPT TO PREVENT SCREEN SLEEP & DISMISS BUTTON HIGHLIGHTS ---
 WAKE_LOCK_AND_ANTI_STICK_SCRIPT = """
 <script>
@@ -228,7 +211,7 @@ def render_main(match_id):
                 display: flex; align-items: center; justify-content: space-between;
                 background: linear-gradient(180deg, #24282c 0%, #0f1113 100%);
                 border: 1.5px solid #3c4045; border-radius: 14px;
-                padding: 6px 10px; margin-bottom: 12px;
+                padding: 6px 16px; margin-bottom: 12px;
                 box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 10px 20px rgba(0,0,0,0.6);
                 position: relative; overflow: hidden; width: 100%;
                 font-family: 'Roboto Condensed', sans-serif;
@@ -237,10 +220,6 @@ def render_main(match_id):
                 position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
                 background: linear-gradient(180deg, #ffb700, #c38400);
                 box-shadow: 0 0 6px rgba(255, 183, 0, 0.5);
-            }
-            .ticker-logo-box {
-                margin-left: 4px; margin-right: 6px;
-                display: flex; align-items: center; justify-content: center;
             }
             .ticker-divider {
                 width: 3px; height: 36px;
@@ -252,7 +231,7 @@ def render_main(match_id):
                 display: flex; flex-direction: column; align-items: center; justify-content: center;
                 text-align: center;
             }
-            .batting-sec { flex: 1.2; min-width: 80px; }
+            .batting-sec { flex: 1.4; min-width: 90px; }
             .ticker-lbl {
                 color: #ffffff; font-size: 10px; font-weight: 700;
                 letter-spacing: 1px; text-transform: uppercase; margin-bottom: 1px;
@@ -265,10 +244,10 @@ def render_main(match_id):
                 text-transform: uppercase; width: 100%;
             }
             .team-row-1 {
-                font-size: 15px; font-weight: 800; color: #ffffff; letter-spacing: 0.5px;
+                font-size: 16px; font-weight: 800; color: #ffffff; letter-spacing: 0.5px;
             }
             .team-row-2 {
-                font-size: 13px; font-weight: 700; color: #f3c64f; letter-spacing: 0.5px;
+                font-size: 14px; font-weight: 700; color: #f3c64f; letter-spacing: 0.5px;
                 text-shadow: 0 0 4px rgba(243, 198, 79, 0.3);
             }
 
@@ -289,12 +268,10 @@ def render_main(match_id):
                 font-size: 24px; font-weight: 700; line-height: 1;
                 text-shadow: 0 0 8px rgba(255, 215, 0, 0.5), 0 0 15px rgba(255, 215, 0, 0.2);
             }
-            .max-sec { flex: 1; }
-            .ticker-max-box {
-                border: 1px solid #5c6065; border-radius: 4px;
-                padding: 1px 8px; background: rgba(255,255,255,0.05);
-                color: #ffffff; font-family: 'Oswald', sans-serif;
-                font-size: 14px; font-weight: 700; line-height: 1.1;
+            .max-sec { flex: 1.2; text-align: center; }
+            .ticker-val-max {
+                color: #ffd700; font-family: 'Oswald', sans-serif;
+                font-size: 20px; font-weight: 700; line-height: 1.1;
             }
 
             [data-testid="stHorizontalBlock"] { gap: 6px !important; flex-wrap: nowrap !important; }
@@ -554,22 +531,30 @@ def render_main(match_id):
     innings1_runs = int(d.get('innings1_runs') or 0)
     current_balls = int(d['balls'])
     current_runs  = int(d['runs'])
-    innings_over  = current_balls >= max_balls
     wickets       = get_wickets(d.get("history"))
+    max_overs_val = str(d['match_overs'])
 
     team1_name    = d.get("team1_name") or "Team 1"
     team2_name    = d.get("team2_name") or "Team 2"
     batting_first = int(d.get("batting_first") or 1)
     
+    team_inn1 = team1_name if batting_first == 1 else team2_name
+    team_inn2 = team2_name if batting_first == 1 else team1_name
+    
     if innings == 1:
-        batting_team = team1_name if batting_first == 1 else team2_name
-        bowling_team = team2_name if batting_first == 1 else team1_name
+        batting_team = team_inn1
+        bowling_team = team_inn2
     else:
-        batting_team = team2_name if batting_first == 1 else team1_name
-        bowling_team = team1_name if batting_first == 1 else team2_name
+        batting_team = team_inn2
+        bowling_team = team_inn1
 
-    # Check innings boundaries
-    if innings == 1 and innings_over:
+    # Automate Match Over if target is achieved in 2nd innings
+    target_achieved = (innings == 2 and current_runs > innings1_runs)
+    innings2_completed = (innings == 2 and (current_balls >= max_balls or wickets >= 10))
+    match_over = target_achieved or innings2_completed
+
+    # Handle First Innings boundaries
+    if innings == 1 and (current_balls >= max_balls or wickets >= 10):
         render_html(f"""
             <div style="background:rgba(20,31,58,0.5); border:1.5px solid rgba(255,255,255,0.08); border-radius:20px; padding:24px 10px; text-align:center; margin:15px 0;">
                 <h2 style="font-family:'Oswald',sans-serif; color:#f0c040; font-size:24px; margin-bottom:8px;">Innings Over</h2>
@@ -586,48 +571,7 @@ def render_main(match_id):
         _render_overlay_box(overlay_url, match_id=match_id, confirm_key="confirm_reset_mid", reset_key="reset_mid", show_reset=True)
         return
 
-    if innings == 2 and innings_over:
-        team_inn1 = team1_name if batting_first == 1 else team2_name
-        team_inn2 = team2_name if batting_first == 1 else team1_name
-        if current_runs > innings1_runs:
-            result = team_inn2 + " wins by " + str(current_runs - innings1_runs) + " runs! 🎉"
-        elif current_runs < innings1_runs:
-            result = team_inn1 + " wins by " + str(innings1_runs - current_runs) + " runs! 🎉"
-        else:
-            result = "It's a tie! 🤝"
-        render_html(f"""
-            <div style="background:rgba(195,164,105,0.1); border:1.5px solid rgba(195,164,105,0.3); border-radius:20px; padding:26px 15px; text-align:center; margin:15px 0;">
-                <h2 style="font-family:'Oswald',sans-serif; color:#f0c040; font-size:28px; margin-bottom:8px;">Match Over</h2>
-                <p style="font-family:'Roboto Condensed',sans-serif; color:rgba(255,255,255,0.7); font-size:16px; margin-bottom:18px;">{result}</p>
-                <div style="font-family:'Roboto Condensed',sans-serif; color:rgba(255,255,255,0.5); font-size:12px; letter-spacing:1.5px;">
-                    {team_inn1}: {innings1_runs} &nbsp;|&nbsp; {team_inn2}: {current_runs}/{wickets}
-                </div>
-            </div>
-        """)
-        st.markdown('<div class="add-extras-btn">', unsafe_allow_html=True)
-        if st.button("NEW MATCH", use_container_width=True):
-            st.query_params.clear()
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-        return
-
-    # Redesigned Innings Badge & Share Pill layout rendered cleanly via flattened HTML blocks
-    render_html(f"""
-        <div class="innings-badge">
-            <span>{batting_team} &mdash; {"1st" if innings == 1 else "2nd"} Innings</span>
-        </div>
-    """)
-    
-    whatsapp_share_url = "https://easyscoring.streamlit.app/?match=" + match_id
-    whatsapp_link = "https://wa.me/?text=" + whatsapp_share_url
-    
-    render_html(f"""
-        <div class="share-pill-wrapper">
-            <a class="share-pill" href="{whatsapp_link}" target="_blank">📲 Share Scoring</a>
-        </div>
-    """)
-
-    # Render Premium Scoreboard Overhaul Ticker at the top (with two-row team name display)
+    # Parse batting team words
     words = batting_team.strip().split()
     row1 = ""
     row2 = ""
@@ -640,41 +584,72 @@ def render_main(match_id):
     else:
         row1 = "TEAM"
         row2 = "1"
-        
-    overs_val = f"{current_balls//6}.{current_balls%6}"
-    max_overs_val = str(d['match_overs'])
-    
-    render_html(f"""
-        <div class="broadcast-ticker">
-            <div class="ticker-gold-bar"></div>
-            <div class="ticker-logo-box">
-                {SVG_LOGO_MARKUP}
-            </div>
-            <div class="ticker-section batting-sec">
-                <div class="ticker-team-rows">
-                    <div class="team-row-1">{row1}</div>
-                    <div class="team-row-2">{row2}</div>
+
+    # Setup formatted overs parenthetical value e.g. "(06)"
+    try:
+        formatted_max = f"({int(max_overs_val):02d})"
+    except:
+        formatted_max = f"({max_overs_val})"
+
+    # Render either victory layout or standard live scoring layout
+    if match_over:
+        if current_runs > innings1_runs:
+            winner_text = batting_team.upper()
+            wickets_left = 10 - wickets
+            margin = f"{wickets_left} WICKET" + ("S" if wickets_left > 1 else "")
+            outcome_banner = f"🏆 {winner_text} WON BY {margin}"
+        elif current_runs < innings1_runs:
+            winner_text = bowling_team.upper()
+            runs_diff = innings1_runs - current_runs
+            margin = f"{runs_diff} RUN" + ("S" if runs_diff > 1 else "")
+            outcome_banner = f"🏆 {winner_text} WON BY {margin}"
+        else:
+            outcome_banner = "🏆 MATCH TIED 🤝"
+
+        render_html(f"""
+            <div class="broadcast-ticker" style="justify-content: center; padding: 14px 10px;">
+                <div class="ticker-gold-bar"></div>
+                <div style="font-family:'Oswald', sans-serif; font-size: 20px; font-weight: 800; color: #ffd700; text-align: center; text-transform: uppercase; letter-spacing: 0.5px;">
+                    {outcome_banner}
                 </div>
             </div>
-            <div class="ticker-divider"></div>
-            <div class="ticker-section score-sec">
-                <span class="ticker-val-score">{current_runs}/{wickets}</span>
-            </div>
-            <div class="ticker-divider"></div>
-            <div class="ticker-section overs-sec">
-                <div class="overs-arch-wrap">
-                    <div class="overs-arch"></div>
-                    <span class="ticker-lbl">OVERS</span>
+        """)
+        st.markdown('<div class="add-extras-btn">', unsafe_allow_html=True)
+        if st.button("NEW MATCH", use_container_width=True):
+            st.query_params.clear()
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+        return
+
+    else:
+        # Standard Active Scoring layout (No Icons, parenthetical overs, 2 row team, space optimization)
+        render_html(f"""
+            <div class="broadcast-ticker">
+                <div class="ticker-gold-bar"></div>
+                <div class="ticker-section batting-sec">
+                    <div class="ticker-team-rows">
+                        <div class="team-row-1">{row1}</div>
+                        <div class="team-row-2">{row2}</div>
+                    </div>
                 </div>
-                <span class="ticker-val-overs">{overs_val}</span>
+                <div class="ticker-divider"></div>
+                <div class="ticker-section score-sec">
+                    <span class="ticker-val-score">{current_runs}/{wickets}</span>
+                </div>
+                <div class="ticker-divider"></div>
+                <div class="ticker-section overs-sec">
+                    <div class="overs-arch-wrap">
+                        <div class="overs-arch"></div>
+                        <span class="ticker-lbl">OVERS</span>
+                    </div>
+                    <span class="ticker-val-overs">{current_balls//6}.{current_balls%6}</span>
+                </div>
+                <div class="ticker-divider"></div>
+                <div class="ticker-section max-sec">
+                    <span class="ticker-val-max">{formatted_max}</span>
+                </div>
             </div>
-            <div class="ticker-divider"></div>
-            <div class="ticker-section max-sec">
-                <span class="ticker-lbl">MAX</span>
-                <div class="ticker-max-box">{max_overs_val}</div>
-            </div>
-        </div>
-    """)
+        """)
 
     if innings == 2:
         needed     = innings1_runs - current_runs + 1
@@ -698,7 +673,6 @@ def render_main(match_id):
             with wcols[idx]:
                 st.markdown('<div class="extra-wide-btn">', unsafe_allow_html=True)
                 if st.button(f"W+{val}", key=f"popup_w_{val}", use_container_width=True):
-                    # Adds val + 1 runs as wide (extra ball is not counted, so balls_inc = 0)
                     update_score(match_id, val + 1, 0)
                     st.session_state.show_extras = False
                     st.session_state.continue_after_target = False
@@ -714,7 +688,6 @@ def render_main(match_id):
             with ncols[idx]:
                 st.markdown('<div class="extra-no-btn">', unsafe_allow_html=True)
                 if st.button(f"N+{val}", key=f"popup_n_{val}", use_container_width=True):
-                    # Adds val + 1 runs as no ball (extra ball is not counted, so balls_inc = 0)
                     update_score(match_id, val + 1, 0)
                     st.session_state.show_extras = False
                     st.session_state.continue_after_target = False
@@ -730,7 +703,6 @@ def render_main(match_id):
         st.markdown('</div></div>', unsafe_allow_html=True)
 
     else:
-        # MAIN SCORING CONTROLS AREA
         # Row 1: 0, 1, 2, 3 (Glassy deep blue look with yellow glowing labels)
         c0, c1, c2, c3 = st.columns(4)
         for idx, val in enumerate(["0", "1", "2", "3"]):
@@ -865,7 +837,7 @@ def render_overlay(match_id):
 
     render_html("""
         <style>
-            @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Roboto+Condensed:wght@700&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700;800&family=Roboto+Condensed:wght@700&display=swap');
             
             /* FORCE ALL STREAMLIT WRAPPER BACKGROUNDS TO TRANSPARENT */
             html, body, .stApp, 
@@ -917,10 +889,6 @@ def render_overlay(match_id):
                 background: linear-gradient(180deg, #ffb700, #c38400);
                 box-shadow: 0 0 8px rgba(255, 183, 0, 0.6);
             }
-            .ticker-logo-cell {
-                margin-left: 8px; margin-right: 12px;
-                display: flex; align-items: center; justify-content: center;
-            }
             .ticker-vertical-divider {
                 width: 3px; height: 42px;
                 background: linear-gradient(180deg, #7f8285, #3a3c3e, #7f8285);
@@ -959,11 +927,9 @@ def render_overlay(match_id):
                 font-size: 28px; font-weight: 700; line-height: 1;
                 text-shadow: 0 0 10px rgba(255, 215, 0, 0.6), 0 0 20px rgba(255, 215, 0, 0.3);
             }
-            .ticker-box-silver {
-                border: 1.5px solid #5c6065; border-radius: 4px;
-                padding: 1px 12px; background: rgba(255,255,255,0.06);
-                color: #ffffff; font-family: 'Oswald', sans-serif;
-                font-size: 16px; font-weight: 700; line-height: 1.2;
+            .ticker-val-max-overlay {
+                color: #ffd700; font-family: 'Oswald', sans-serif;
+                font-size: 24px; font-weight: 700; line-height: 1.1;
             }
             .ticker-winner {
                 font-family: 'Roboto Condensed', sans-serif; font-size: 12px; font-weight: 700;
@@ -991,7 +957,6 @@ def render_overlay(match_id):
     need_val      = max(0, needed)
     balls_left    = max(0, max_balls - current_balls)
     need_color    = "#ff6b6b" if needed > 0 else "#6fcf97"
-    innings_over  = current_balls >= max_balls
     wickets       = get_wickets(d.get("history"))
 
     team1_name    = d.get("team1_name") or "Team 1"
@@ -1002,8 +967,10 @@ def render_overlay(match_id):
     
     if innings == 1:
         batting_team = team_inn1
+        bowling_team = team_inn2
     else:
         batting_team = team_inn2
+        bowling_team = team_inn1
         
     words = batting_team.strip().split()
     row1 = ""
@@ -1018,62 +985,79 @@ def render_overlay(match_id):
         row1 = "TEAM"
         row2 = "1"
 
-    match_over = innings == 2 and innings_over
+    # Setup formatted parenthetical overs for overlay
+    try:
+        formatted_max = f"({int(max_overs):02d})"
+    except:
+        formatted_max = f"({max_overs})"
+
+    # Auto conclusion criteria in broadcast overlay
+    target_achieved = (innings == 2 and current_runs > innings1_runs)
+    innings2_completed = (innings == 2 and (current_balls >= max_balls or wickets >= 10))
+    match_over = target_achieved or innings2_completed
+
+    # Setup full-width outcome banner
     if match_over:
         if current_runs > innings1_runs:
-            winner_text = team_inn2 + " WON"
+            winner_text = batting_team.upper()
+            wickets_left = 10 - wickets
+            margin = f"{wickets_left} WICKET" + ("S" if wickets_left > 1 else "")
+            outcome_banner = f"🏆 {winner_text} WON BY {margin}"
         elif current_runs < innings1_runs:
-            winner_text = team_inn1 + " WON"
+            winner_text = bowling_team.upper()
+            runs_diff = innings1_runs - current_runs
+            margin = f"{runs_diff} RUN" + ("S" if runs_diff > 1 else "")
+            outcome_banner = f"🏆 {winner_text} WON BY {margin}"
         else:
-            winner_text = "TIE"
+            outcome_banner = "🏆 MATCH TIED 🤝"
+
+        t = f'<div class="ticker-overlay-container" style="justify-content: center; padding: 12px 24px;">'
+        t += '  <div class="ticker-accent-bar"></div>'
+        t += f'  <div style="font-family:\'Oswald\', sans-serif; font-size: 24px; font-weight: 800; color: #ffd700; text-align: center; text-transform: uppercase; letter-spacing: 0.5px;">'
+        t += f'    {outcome_banner}'
+        t += '  </div>'
+        t += '</div>'
     else:
-        winner_text = ""
-
-    # Recreate the premium markup overlay seamlessly (with bat logo removed & 2-row team name)
-    t = f'<div class="ticker-overlay-container">'
-    t += '  <div class="ticker-accent-bar"></div>'
-    t += f'  <div class="ticker-logo-cell">{SVG_LOGO_MARKUP}</div>'
-    
-    t += '  <div class="ticker-cell" style="min-width: 80px;">'
-    t += '    <div class="ticker-team-rows">'
-    t += f'      <div class="team-row-1">{row1}</div>'
-    t += f'      <div class="team-row-2">{row2}</div>'
-    t += '    </div>'
-    t += '  </div>'
-    
-    t += '  <div class="ticker-vertical-divider"></div>'
-    
-    t += '  <div class="ticker-cell" style="min-width: 90px;">'
-    t += f'    <span class="ticker-label-text" style="opacity: 0.7;">LIVE SCORE</span>'
-    t += f'    <span class="ticker-score-giant">{current_runs}/{wickets}</span>'
-    t += '  </div>'
-    
-    t += '  <div class="ticker-vertical-divider"></div>'
-    
-    t += '  <div class="ticker-cell" style="width: 75px; position: relative;">'
-    t += '    <div style="position: absolute; top:-2px; width:30px; height:4px; border-top:2px solid rgba(255,255,255,0.4); border-radius:50% 50% 0 0;"></div>'
-    t += '    <span class="ticker-label-text">OVERS</span>'
-    t += f'    <span class="ticker-overs-giant">{overs_str}</span>'
-    t += '  </div>'
-    
-    t += '  <div class="ticker-vertical-divider"></div>'
-    
-    t += '  <div class="ticker-cell" style="width: 65px;">'
-    t += '    <span class="ticker-label-text">MAX</span>'
-    t += f'    <div class="ticker-box-silver">{max_overs}</div>'
-    t += '  </div>'
-
-    if match_over:
+        # Standard broadcast layout
+        t = f'<div class="ticker-overlay-container">'
+        t += '  <div class="ticker-accent-bar"></div>'
+        
+        t += '  <div class="ticker-cell" style="min-width: 80px;">'
+        t += '    <div class="ticker-team-rows">'
+        t += f'      <div class="team-row-1">{row1}</div>'
+        t += f'      <div class="team-row-2">{row2}</div>'
+        t += '    </div>'
+        t += '  </div>'
+        
         t += '  <div class="ticker-vertical-divider"></div>'
-        t += f'  <div class="ticker-cell"><div class="ticker-winner">🏆 {winner_text}</div></div>'
-    elif innings == 2:
+        
+        t += '  <div class="ticker-cell" style="min-width: 90px;">'
+        t += f'    <span class="ticker-label-text" style="opacity: 0.7;">LIVE SCORE</span>'
+        t += f'    <span class="ticker-score-giant">{current_runs}/{wickets}</span>'
+        t += '  </div>'
+        
         t += '  <div class="ticker-vertical-divider"></div>'
-        t += '  <div class="ticker-cell" style="padding: 0 4px;">'
-        t += '    <span class="ticker-label-text" style="color:#ffd700;">CHASE</span>'
-        t += f'    <span style="font-family:\'Oswald\'; font-weight:700; font-size:18px; color:{need_color};">{need_val} off {balls_left}</span>'
+        
+        t += '  <div class="ticker-cell" style="width: 75px; position: relative;">'
+        t += '    <div style="position: absolute; top:-2px; width:30px; height:4px; border-top:2px solid rgba(255,255,255,0.4); border-radius:50% 50% 0 0;"></div>'
+        t += '    <span class="ticker-label-text">OVERS</span>'
+        t += f'    <span class="ticker-overs-giant">{overs_str}</span>'
+        t += '  </div>'
+        
+        t += '  <div class="ticker-vertical-divider"></div>'
+        
+        t += '  <div class="ticker-cell" style="width: 65px;">'
+        t += f'    <span class="ticker-val-max-overlay">{formatted_max}</span>'
         t += '  </div>'
 
-    t += '</div>'
+        if innings == 2:
+            t += '  <div class="ticker-vertical-divider"></div>'
+            t += '  <div class="ticker-cell" style="padding: 0 4px;">'
+            t += '    <span class="ticker-label-text" style="color:#ffd700;">CHASE</span>'
+            t += f'    <span style="font-family:\'Oswald\'; font-weight:700; font-size:18px; color:{need_color};">{need_val} off {balls_left}</span>'
+            t += '  </div>'
+
+        t += '</div>'
 
     st.markdown(t, unsafe_allow_html=True)
     time.sleep(2)
