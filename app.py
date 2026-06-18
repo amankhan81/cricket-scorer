@@ -94,6 +94,22 @@ def render_html(html_str):
     cleaned = " ".join(line.strip() for line in html_str.split("\n"))
     st.markdown(cleaned, unsafe_allow_html=True)
 
+# --- HELPER SVG FOR PREMIUM LOGO (BAT & BALL SECTIONS REMOVED FOR CLEAN SPACE) ---
+SVG_LOGO_MARKUP = """
+<svg viewBox="0 0 110 90" width="46" height="40" style="filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5));">
+    <circle cx="55" cy="45" r="22" fill="url(#ballGrad)" />
+    <path d="M37,45 Q55,29 73,45" fill="none" stroke="#ffffff" stroke-width="3" stroke-dasharray="3, 2" />
+    <defs>
+        <linearGradient id="ballGrad" x1="30%" y1="30%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ff4444" />
+            <stop offset="60%" stop-color="#bd0000" />
+            <stop offset="100%" stop-color="#540000" />
+        </linearGradient>
+    </defs>
+</svg>
+"""
+
+# --- INJECTABLE SCRIPT TO PREVENT SCREEN SLEEP & DISMISS BUTTON HIGHLIGHTS ---
 WAKE_LOCK_AND_ANTI_STICK_SCRIPT = """
 <script>
 (function() {
@@ -151,9 +167,23 @@ def render_main(match_id):
                 margin: 0 auto !important; 
             }
 
-            /* Innings badge redesigned into a premium golden-beveled dark-metallic capsule */
-            .innings-badge { text-align: center; margin-bottom: 10px; }
-            .innings-badge span {
+            /* Single Row Bar for Innings and Share button side-by-side */
+            .top-row-bar {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                gap: 8px !important;
+                margin-bottom: 12px !important;
+                width: 100% !important;
+            }
+            
+            /* Innings badge adjusted to look like a premium beveled capsule on left side of row */
+            .top-row-item-innings {
+                flex: 1 !important;
+                height: 38px !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
                 background: linear-gradient(180deg, #1d283f 0%, #0b111c 100%) !important;
                 color: #f3c64f !important;
                 font-family: 'Oswald', sans-serif !important;
@@ -161,42 +191,35 @@ def render_main(match_id):
                 font-weight: 700 !important;
                 letter-spacing: 1.5px !important;
                 text-transform: uppercase !important;
-                padding: 6px 22px !important;
-                border-radius: 20px !important;
+                border-radius: 10px !important;
                 border: 2px solid #bda064 !important;
-                display: inline-block !important;
                 box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.4) !important;
                 text-shadow: 0 1px 2px rgba(0,0,0,0.6) !important;
             }
             
-            /* Share scoring link redesigned into a premium glossy 3D green-beveled button */
-            .share-pill-wrapper { text-align: center; margin-bottom: 14px; }
-            a.share-pill {
-                display: inline-flex !important; 
+            /* Share scoring link redesigned to match Copy Overlay Link design exactly */
+            a.top-row-item-share {
+                flex: 1 !important;
+                height: 38px !important;
+                display: inline-flex !important;
                 align-items: center !important;
                 justify-content: center !important;
-                gap: 6px !important; 
-                background: linear-gradient(180deg, #103822 0%, #081d11 100%) !important;
-                color: #52d273 !important; 
+                background: rgba(195, 164, 105, 0.15) !important;
+                color: #c3a469 !important;
                 font-family: 'Oswald', sans-serif !important;
-                font-size: 12px !important; 
+                font-size: 12px !important;
                 font-weight: 700 !important;
                 letter-spacing: 1.5px !important;
-                text-transform: uppercase !important; 
-                padding: 6px 18px !important;
-                border-radius: 20px !important; 
-                border: 2.5px solid #52d273 !important;
+                text-transform: uppercase !important;
+                border: 1.5px solid rgba(195, 164, 105, 0.4) !important;
+                border-radius: 10px !important;
                 text-decoration: none !important;
-                border-bottom: none !important;
-                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.3) !important;
-                text-shadow: 0 1px 2px rgba(0,0,0,0.6) !important;
-                transition: transform 0.1s ease !important;
+                transition: background 0.2s !important;
             }
-            a.share-pill:hover, a.share-pill:active, a.share-pill:focus {
+            a.top-row-item-share:hover, a.top-row-item-share:active, a.top-row-item-share:focus {
+                background: rgba(195, 164, 105, 0.25) !important;
                 text-decoration: none !important;
-                color: #52d273 !important;
-                border-bottom: none !important;
-                transform: scale(0.96) !important;
+                color: #c3a469 !important;
                 outline: none !important;
             }
 
@@ -615,21 +638,17 @@ def render_main(match_id):
         return
 
     else:
-        # Standard Active Scoring layout (No Icons, parenthetical overs, 2 row team, space optimization)
-        
+        # Redesigned Innings Badge & Share Pill layout in a single horizontal top row
+        innings_text = "1st Innings" if innings == 1 else "2nd Innings"
         whatsapp_share_url = "https://easyscoring.streamlit.app/?match=" + match_id
         whatsapp_link = "https://wa.me/?text=" + whatsapp_share_url
         
         render_html(f"""
-            <div class="share-pill-wrapper">
-                <a class="share-pill" href="{whatsapp_link}" target="_blank">📲 Share Scoring</a>
-            </div>
-        """)
-        
-        innings_text = "1st Innings" if innings == 1 else "2nd Innings"
-        render_html(f"""
-            <div class="innings-badge">
-                <span>{innings_text}</span>
+            <div class="top-row-bar">
+                <div class="top-row-item-innings">
+                    <span>{innings_text}</span>
+                </div>
+                <a class="top-row-item-share" href="{whatsapp_link}" target="_blank">📲 Share Scoring</a>
             </div>
         """)
         
@@ -844,7 +863,7 @@ def render_overlay(match_id):
 
     render_html("""
         <style>
-            @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700;800&family=Roboto+Condensed:wght@700&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Roboto+Condensed:wght@700&display=swap');
             
             /* FORCE ALL STREAMLIT WRAPPER BACKGROUNDS TO TRANSPARENT */
             html, body, .stApp, 
@@ -975,10 +994,8 @@ def render_overlay(match_id):
     
     if innings == 1:
         batting_team = team_inn1
-        bowling_team = team_inn2
     else:
         batting_team = team_inn2
-        bowling_team = team_inn1
         
     words = batting_team.strip().split()
     row1 = ""
