@@ -334,11 +334,10 @@ def render_main(match_id):
             [data-testid="element-container"] { margin: 0 !important; padding: 0 !important; }
             .stButton { margin: 0 !important; padding: 0 !important; }
 
-            /* ── BUTTON STYLING: targets wrapper divs rendered by Python (reliable, no JS needed) ── */
+            /* ── SCORE BUTTONS: targeted by button text via :has() — no JS needed ── */
 
-            /* Base: all score buttons inside .glossy-btn-container */
-            div.glossy-btn-container button,
-            div.glossy-btn-container button:hover {
+            /* Shared base for ALL score buttons (0,1,2,3,4,6,OUT,UNDO) */
+            [data-testid="stButton"]:has(button[kind="secondary"]) button {
                 background: linear-gradient(160deg, #1a2d55 0%, #0d1830 55%, #080f1e 100%) !important;
                 border: 2.5px solid #c8a84b !important;
                 border-radius: 22px !important;
@@ -356,82 +355,76 @@ def render_main(match_id):
                 text-shadow: 0 2px 4px rgba(0,0,0,0.6) !important;
                 transition: transform 0.08s ease, box-shadow 0.08s ease !important;
             }
-            div.glossy-btn-container button:focus,
-            div.glossy-btn-container button:active,
-            div.glossy-btn-container button:focus-visible {
-                outline: none !important;
+            [data-testid="stButton"]:has(button[kind="secondary"]) button:active {
                 transform: scale(0.96) !important;
-                box-shadow:
-                    inset 0 3px 8px rgba(0,0,0,0.7),
-                    inset 0 -1px 3px rgba(255,255,255,0.07),
-                    0 2px 6px rgba(0,0,0,0.5) !important;
+                box-shadow: inset 0 3px 8px rgba(0,0,0,0.7) !important;
+            }
+            [data-testid="stButton"]:has(button[kind="secondary"]) button:focus,
+            [data-testid="stButton"]:has(button[kind="secondary"]) button:focus-visible {
+                outline: none !important;
             }
 
-            /* Button 4 – gold text */
-            div.glossy-btn-container.btn-four button,
-            div.glossy-btn-container.btn-four button:hover {
+            /* Button "4" — gold text */
+            [data-testid="stButton"]:has(button[kind="secondary"] p:only-child) button:has(p) {
+                /* fallback handled below by key-based selectors */
+            }
+            /* Target each button by its label text using :has(p) with text matching via key attribute on parent */
+            [data-testid="stBaseButton-secondary"][aria-label="4"] { border-color: #e8b84b !important; color: #f3c64f !important; }
+
+            /* ── Key-based targeting: Streamlit renders key as part of the button element id ── */
+            /* Buttons: g0,g1,g2,g3 → white; g4 → gold; g6 → green; gout → red; gundo → blue */
+
+            button[data-testid="baseButton-secondary"]:has(+ * > *) { /* no-op anchor */ }
+
+            /* Most reliable: target by the text inside the <p> tag Streamlit renders inside the button */
+            [data-testid="stButton"] button p { 
+                pointer-events: none; 
+                font-family: 'Oswald', sans-serif !important;
+                font-weight: 800 !important;
+            }
+
+            /* Button 4 – gold */
+            [data-testid="stButton"]:has(button[data-testid*="g4"]) button,
+            [data-testid="stButton"] button[data-testid*="g4"] {
                 border-color: #e8b84b !important;
                 color: #f3c64f !important;
-                text-shadow: 0 0 12px rgba(243,198,79,0.75), 0 2px 4px rgba(0,0,0,0.5) !important;
-                box-shadow:
-                    inset 0 2px 5px rgba(255,255,255,0.18),
-                    inset 0 -4px 8px rgba(0,0,0,0.65),
-                    0 6px 16px rgba(0,0,0,0.55),
-                    0 0 18px rgba(243,198,79,0.45) !important;
+                text-shadow: 0 0 12px rgba(243,198,79,0.75) !important;
+                box-shadow: inset 0 2px 5px rgba(255,255,255,0.18), inset 0 -4px 8px rgba(0,0,0,0.65), 0 6px 16px rgba(0,0,0,0.55), 0 0 18px rgba(243,198,79,0.45) !important;
             }
-
-            /* Button 6 – green text */
-            div.glossy-btn-container.btn-six button,
-            div.glossy-btn-container.btn-six button:hover {
+            /* Button 6 – green */
+            [data-testid="stButton"]:has(button[data-testid*="g6"]) button,
+            [data-testid="stButton"] button[data-testid*="g6"] {
                 border-color: #3ecb68 !important;
                 color: #52d273 !important;
-                text-shadow: 0 0 12px rgba(82,210,115,0.75), 0 2px 4px rgba(0,0,0,0.5) !important;
-                box-shadow:
-                    inset 0 2px 5px rgba(255,255,255,0.18),
-                    inset 0 -4px 8px rgba(0,0,0,0.65),
-                    0 6px 16px rgba(0,0,0,0.55),
-                    0 0 18px rgba(82,210,115,0.45) !important;
+                text-shadow: 0 0 12px rgba(82,210,115,0.75) !important;
+                box-shadow: inset 0 2px 5px rgba(255,255,255,0.18), inset 0 -4px 8px rgba(0,0,0,0.65), 0 6px 16px rgba(0,0,0,0.55), 0 0 18px rgba(82,210,115,0.45) !important;
             }
-
-            /* Button OUT – red text */
-            div.glossy-btn-container.btn-out button,
-            div.glossy-btn-container.btn-out button:hover {
+            /* Button OUT – red */
+            [data-testid="stButton"]:has(button[data-testid*="gout"]) button,
+            [data-testid="stButton"] button[data-testid*="gout"] {
                 border-color: #d93535 !important;
                 color: #ff4c4c !important;
                 font-size: 26px !important;
-                text-shadow: 0 0 12px rgba(255,76,76,0.75), 0 2px 4px rgba(0,0,0,0.5) !important;
-                box-shadow:
-                    inset 0 2px 5px rgba(255,255,255,0.18),
-                    inset 0 -4px 8px rgba(0,0,0,0.65),
-                    0 6px 16px rgba(0,0,0,0.55),
-                    0 0 20px rgba(217,53,53,0.55) !important;
+                text-shadow: 0 0 12px rgba(255,76,76,0.75) !important;
+                box-shadow: inset 0 2px 5px rgba(255,255,255,0.18), inset 0 -4px 8px rgba(0,0,0,0.65), 0 6px 16px rgba(0,0,0,0.55), 0 0 20px rgba(217,53,53,0.55) !important;
             }
-
-            /* Button UNDO – blue text */
-            div.glossy-btn-container.btn-undo button,
-            div.glossy-btn-container.btn-undo button:hover {
+            /* Button UNDO – blue */
+            [data-testid="stButton"]:has(button[data-testid*="gundo"]) button,
+            [data-testid="stButton"] button[data-testid*="gundo"] {
                 border-color: #2e7fd4 !important;
                 color: #5bb8ff !important;
                 font-size: 20px !important;
-                text-shadow: 0 0 12px rgba(91,184,255,0.75), 0 2px 4px rgba(0,0,0,0.5) !important;
-                box-shadow:
-                    inset 0 2px 5px rgba(255,255,255,0.18),
-                    inset 0 -4px 8px rgba(0,0,0,0.65),
-                    0 6px 16px rgba(0,0,0,0.55),
-                    0 0 18px rgba(46,127,212,0.45) !important;
+                text-shadow: 0 0 12px rgba(91,184,255,0.75) !important;
+                box-shadow: inset 0 2px 5px rgba(255,255,255,0.18), inset 0 -4px 8px rgba(0,0,0,0.65), 0 6px 16px rgba(0,0,0,0.55), 0 0 18px rgba(46,127,212,0.45) !important;
             }
 
             /* ADD EXTRAS button */
-            div.add-extras-btn button,
-            div.add-extras-btn button:hover {
+            [data-testid="stButton"]:has(button[data-testid*="trigger_extras_popup"]) button,
+            [data-testid="stButton"] button[data-testid*="trigger_extras_popup"] {
                 background: linear-gradient(180deg, #1a2e52 0%, #0d1830 50%, #09101f 100%) !important;
                 border: 2px solid #c8a84b !important;
                 border-radius: 28px !important;
-                box-shadow:
-                    inset 0 2px 5px rgba(255,255,255,0.15),
-                    inset 0 -3px 6px rgba(0,0,0,0.55),
-                    0 8px 18px rgba(0,0,0,0.6),
-                    0 0 16px rgba(200,168,75,0.25) !important;
+                box-shadow: inset 0 2px 5px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.55), 0 8px 18px rgba(0,0,0,0.6), 0 0 16px rgba(200,168,75,0.25) !important;
                 color: #ffffff !important;
                 font-family: 'Oswald', sans-serif !important;
                 font-size: 20px !important;
@@ -442,18 +435,6 @@ def render_main(match_id):
                 text-shadow: 0 1px 3px rgba(0,0,0,0.6) !important;
                 text-transform: uppercase !important;
             }
-            div.add-extras-btn button:active {
-                transform: scale(0.97) !important;
-                box-shadow: inset 0 3px 8px rgba(0,0,0,0.7) !important;
-            }
-
-            /* Keep old class selectors as fallback in case JS injection does work */
-            button.custom-score-btn { background: linear-gradient(160deg, #1a2d55 0%, #0d1830 55%, #080f1e 100%) !important; border: 2.5px solid #c8a84b !important; border-radius: 22px !important; color: #ffffff !important; font-family: 'Oswald', sans-serif !important; font-size: 34px !important; font-weight: 800 !important; height: 84px !important; width: 100% !important; }
-            button.custom-score-btn.btn-four { border-color: #e8b84b !important; color: #f3c64f !important; }
-            button.custom-score-btn.btn-six { border-color: #3ecb68 !important; color: #52d273 !important; }
-            button.custom-score-btn.btn-out { border-color: #d93535 !important; color: #ff4c4c !important; font-size: 26px !important; }
-            button.custom-score-btn.btn-undo { border-color: #2e7fd4 !important; color: #5bb8ff !important; font-size: 20px !important; }
-            button.custom-extras-btn { background: linear-gradient(180deg, #1a2e52 0%, #09101f 100%) !important; border: 2px solid #c8a84b !important; border-radius: 28px !important; color: #ffffff !important; font-family: 'Oswald', sans-serif !important; font-size: 20px !important; font-weight: 700 !important; height: 56px !important; width: 100% !important; letter-spacing: 2px !important; }
 
             /* 7. Popups: Wide and No Ball styling wrappers inside modal dialog box */
             .extras-modal {
@@ -528,11 +509,11 @@ def render_main(match_id):
                 letter-spacing: 1.5px !important;
             }
 
-            /* Settings/Themes Redesigned Utility controls matching visual tokens */
-            /* Reset button */
-            div.premium-reset-btn button,
-            div.premium-reset-btn button:hover,
-            button.custom-reset-btn {
+            /* Reset and Theme buttons */
+            [data-testid="stButton"]:has(button[data-testid*="confirm_yes"]) button,
+            [data-testid="stButton"]:has(button[data-testid*="reset"]) button,
+            [data-testid="stButton"] button[data-testid*="confirm_yes"],
+            [data-testid="stButton"] button[data-testid*="reset"] {
                 background: linear-gradient(180deg, #321010 0%, #190808 100%) !important;
                 border: 2px solid #ff5252 !important;
                 border-radius: 16px !important;
@@ -547,10 +528,11 @@ def render_main(match_id):
                 text-transform: uppercase !important;
                 width: 100% !important;
             }
-            /* Theme button */
-            div.premium-theme-btn button,
-            div.premium-theme-btn button:hover,
-            button.custom-theme-btn {
+            [data-testid="stButton"]:has(button[data-testid*="confirm_no"]) button,
+            [data-testid="stButton"]:has(button[data-testid*="theme"]) button,
+            [data-testid="stButton"]:has(button[data-testid*="MODE"]) button,
+            [data-testid="stButton"] button[data-testid*="confirm_no"],
+            [data-testid="stButton"] button[data-testid*="theme"] {
                 background: linear-gradient(180deg, #1b2e50 0%, #0d1729 100%) !important;
                 border: 2px solid #bda064 !important;
                 border-radius: 16px !important;
