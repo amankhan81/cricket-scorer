@@ -94,29 +94,14 @@ def render_html(html_str):
     cleaned = " ".join(line.strip() for line in html_str.split("\n"))
     st.markdown(cleaned, unsafe_allow_html=True)
 
-# --- HELPER SVG FOR PREMIUM LOGO ---
+# --- HELPER SVG FOR PREMIUM LOGO (BAT REMOVED FOR TEAM NAME SPACE) ---
 SVG_LOGO_MARKUP = """
 <svg viewBox="0 0 110 90" width="46" height="40" style="filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5));">
-    <g transform="rotate(-32 50 45)">
-        <rect x="47" y="5" width="6" height="22" rx="2" fill="url(#gripGrad)" />
-        <line x1="47" y1="10" x2="53" y2="10" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
-        <line x1="47" y1="15" x2="53" y2="15" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
-        <line x1="47" y1="20" x2="53" y2="20" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
-        <path d="M44,27 L56,27 L57,32 L43,32 Z" fill="#b07f3c" />
-        <rect x="43" y="32" width="14" height="48" rx="2" fill="url(#woodGrad)" />
-    </g>
-    <circle cx="75" cy="62" r="11" fill="url(#ballGrad)" />
-    <path d="M66,62 Q75,54 84,62" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-dasharray="1.5, 1" />
+    <!-- Center-aligned Shiny Leather Ball -->
+    <circle cx="55" cy="45" r="22" fill="url(#ballGrad)" />
+    <!-- Ball Seam -->
+    <path d="M37,45 Q55,29 73,45" fill="none" stroke="#ffffff" stroke-width="3" stroke-dasharray="3, 2" />
     <defs>
-        <linearGradient id="gripGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#6930c3" />
-            <stop offset="100%" stop-color="#3f1c73" />
-        </linearGradient>
-        <linearGradient id="woodGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#e2b170" />
-            <stop offset="50%" stop-color="#bc8646" />
-            <stop offset="100%" stop-color="#8c581a" />
-        </linearGradient>
         <linearGradient id="ballGrad" x1="30%" y1="30%" x2="100%" y2="100%">
             <stop offset="0%" stop-color="#ff4444" />
             <stop offset="60%" stop-color="#bd0000" />
@@ -126,11 +111,54 @@ SVG_LOGO_MARKUP = """
 </svg>
 """
 
+# --- INJECTABLE SCRIPT TO PREVENT SCREEN SLEEP & DISMISS BUTTON HIGHLIGHTS ---
+WAKE_LOCK_AND_ANTI_STICK_SCRIPT = """
+<script>
+(function() {
+    let wakeLock = null;
+    async function requestWakeLock() {
+        try {
+            if ('wakeLock' in navigator) {
+                wakeLock = await navigator.wakeLock.request('screen');
+                console.log('Screen Wake Lock is active!');
+            }
+        } catch (err) {
+            console.warn('Wake Lock request failed:', err.name, err.message);
+        }
+    }
+    
+    // Request Wake Lock on initialization
+    requestWakeLock();
+    
+    // Re-acquire Wake Lock when tab becomes active again
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            requestWakeLock();
+        }
+    });
+    
+    // Instantly remove active focus styles from clicked buttons
+    const blurActiveElement = () => {
+        setTimeout(() => {
+            const activeEl = document.activeElement;
+            if (activeEl && activeEl.tagName === 'BUTTON') {
+                activeEl.blur();
+            }
+        }, 50);
+    };
+    document.addEventListener('mouseup', blurActiveElement);
+    document.addEventListener('touchend', blurActiveElement);
+})();
+</script>
+"""
+
 def render_main(match_id):
-    # Injection of custom styling optimized for zero scrolling and a premium metallic theme
+    # Inject styling + the functional prevent-sleep & defocus scripts
+    render_html(WAKE_LOCK_AND_ANTI_STICK_SCRIPT)
+    
     render_html("""
         <style>
-            @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Roboto+Condensed:wght@400;700&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700;800&family=Roboto+Condensed:wght@400;700&display=swap');
             header, footer, #MainMenu { display: none !important; }
             
             /* Radial Dark Metallic theme */
@@ -224,19 +252,27 @@ def render_main(match_id):
                 display: flex; flex-direction: column; align-items: center; justify-content: center;
                 text-align: center;
             }
-            .batting-sec { flex: 1.1; }
+            .batting-sec { flex: 1.2; min-width: 80px; }
             .ticker-lbl {
                 color: #ffffff; font-size: 10px; font-weight: 700;
                 letter-spacing: 1px; text-transform: uppercase; margin-bottom: 1px;
             }
-            .ticker-team-box {
-                border: 1.5px solid #c3a469; border-radius: 4px;
-                padding: 1px 8px; background: rgba(195, 164, 105, 0.08);
-                color: #ffcc00; font-family: 'Oswald', sans-serif;
-                font-size: 14px; font-weight: 700; text-shadow: 0 0 4px rgba(255, 204, 0, 0.4);
-                line-height: 1.1;
+            
+            /* Two Row Team Name styling */
+            .ticker-team-rows {
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                text-align: center; font-family: 'Oswald', sans-serif; line-height: 1.1;
+                text-transform: uppercase; width: 100%;
             }
-            .score-sec { flex: 1.6; }
+            .team-row-1 {
+                font-size: 15px; font-weight: 800; color: #ffffff; letter-spacing: 0.5px;
+            }
+            .team-row-2 {
+                font-size: 13px; font-weight: 700; color: #f3c64f; letter-spacing: 0.5px;
+                text-shadow: 0 0 4px rgba(243, 198, 79, 0.3);
+            }
+
+            .score-sec { flex: 1.5; }
             .ticker-val-score {
                 color: #ffffff; font-family: 'Oswald', sans-serif;
                 font-size: 38px; font-weight: 700; line-height: 1; letter-spacing: -1px;
@@ -269,31 +305,47 @@ def render_main(match_id):
             [data-testid="element-container"] { margin: 0 !important; padding: 0 !important; }
             .stButton { margin: 0 !important; padding: 0 !important; }
 
-            /* SCORING BUTTONS GLOW OVERHAUL (glowy neon yellow/gold like overs label) */
+            /* SCORING BUTTONS GLOW & EXTRA-BOLD OVERHAUL (Oswald Font-Weight 800) */
             .glossy-btn-container button {
                 background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
                 border: 2px solid rgba(195, 164, 105, 0.6) !important;
                 border-radius: 18px !important;
                 box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4) !important;
-                color: #ffd700 !important; /* Glowy yellow color matching overs section */
+                color: #ffd700 !important;
                 font-family: 'Oswald', sans-serif !important;
                 font-size: 28px !important;
-                font-weight: 700 !important;
+                font-weight: 800 !important; /* Make fonts extra bold */
                 height: 70px !important;
                 width: 100% !important;
-                text-shadow: 0 0 8px rgba(255, 215, 0, 0.7), 0 0 15px rgba(255, 215, 0, 0.3) !important; /* Neon golden glow shadow */
+                text-shadow: 0 0 8px rgba(255, 215, 0, 0.7), 0 0 15px rgba(255, 215, 0, 0.3) !important;
                 transition: transform 0.08s ease, box-shadow 0.08s ease !important;
             }
+            
+            /* Anti-stick focus state overrides: force background & text colors to NOT get stuck on click */
+            .glossy-btn-container button:focus,
+            .glossy-btn-container button:focus-visible,
             .glossy-btn-container button:active {
-                transform: scale(0.95) !important;
-                box-shadow: inset 0 2px 4px rgba(0,0,0,0.7) !important;
+                outline: none !important;
+                transform: none !important;
+                background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
+                border-color: rgba(195, 164, 105, 0.6) !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4) !important;
+                color: #ffd700 !important;
+                text-shadow: 0 0 8px rgba(255, 215, 0, 0.7), 0 0 15px rgba(255, 215, 0, 0.3) !important;
             }
             
-            /* Preserving unique button color behaviors with complementary glows */
+            /* Glowing Specific Overrides with Focus protection */
             .btn-four button { color: #f3c64f !important; text-shadow: 0 0 8px rgba(243, 198, 79, 0.7), 0 0 15px rgba(243, 198, 79, 0.3) !important; }
+            .btn-four button:focus, .btn-four button:focus-visible { color: #f3c64f !important; text-shadow: 0 0 8px rgba(243, 198, 79, 0.7), 0 0 15px rgba(243, 198, 79, 0.3) !important; }
+            
             .btn-six button { color: #52d273 !important; text-shadow: 0 0 8px rgba(82, 210, 115, 0.7), 0 0 15px rgba(82, 210, 115, 0.3) !important; }
+            .btn-six button:focus, .btn-six button:focus-visible { color: #52d273 !important; text-shadow: 0 0 8px rgba(82, 210, 115, 0.7), 0 0 15px rgba(82, 210, 115, 0.3) !important; }
+            
             .btn-out button { color: #ec4849 !important; font-size: 22px !important; text-shadow: 0 0 8px rgba(236, 72, 73, 0.7), 0 0 15px rgba(236, 72, 73, 0.3) !important; }
+            .btn-out button:focus, .btn-out button:focus-visible { color: #ec4849 !important; text-shadow: 0 0 8px rgba(236, 72, 73, 0.7), 0 0 15px rgba(236, 72, 73, 0.3) !important; }
+            
             .btn-undo button { color: #4da6ff !important; font-size: 18px !important; text-shadow: 0 0 8px rgba(77, 166, 255, 0.7), 0 0 15px rgba(77, 166, 255, 0.3) !important; }
+            .btn-undo button:focus, .btn-undo button:focus-visible { color: #4da6ff !important; text-shadow: 0 0 8px rgba(77, 166, 255, 0.7), 0 0 15px rgba(77, 166, 255, 0.3) !important; }
 
             .add-extras-btn button {
                 background: linear-gradient(180deg, #182e54 0%, #0b1528 100%) !important;
@@ -438,7 +490,7 @@ def render_main(match_id):
                 .ticker-max-box { border-color: rgba(0,0,0,0.2) !important; background: rgba(0,0,0,0.03) !important; color: #141c2c !important; }
                 .glossy-btn-container button {
                     background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(230,238,248,0.95) 100%) !important;
-                    color: #ffd700 !important; border-color: #bda064 !important;
+                    color: #141c2c !important; border-color: #bda064 !important;
                     box-shadow: inset 0 1.5px 3px rgba(255,255,255,1), 0 4px 8px rgba(0,0,0,0.08) !important;
                 }
                 .add-extras-btn button {
@@ -575,8 +627,20 @@ def render_main(match_id):
         </div>
     """)
 
-    # Render Premium Scoreboard Overhaul Ticker at the top
-    batting_abbrev = team_abbrev(batting_team)
+    # Render Premium Scoreboard Overhaul Ticker at the top (with two-row team name display)
+    words = batting_team.strip().split()
+    row1 = ""
+    row2 = ""
+    if len(words) >= 2:
+        row1 = words[0].upper()
+        row2 = words[1].upper()
+    elif len(words) == 1:
+        row1 = words[0].upper()
+        row2 = ""
+    else:
+        row1 = "TEAM"
+        row2 = "1"
+        
     overs_val = f"{current_balls//6}.{current_balls%6}"
     max_overs_val = str(d['match_overs'])
     
@@ -587,8 +651,10 @@ def render_main(match_id):
                 {SVG_LOGO_MARKUP}
             </div>
             <div class="ticker-section batting-sec">
-                <span class="ticker-lbl">BATTING</span>
-                <div class="ticker-team-box">{batting_abbrev}</div>
+                <div class="ticker-team-rows">
+                    <div class="team-row-1">{row1}</div>
+                    <div class="team-row-2">{row2}</div>
+                </div>
             </div>
             <div class="ticker-divider"></div>
             <div class="ticker-section score-sec">
@@ -794,6 +860,9 @@ def _render_overlay_box(overlay_url, match_id=None, confirm_key=None, reset_key=
 #  PREMIUM OVERLAY BROADCAST TICKER MODE (OBS & STREAMS)
 # ════════════════════════════════════════════════════════
 def render_overlay(match_id):
+    # Inject the wake lock utility script for overlay capturing instances
+    render_html(WAKE_LOCK_AND_ANTI_STICK_SCRIPT)
+
     render_html("""
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Roboto+Condensed:wght@700&display=swap');
@@ -866,13 +935,21 @@ def render_overlay(match_id):
                 color: #ffffff; font-size: 11px; font-weight: 700;
                 letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 2px;
             }
-            .ticker-box-gold {
-                border: 1.5px solid #c3a469; border-radius: 4px;
-                padding: 1px 12px; background: rgba(195, 164, 105, 0.08);
-                color: #ffcc00; font-family: 'Oswald', sans-serif;
-                font-size: 16px; font-weight: 700; text-shadow: 0 0 4px rgba(255, 204, 0, 0.5);
-                line-height: 1.2;
+            
+            /* Two Row Team Name styling */
+            .ticker-team-rows {
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                text-align: center; font-family: 'Oswald', sans-serif; line-height: 1.1;
+                text-transform: uppercase; width: 100%; min-width: 80px;
             }
+            .team-row-1 {
+                font-size: 16px; font-weight: 800; color: #ffffff; letter-spacing: 0.5px;
+            }
+            .team-row-2 {
+                font-size: 14px; font-weight: 700; color: #f3c64f; letter-spacing: 0.5px;
+                text-shadow: 0 0 4px rgba(243, 198, 79, 0.3);
+            }
+
             .ticker-score-giant {
                 color: #ffffff; font-family: 'Oswald', sans-serif;
                 font-size: 46px; font-weight: 700; line-height: 1; letter-spacing: -1px;
@@ -927,7 +1004,19 @@ def render_overlay(match_id):
         batting_team = team_inn1
     else:
         batting_team = team_inn2
-    batting_abbrev = team_abbrev(batting_team)
+        
+    words = batting_team.strip().split()
+    row1 = ""
+    row2 = ""
+    if len(words) >= 2:
+        row1 = words[0].upper()
+        row2 = words[1].upper()
+    elif len(words) == 1:
+        row1 = words[0].upper()
+        row2 = ""
+    else:
+        row1 = "TEAM"
+        row2 = "1"
 
     match_over = innings == 2 and innings_over
     if match_over:
@@ -940,14 +1029,16 @@ def render_overlay(match_id):
     else:
         winner_text = ""
 
-    # Recreate the premium markup overlay seamlessly
+    # Recreate the premium markup overlay seamlessly (with bat logo removed & 2-row team name)
     t = f'<div class="ticker-overlay-container">'
     t += '  <div class="ticker-accent-bar"></div>'
     t += f'  <div class="ticker-logo-cell">{SVG_LOGO_MARKUP}</div>'
     
-    t += '  <div class="ticker-cell" style="width: 70px;">'
-    t += '    <span class="ticker-label-text">BATTING</span>'
-    t += f'    <div class="ticker-box-gold">{batting_abbrev}</div>'
+    t += '  <div class="ticker-cell" style="min-width: 80px;">'
+    t += '    <div class="ticker-team-rows">'
+    t += f'      <div class="team-row-1">{row1}</div>'
+    t += f'      <div class="team-row-2">{row2}</div>'
+    t += '    </div>'
     t += '  </div>'
     
     t += '  <div class="ticker-vertical-divider"></div>'
