@@ -195,7 +195,7 @@ def render_main(match_id):
                 outline: none !important;
             }
 
-            /* PREMIUM OVERLAY STYLE TICKER BAR (as seen in Screenshot 2026-06-18 120122.png) */
+            /* PREMIUM OVERLAY STYLE TICKER BAR */
             .broadcast-ticker {
                 display: flex; align-items: center; justify-content: space-between;
                 background: linear-gradient(180deg, #24282c 0%, #0f1113 100%);
@@ -269,18 +269,19 @@ def render_main(match_id):
             [data-testid="element-container"] { margin: 0 !important; padding: 0 !important; }
             .stButton { margin: 0 !important; padding: 0 !important; }
 
+            /* SCORING BUTTONS GLOW OVERHAUL (glowy neon yellow/gold like overs label) */
             .glossy-btn-container button {
                 background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
                 border: 2px solid rgba(195, 164, 105, 0.6) !important;
                 border-radius: 18px !important;
                 box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4) !important;
-                color: #ffffff !important;
+                color: #ffd700 !important; /* Glowy yellow color matching overs section */
                 font-family: 'Oswald', sans-serif !important;
                 font-size: 28px !important;
                 font-weight: 700 !important;
                 height: 70px !important;
                 width: 100% !important;
-                text-shadow: 0 2px 3px rgba(0,0,0,0.7) !important;
+                text-shadow: 0 0 8px rgba(255, 215, 0, 0.7), 0 0 15px rgba(255, 215, 0, 0.3) !important; /* Neon golden glow shadow */
                 transition: transform 0.08s ease, box-shadow 0.08s ease !important;
             }
             .glossy-btn-container button:active {
@@ -288,10 +289,11 @@ def render_main(match_id):
                 box-shadow: inset 0 2px 4px rgba(0,0,0,0.7) !important;
             }
             
-            .btn-four button { color: #f3c64f !important; }
-            .btn-six button { color: #52d273 !important; }
-            .btn-out button { color: #ec4849 !important; font-size: 22px !important; }
-            .btn-undo button { color: #4da6ff !important; font-size: 18px !important; }
+            /* Preserving unique button color behaviors with complementary glows */
+            .btn-four button { color: #f3c64f !important; text-shadow: 0 0 8px rgba(243, 198, 79, 0.7), 0 0 15px rgba(243, 198, 79, 0.3) !important; }
+            .btn-six button { color: #52d273 !important; text-shadow: 0 0 8px rgba(82, 210, 115, 0.7), 0 0 15px rgba(82, 210, 115, 0.3) !important; }
+            .btn-out button { color: #ec4849 !important; font-size: 22px !important; text-shadow: 0 0 8px rgba(236, 72, 73, 0.7), 0 0 15px rgba(236, 72, 73, 0.3) !important; }
+            .btn-undo button { color: #4da6ff !important; font-size: 18px !important; text-shadow: 0 0 8px rgba(77, 166, 255, 0.7), 0 0 15px rgba(77, 166, 255, 0.3) !important; }
 
             .add-extras-btn button {
                 background: linear-gradient(180deg, #182e54 0%, #0b1528 100%) !important;
@@ -383,7 +385,6 @@ def render_main(match_id):
                 letter-spacing: 1.5px !important;
             }
 
-            /* Settings/Themes Redesigned Utility controls matching visual tokens */
             .premium-reset-btn button {
                 background: linear-gradient(180deg, #321010 0%, #190808 100%) !important;
                 border: 2px solid #ff5252 !important;
@@ -437,7 +438,7 @@ def render_main(match_id):
                 .ticker-max-box { border-color: rgba(0,0,0,0.2) !important; background: rgba(0,0,0,0.03) !important; color: #141c2c !important; }
                 .glossy-btn-container button {
                     background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(230,238,248,0.95) 100%) !important;
-                    color: #141c2c !important; border-color: #bda064 !important;
+                    color: #ffd700 !important; border-color: #bda064 !important;
                     box-shadow: inset 0 1.5px 3px rgba(255,255,255,1), 0 4px 8px rgba(0,0,0,0.08) !important;
                 }
                 .add-extras-btn button {
@@ -455,7 +456,7 @@ def render_main(match_id):
             </style>
         """)
 
-    # --- DEFINE OVERLAY LINK (Fix for NameError) ---
+    # --- DEFINE OVERLAY LINK ---
     base_url = st.context.url if hasattr(st, 'context') and hasattr(st.context, 'url') else "https://your-app.streamlit.app"
     if "?" in base_url:
         base_url = base_url.split("?")[0]
@@ -618,20 +619,21 @@ def render_main(match_id):
         else:
             st.markdown('<div class="target-bar">✅ Target achieved!</div>', unsafe_allow_html=True)
 
-    # POPUP EXTRAS MODAL FLOW
+    # POPUP EXTRAS MODAL FLOW (Mapped exactly to image_f0409d.png parameters)
     if st.session_state.get("show_extras", False):
         st.markdown('<div class="extras-modal">', unsafe_allow_html=True)
         st.markdown('<div class="extras-header">ADD EXTRAS</div>', unsafe_allow_html=True)
         st.markdown('<div class="extras-body">', unsafe_allow_html=True)
         
-        # Row 1: Wides [w+1], [w+2], [w+3], [w+4] (Lowercase)
+        # Row 1 (Wides): W+0 (adds 1), W+1 (2), W+2 (3), W+3 (4), W+4 (5)
         st.markdown('<div style="margin-bottom: 5px; text-align: center; color: rgba(255,255,255,0.4); font-family:\'Roboto Condensed\', sans-serif; font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase;">Wide Balls</div>', unsafe_allow_html=True)
-        wcols = st.columns(4)
-        for idx, val in enumerate([1, 2, 3, 4]):
+        wcols = st.columns(5)
+        for idx, val in enumerate([0, 1, 2, 3, 4]):
             with wcols[idx]:
                 st.markdown('<div class="extra-wide-btn">', unsafe_allow_html=True)
-                if st.button(f"w+{val}", key=f"popup_w_{val}", use_container_width=True):
-                    update_score(match_id, val, 0)
+                if st.button(f"W+{val}", key=f"popup_w_{val}", use_container_width=True):
+                    # Adds val + 1 runs as wide (extra ball is not counted, so balls_inc = 0)
+                    update_score(match_id, val + 1, 0)
                     st.session_state.show_extras = False
                     st.session_state.continue_after_target = False
                     st.rerun()
@@ -639,14 +641,15 @@ def render_main(match_id):
         
         st.markdown('<div style="height: 12px;"></div>', unsafe_allow_html=True)
         
-        # Row 2: No Balls [N+1] to [N+6] (Uppercase N)
+        # Row 2 (No Balls): N+0 (adds 1), N+1 (2), N+2 (3), N+3 (4), N+4 (5), N+6 (7)
         st.markdown('<div style="margin-bottom: 5px; text-align: center; color: rgba(255,255,255,0.4); font-family:\'Roboto Condensed\', sans-serif; font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase;">No Balls</div>', unsafe_allow_html=True)
         ncols = st.columns(6)
-        for idx, val in enumerate([1, 2, 3, 4, 5, 6]):
+        for idx, val in enumerate([0, 1, 2, 3, 4, 6]):
             with ncols[idx]:
                 st.markdown('<div class="extra-no-btn">', unsafe_allow_html=True)
                 if st.button(f"N+{val}", key=f"popup_n_{val}", use_container_width=True):
-                    update_score(match_id, val, 0)
+                    # Adds val + 1 runs as no ball (extra ball is not counted, so balls_inc = 0)
+                    update_score(match_id, val + 1, 0)
                     st.session_state.show_extras = False
                     st.session_state.continue_after_target = False
                     st.rerun()
@@ -662,7 +665,7 @@ def render_main(match_id):
 
     else:
         # MAIN SCORING CONTROLS AREA
-        # Row 1: 0, 1, 2, 3 (Glassy deep blue look)
+        # Row 1: 0, 1, 2, 3 (Glassy deep blue look with yellow glowing labels)
         c0, c1, c2, c3 = st.columns(4)
         for idx, val in enumerate(["0", "1", "2", "3"]):
             col_target = [c0, c1, c2, c3][idx]
