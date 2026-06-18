@@ -334,112 +334,78 @@ def render_main(match_id):
             [data-testid="element-container"] { margin: 0 !important; padding: 0 !important; }
             .stButton { margin: 0 !important; padding: 0 !important; }
 
-            /* NATIVE TARGET STYLING FOR COMPILATION ELEMENTS (Screenshots 2026-06-18 120145_2.png) */
-            
-            /* 1. Base style for scoring buttons (0, 1, 2, 3) with yellow-gold glow and Oswald Extra-Bold */
-            button.custom-score-btn {
-                background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
-                border: 2.5px solid #ffd700 !important; /* Yellow-gold beveled border outline */
-                border-radius: 20px !important;
-                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(255, 215, 0, 0.4) !important;
+            /* ── SCORE BUTTONS: use button key via data-testid — works reliably across Streamlit rerenders ── */
+
+            /* Base style: all secondary buttons (0,1,2,3,4,6,OUT,UNDO) */
+            [data-testid="stBaseButton-secondary"] {
+                background: linear-gradient(160deg, #1a2d55 0%, #0d1830 55%, #080f1e 100%) !important;
+                border: 2.5px solid #c8a84b !important;
+                border-radius: 22px !important;
+                box-shadow:
+                    inset 0 2px 5px rgba(255,255,255,0.18),
+                    inset 0 -4px 8px rgba(0,0,0,0.65),
+                    0 6px 16px rgba(0,0,0,0.55),
+                    0 0 14px rgba(200,168,75,0.35) !important;
                 color: #ffffff !important;
                 font-family: 'Oswald', sans-serif !important;
                 font-size: 40px !important;
-                font-weight: 800 !important; /* Bold font weight */
-                height: 84px !important; /* Premium 84px height */
+                font-weight: 800 !important;
+                height: 84px !important;
                 width: 100% !important;
-                text-shadow: 0 0 8px rgba(255, 215, 0, 0.4) !important;
-                transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease !important;
+                text-shadow: 0 2px 4px rgba(0,0,0,0.6) !important;
+                transition: transform 0.08s ease, box-shadow 0.08s ease !important;
             }
-            
-            /* Settle down hover, focused and active highlights to match the theme immediately */
-            button.custom-score-btn:focus,
-            button.custom-score-btn:active,
-            button.custom-score-btn:focus-visible {
+            [data-testid="stBaseButton-secondary"]:active {
+                transform: scale(0.96) !important;
+                box-shadow: inset 0 3px 8px rgba(0,0,0,0.7) !important;
+            }
+            [data-testid="stBaseButton-secondary"]:focus,
+            [data-testid="stBaseButton-secondary"]:focus-visible {
                 outline: none !important;
-                transform: none !important;
-                background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
-                border-color: #ffd700 !important;
-                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(255, 215, 0, 0.4) !important;
-                color: #ffffff !important;
-            }
-            
-            /* 2. Button 4 (Custom gold text color) */
-            button.custom-score-btn.btn-four {
-                border-color: #f3c64f !important;
-                color: #f3c64f !important;
-                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(243, 198, 79, 0.4) !important;
-                text-shadow: 0 0 8px rgba(243, 198, 79, 0.6) !important;
-            }
-            button.custom-score-btn.btn-four:focus, button.custom-score-btn.btn-four:active {
-                border-color: #f3c64f !important;
-                color: #f3c64f !important;
-                background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
-                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(243, 198, 79, 0.4) !important;
-            }
-            
-            /* 3. Button 6 (Custom green text color) */
-            button.custom-score-btn.btn-six {
-                border-color: #52d273 !important;
-                color: #52d273 !important;
-                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(82, 210, 115, 0.4) !important;
-                text-shadow: 0 0 8px rgba(82, 210, 115, 0.6) !important;
-            }
-            button.custom-score-btn.btn-six:focus, button.custom-score-btn.btn-six:active {
-                border-color: #52d273 !important;
-                color: #52d273 !important;
-                background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
-                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(82, 210, 115, 0.4) !important;
-            }
-            
-            /* 4. Button OUT (Custom red text color) */
-            button.custom-score-btn.btn-out {
-                border-color: #ec4849 !important;
-                color: #ec4849 !important;
-                font-size: 24px !important;
-                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(236, 72, 73, 0.4) !important;
-                text-shadow: 0 0 8px rgba(236, 72, 73, 0.6) !important;
-            }
-            button.custom-score-btn.btn-out:focus, button.custom-score-btn.btn-out:active {
-                border-color: #ec4849 !important;
-                color: #ec4849 !important;
-                background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
-                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(236, 72, 73, 0.4) !important;
-            }
-            
-            /* 5. Button UNDO (Custom blue text color) */
-            button.custom-score-btn.btn-undo {
-                border-color: #4da6ff !important;
-                color: #4da6ff !important;
-                font-size: 20px !important;
-                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(77, 166, 255, 0.4) !important;
-                text-shadow: 0 0 8px rgba(77, 166, 255, 0.6) !important;
-            }
-            button.custom-score-btn.btn-undo:focus, button.custom-score-btn.btn-undo:active {
-                border-color: #4da6ff !important;
-                color: #4da6ff !important;
-                background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
-                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(77, 166, 255, 0.4) !important;
             }
 
-            /* 6. Huge Add Extras Button styled to match image perfectly */
-            button.custom-extras-btn {
-                background: linear-gradient(180deg, #182e54 0%, #0b1528 100%) !important;
-                border: 2px solid #bda064 !important;
-                border-radius: 24px !important;
-                box-shadow: inset 0 2px 4px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.4), 0 6px 12px rgba(0,0,0,0.5) !important;
+            /* Button 4 — gold */
+            [data-testid="stBaseButton-secondary"][key="g4"],
+            button[data-testid="stBaseButton-secondary"]:has(p:-webkit-any(*, :empty)) {
+                /* key fallback below via id */ }
+            #g4 ~ div button, div:has(> [data-testid="stBaseButton-secondary"][id*="g4"]) button { color: #f3c64f !important; }
+
+            /* Per-button color overrides using the key embedded in the element's id attribute */
+            [data-testid="stBaseButton-secondary"][id*="g4"] {
+                border-color: #e8b84b !important; color: #f3c64f !important;
+                text-shadow: 0 0 12px rgba(243,198,79,0.75) !important;
+                box-shadow: inset 0 2px 5px rgba(255,255,255,0.18), inset 0 -4px 8px rgba(0,0,0,0.65), 0 6px 16px rgba(0,0,0,0.55), 0 0 18px rgba(243,198,79,0.45) !important;
+            }
+            [data-testid="stBaseButton-secondary"][id*="g6"] {
+                border-color: #3ecb68 !important; color: #52d273 !important;
+                text-shadow: 0 0 12px rgba(82,210,115,0.75) !important;
+                box-shadow: inset 0 2px 5px rgba(255,255,255,0.18), inset 0 -4px 8px rgba(0,0,0,0.65), 0 6px 16px rgba(0,0,0,0.55), 0 0 18px rgba(82,210,115,0.45) !important;
+            }
+            [data-testid="stBaseButton-secondary"][id*="gout"] {
+                border-color: #d93535 !important; color: #ff4c4c !important;
+                font-size: 26px !important;
+                text-shadow: 0 0 12px rgba(255,76,76,0.75) !important;
+                box-shadow: inset 0 2px 5px rgba(255,255,255,0.18), inset 0 -4px 8px rgba(0,0,0,0.65), 0 6px 16px rgba(0,0,0,0.55), 0 0 20px rgba(217,53,53,0.55) !important;
+            }
+            [data-testid="stBaseButton-secondary"][id*="gundo"] {
+                border-color: #2e7fd4 !important; color: #5bb8ff !important;
+                font-size: 20px !important;
+                text-shadow: 0 0 12px rgba(91,184,255,0.75) !important;
+                box-shadow: inset 0 2px 5px rgba(255,255,255,0.18), inset 0 -4px 8px rgba(0,0,0,0.65), 0 6px 16px rgba(0,0,0,0.55), 0 0 18px rgba(46,127,212,0.45) !important;
+            }
+
+            /* ADD EXTRAS button */
+            [data-testid="stBaseButton-secondary"][id*="trigger_extras_popup"] {
+                background: linear-gradient(180deg, #1a2e52 0%, #0d1830 50%, #09101f 100%) !important;
+                border: 2px solid #c8a84b !important;
+                border-radius: 28px !important;
+                box-shadow: inset 0 2px 5px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.55), 0 8px 18px rgba(0,0,0,0.6), 0 0 16px rgba(200,168,75,0.25) !important;
                 color: #ffffff !important;
-                font-family: 'Oswald', sans-serif !important;
                 font-size: 20px !important;
                 font-weight: 700 !important;
-                height: 54px !important;
-                width: 100% !important;
-                letter-spacing: 1px;
+                height: 56px !important;
+                letter-spacing: 2px !important;
                 text-shadow: 0 1px 3px rgba(0,0,0,0.6) !important;
-                margin: 10px 0 !important;
-            }
-            button.custom-extras-btn:active {
-                transform: scale(0.97) !important;
             }
 
             /* 7. Popups: Wide and No Ball styling wrappers inside modal dialog box */
