@@ -334,20 +334,19 @@ def render_main(match_id):
             [data-testid="element-container"] { margin: 0 !important; padding: 0 !important; }
             .stButton { margin: 0 !important; padding: 0 !important; }
 
-            /* NATIVE TARGET STYLING FOR COMPILATION ELEMENTS (Screenshots 2026-06-18 120145_2.png) */
-            
-            /* 1. Base style for scoring buttons (0, 1, 2, 3) with yellow-gold glow and Oswald Extra-Bold */
-            button.custom-score-btn {
+            /* ── BUTTON STYLING: targets wrapper divs rendered by Python (reliable, no JS needed) ── */
+
+            /* Base: all score buttons inside .glossy-btn-container */
+            div.glossy-btn-container button,
+            div.glossy-btn-container button:hover {
                 background: linear-gradient(160deg, #1a2d55 0%, #0d1830 55%, #080f1e 100%) !important;
                 border: 2.5px solid #c8a84b !important;
                 border-radius: 22px !important;
                 box-shadow:
-                    inset 0 2px 4px rgba(255,255,255,0.18),
+                    inset 0 2px 5px rgba(255,255,255,0.18),
                     inset 0 -4px 8px rgba(0,0,0,0.65),
-                    inset 2px 0 4px rgba(255,255,255,0.05),
-                    inset -2px 0 4px rgba(0,0,0,0.3),
                     0 6px 16px rgba(0,0,0,0.55),
-                    0 0 14px rgba(200, 168, 75, 0.35) !important;
+                    0 0 14px rgba(200,168,75,0.35) !important;
                 color: #ffffff !important;
                 font-family: 'Oswald', sans-serif !important;
                 font-size: 34px !important;
@@ -355,117 +354,76 @@ def render_main(match_id):
                 height: 84px !important;
                 width: 100% !important;
                 text-shadow: 0 2px 4px rgba(0,0,0,0.6) !important;
-                transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease !important;
+                transition: transform 0.08s ease, box-shadow 0.08s ease !important;
             }
-            
-            /* Settle down hover, focused and active highlights to match the theme immediately */
-            button.custom-score-btn:focus,
-            button.custom-score-btn:active,
-            button.custom-score-btn:focus-visible {
+            div.glossy-btn-container button:focus,
+            div.glossy-btn-container button:active,
+            div.glossy-btn-container button:focus-visible {
                 outline: none !important;
                 transform: scale(0.96) !important;
-                background: linear-gradient(160deg, #1a2d55 0%, #0d1830 55%, #080f1e 100%) !important;
-                border-color: #c8a84b !important;
                 box-shadow:
-                    inset 0 3px 7px rgba(0,0,0,0.7),
-                    inset 0 -1px 3px rgba(255,255,255,0.08),
-                    0 2px 6px rgba(0,0,0,0.5),
-                    0 0 10px rgba(200, 168, 75, 0.25) !important;
-                color: #ffffff !important;
+                    inset 0 3px 8px rgba(0,0,0,0.7),
+                    inset 0 -1px 3px rgba(255,255,255,0.07),
+                    0 2px 6px rgba(0,0,0,0.5) !important;
             }
-            
-            /* 2. Button 4 (Custom gold text color) */
-            button.custom-score-btn.btn-four {
+
+            /* Button 4 – gold text */
+            div.glossy-btn-container.btn-four button,
+            div.glossy-btn-container.btn-four button:hover {
                 border-color: #e8b84b !important;
                 color: #f3c64f !important;
-                text-shadow: 0 0 10px rgba(243, 198, 79, 0.7), 0 2px 4px rgba(0,0,0,0.5) !important;
+                text-shadow: 0 0 12px rgba(243,198,79,0.75), 0 2px 4px rgba(0,0,0,0.5) !important;
                 box-shadow:
-                    inset 0 2px 4px rgba(255,255,255,0.18),
+                    inset 0 2px 5px rgba(255,255,255,0.18),
                     inset 0 -4px 8px rgba(0,0,0,0.65),
                     0 6px 16px rgba(0,0,0,0.55),
-                    0 0 18px rgba(243, 198, 79, 0.45) !important;
+                    0 0 18px rgba(243,198,79,0.45) !important;
             }
-            button.custom-score-btn.btn-four:focus, button.custom-score-btn.btn-four:active {
-                border-color: #e8b84b !important;
-                color: #f3c64f !important;
-                background: linear-gradient(160deg, #1a2d55 0%, #0d1830 55%, #080f1e 100%) !important;
-                box-shadow:
-                    inset 0 3px 7px rgba(0,0,0,0.7),
-                    inset 0 -1px 3px rgba(255,255,255,0.08),
-                    0 2px 6px rgba(0,0,0,0.5),
-                    0 0 10px rgba(243, 198, 79, 0.3) !important;
-            }
-            
-            /* 3. Button 6 (Custom green text color) */
-            button.custom-score-btn.btn-six {
+
+            /* Button 6 – green text */
+            div.glossy-btn-container.btn-six button,
+            div.glossy-btn-container.btn-six button:hover {
                 border-color: #3ecb68 !important;
                 color: #52d273 !important;
-                text-shadow: 0 0 10px rgba(82, 210, 115, 0.7), 0 2px 4px rgba(0,0,0,0.5) !important;
+                text-shadow: 0 0 12px rgba(82,210,115,0.75), 0 2px 4px rgba(0,0,0,0.5) !important;
                 box-shadow:
-                    inset 0 2px 4px rgba(255,255,255,0.18),
+                    inset 0 2px 5px rgba(255,255,255,0.18),
                     inset 0 -4px 8px rgba(0,0,0,0.65),
                     0 6px 16px rgba(0,0,0,0.55),
-                    0 0 18px rgba(82, 210, 115, 0.45) !important;
+                    0 0 18px rgba(82,210,115,0.45) !important;
             }
-            button.custom-score-btn.btn-six:focus, button.custom-score-btn.btn-six:active {
-                border-color: #3ecb68 !important;
-                color: #52d273 !important;
-                background: linear-gradient(160deg, #1a2d55 0%, #0d1830 55%, #080f1e 100%) !important;
-                box-shadow:
-                    inset 0 3px 7px rgba(0,0,0,0.7),
-                    inset 0 -1px 3px rgba(255,255,255,0.08),
-                    0 2px 6px rgba(0,0,0,0.5),
-                    0 0 10px rgba(82, 210, 115, 0.3) !important;
-            }
-            
-            /* 4. Button OUT (Custom red text color) */
-            button.custom-score-btn.btn-out {
+
+            /* Button OUT – red text */
+            div.glossy-btn-container.btn-out button,
+            div.glossy-btn-container.btn-out button:hover {
                 border-color: #d93535 !important;
                 color: #ff4c4c !important;
                 font-size: 26px !important;
-                text-shadow: 0 0 10px rgba(255, 76, 76, 0.7), 0 2px 4px rgba(0,0,0,0.5) !important;
+                text-shadow: 0 0 12px rgba(255,76,76,0.75), 0 2px 4px rgba(0,0,0,0.5) !important;
                 box-shadow:
-                    inset 0 2px 4px rgba(255,255,255,0.18),
+                    inset 0 2px 5px rgba(255,255,255,0.18),
                     inset 0 -4px 8px rgba(0,0,0,0.65),
                     0 6px 16px rgba(0,0,0,0.55),
-                    0 0 18px rgba(217, 53, 53, 0.5) !important;
+                    0 0 20px rgba(217,53,53,0.55) !important;
             }
-            button.custom-score-btn.btn-out:focus, button.custom-score-btn.btn-out:active {
-                border-color: #d93535 !important;
-                color: #ff4c4c !important;
-                background: linear-gradient(160deg, #1a2d55 0%, #0d1830 55%, #080f1e 100%) !important;
-                box-shadow:
-                    inset 0 3px 7px rgba(0,0,0,0.7),
-                    inset 0 -1px 3px rgba(255,255,255,0.08),
-                    0 2px 6px rgba(0,0,0,0.5),
-                    0 0 10px rgba(217, 53, 53, 0.35) !important;
-            }
-            
-            /* 5. Button UNDO (Custom blue text color) */
-            button.custom-score-btn.btn-undo {
+
+            /* Button UNDO – blue text */
+            div.glossy-btn-container.btn-undo button,
+            div.glossy-btn-container.btn-undo button:hover {
                 border-color: #2e7fd4 !important;
                 color: #5bb8ff !important;
                 font-size: 20px !important;
-                text-shadow: 0 0 10px rgba(91, 184, 255, 0.7), 0 2px 4px rgba(0,0,0,0.5) !important;
+                text-shadow: 0 0 12px rgba(91,184,255,0.75), 0 2px 4px rgba(0,0,0,0.5) !important;
                 box-shadow:
-                    inset 0 2px 4px rgba(255,255,255,0.18),
+                    inset 0 2px 5px rgba(255,255,255,0.18),
                     inset 0 -4px 8px rgba(0,0,0,0.65),
                     0 6px 16px rgba(0,0,0,0.55),
-                    0 0 18px rgba(46, 127, 212, 0.45) !important;
-            }
-            button.custom-score-btn.btn-undo:focus, button.custom-score-btn.btn-undo:active {
-                border-color: #2e7fd4 !important;
-                color: #5bb8ff !important;
-                background: linear-gradient(160deg, #1a2d55 0%, #0d1830 55%, #080f1e 100%) !important;
-                box-shadow:
-                    inset 0 3px 7px rgba(0,0,0,0.7),
-                    inset 0 -1px 3px rgba(255,255,255,0.08),
-                    0 2px 6px rgba(0,0,0,0.5),
-                    0 0 10px rgba(46, 127, 212, 0.3) !important;
+                    0 0 18px rgba(46,127,212,0.45) !important;
             }
 
-            /* 6. Huge Add Extras Button styled to match image perfectly */
-            button.custom-extras-btn {
+            /* ADD EXTRAS button */
+            div.add-extras-btn button,
+            div.add-extras-btn button:hover {
                 background: linear-gradient(180deg, #1a2e52 0%, #0d1830 50%, #09101f 100%) !important;
                 border: 2px solid #c8a84b !important;
                 border-radius: 28px !important;
@@ -473,7 +431,7 @@ def render_main(match_id):
                     inset 0 2px 5px rgba(255,255,255,0.15),
                     inset 0 -3px 6px rgba(0,0,0,0.55),
                     0 8px 18px rgba(0,0,0,0.6),
-                    0 0 16px rgba(200, 168, 75, 0.25) !important;
+                    0 0 16px rgba(200,168,75,0.25) !important;
                 color: #ffffff !important;
                 font-family: 'Oswald', sans-serif !important;
                 font-size: 20px !important;
@@ -482,16 +440,20 @@ def render_main(match_id):
                 width: 100% !important;
                 letter-spacing: 2px !important;
                 text-shadow: 0 1px 3px rgba(0,0,0,0.6) !important;
-                margin: 10px 0 !important;
                 text-transform: uppercase !important;
             }
-            button.custom-extras-btn:active {
+            div.add-extras-btn button:active {
                 transform: scale(0.97) !important;
-                box-shadow:
-                    inset 0 3px 8px rgba(0,0,0,0.7),
-                    inset 0 -1px 3px rgba(255,255,255,0.06),
-                    0 3px 8px rgba(0,0,0,0.5) !important;
+                box-shadow: inset 0 3px 8px rgba(0,0,0,0.7) !important;
             }
+
+            /* Keep old class selectors as fallback in case JS injection does work */
+            button.custom-score-btn { background: linear-gradient(160deg, #1a2d55 0%, #0d1830 55%, #080f1e 100%) !important; border: 2.5px solid #c8a84b !important; border-radius: 22px !important; color: #ffffff !important; font-family: 'Oswald', sans-serif !important; font-size: 34px !important; font-weight: 800 !important; height: 84px !important; width: 100% !important; }
+            button.custom-score-btn.btn-four { border-color: #e8b84b !important; color: #f3c64f !important; }
+            button.custom-score-btn.btn-six { border-color: #3ecb68 !important; color: #52d273 !important; }
+            button.custom-score-btn.btn-out { border-color: #d93535 !important; color: #ff4c4c !important; font-size: 26px !important; }
+            button.custom-score-btn.btn-undo { border-color: #2e7fd4 !important; color: #5bb8ff !important; font-size: 20px !important; }
+            button.custom-extras-btn { background: linear-gradient(180deg, #1a2e52 0%, #09101f 100%) !important; border: 2px solid #c8a84b !important; border-radius: 28px !important; color: #ffffff !important; font-family: 'Oswald', sans-serif !important; font-size: 20px !important; font-weight: 700 !important; height: 56px !important; width: 100% !important; letter-spacing: 2px !important; }
 
             /* 7. Popups: Wide and No Ball styling wrappers inside modal dialog box */
             .extras-modal {
@@ -567,6 +529,9 @@ def render_main(match_id):
             }
 
             /* Settings/Themes Redesigned Utility controls matching visual tokens */
+            /* Reset button */
+            div.premium-reset-btn button,
+            div.premium-reset-btn button:hover,
             button.custom-reset-btn {
                 background: linear-gradient(180deg, #321010 0%, #190808 100%) !important;
                 border: 2px solid #ff5252 !important;
@@ -582,6 +547,9 @@ def render_main(match_id):
                 text-transform: uppercase !important;
                 width: 100% !important;
             }
+            /* Theme button */
+            div.premium-theme-btn button,
+            div.premium-theme-btn button:hover,
             button.custom-theme-btn {
                 background: linear-gradient(180deg, #1b2e50 0%, #0d1729 100%) !important;
                 border: 2px solid #bda064 !important;
