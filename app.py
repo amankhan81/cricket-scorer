@@ -89,23 +89,24 @@ def start_second_innings(match_id, innings1_score):
         "runs": 0, "balls": 0, "history": "[]"
     }).eq("match_id", match_id).execute()
 
+# --- SAFE MARKDOWN RENDERER ---
+def render_html(html_str):
+    """Flattens HTML strings to prevent markdown indented-code block bugs in Streamlit."""
+    cleaned = " ".join(line.strip() for line in html_str.split("\n"))
+    st.markdown(cleaned, unsafe_allow_html=True)
+
 # --- HELPER SVG FOR PREMIUM LOGO ---
 SVG_LOGO_MARKUP = """
 <svg viewBox="0 0 110 90" width="46" height="40" style="filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5));">
     <g transform="rotate(-32 50 45)">
-        <!-- Bat grip -->
         <rect x="47" y="5" width="6" height="22" rx="2" fill="url(#gripGrad)" />
         <line x1="47" y1="10" x2="53" y2="10" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
         <line x1="47" y1="15" x2="53" y2="15" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
         <line x1="47" y1="20" x2="53" y2="20" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
-        <!-- Bat wood transition -->
         <path d="M44,27 L56,27 L57,32 L43,32 Z" fill="#b07f3c" />
-        <!-- Bat body -->
         <rect x="43" y="32" width="14" height="48" rx="2" fill="url(#woodGrad)" />
     </g>
-    <!-- Shiny Leather Ball -->
     <circle cx="75" cy="62" r="11" fill="url(#ballGrad)" />
-    <!-- White Seam -->
     <path d="M66,62 Q75,54 84,62" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-dasharray="1.5, 1" />
     <defs>
         <linearGradient id="gripGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -128,7 +129,7 @@ SVG_LOGO_MARKUP = """
 
 def render_main(match_id):
     # Injection of custom styling optimized for zero scrolling and a premium metallic theme
-    st.markdown("""
+    render_html("""
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Roboto+Condensed:wght@400;700&display=swap');
             header, footer, #MainMenu { display: none !important; }
@@ -400,11 +401,11 @@ def render_main(match_id):
             .credit span { font-family: 'Roboto Condensed', sans-serif; font-size: 9px; letter-spacing: 1.5px; color: rgba(255,255,255,0.2); text-transform: uppercase; }
             .credit strong { color: rgba(195, 164, 105, 0.5); font-weight: 700; }
         </style>
-    """, unsafe_allow_html=True)
+    """)
 
     # Specific theme override for Light Mode
     if st.session_state.get("light_mode"):
-        st.markdown("""
+        render_html("""
             <style>
                 .stApp { background: radial-gradient(circle at top, #f0f4fa 0%, #d4dfec 100%) !important; }
                 .broadcast-ticker { background: linear-gradient(180deg, #ffffff 0%, #eef3fb 100%) !important; border-color: rgba(0,0,0,0.15) !important; box-shadow: 0 6px 15px rgba(0,0,0,0.08); }
@@ -429,7 +430,7 @@ def render_main(match_id):
                 .target-bar { background: rgba(0,0,0,0.03) !important; color: #8c581a !important; border-color: rgba(140,88,26,0.2) !important; }
                 .credit span { color: rgba(0,0,0,0.4) !important; }
             </style>
-        """, unsafe_allow_html=True)
+        """)
 
     base_url = st.context.url if hasattr(st, 'context') and hasattr(st.context, 'url') else "https://your-app.streamlit.app"
     if "?" in base_url:
@@ -492,14 +493,14 @@ def render_main(match_id):
 
     # Check innings boundaries
     if innings == 1 and innings_over:
-        st.markdown(f"""
+        render_html(f"""
             <div style="background:rgba(20,31,58,0.5); border:1.5px solid rgba(255,255,255,0.08); border-radius:20px; padding:24px 10px; text-align:center; margin:15px 0;">
                 <h2 style="font-family:'Oswald',sans-serif; color:#f0c040; font-size:24px; margin-bottom:8px;">Innings Over</h2>
                 <div style="font-family:'Oswald',sans-serif; color:white; font-size:52px; font-weight:700; line-height:1; margin-bottom:4px;">{current_runs}/{wickets}</div>
                 <div style="font-family:'Roboto Condensed',sans-serif; color:rgba(255,255,255,0.45); font-size:11px; letter-spacing:2.5px; text-transform:uppercase; margin-bottom:15px;">{batting_team} — 1st Innings Score</div>
                 <p style="font-family:'Roboto Condensed',sans-serif; color:rgba(255,255,255,0.6); font-size:14px;">{bowling_team} to chase. Start 2nd innings.</p>
             </div>
-        """, unsafe_allow_html=True)
+        """)
         st.markdown('<div class="add-extras-btn">', unsafe_allow_html=True)
         if st.button("START 2ND INNINGS", use_container_width=True):
             start_second_innings(match_id, current_runs)
@@ -517,7 +518,7 @@ def render_main(match_id):
             result = team_inn1 + " wins by " + str(innings1_runs - current_runs) + " runs! 🎉"
         else:
             result = "It's a tie! 🤝"
-        st.markdown(f"""
+        render_html(f"""
             <div style="background:rgba(195,164,105,0.1); border:1.5px solid rgba(195,164,105,0.3); border-radius:20px; padding:26px 15px; text-align:center; margin:15px 0;">
                 <h2 style="font-family:'Oswald',sans-serif; color:#f0c040; font-size:28px; margin-bottom:8px;">Match Over</h2>
                 <p style="font-family:'Roboto Condensed',sans-serif; color:rgba(255,255,255,0.7); font-size:16px; margin-bottom:18px;">{result}</p>
@@ -525,7 +526,7 @@ def render_main(match_id):
                     {team_inn1}: {innings1_runs} &nbsp;|&nbsp; {team_inn2}: {current_runs}/{wickets}
                 </div>
             </div>
-        """, unsafe_allow_html=True)
+        """)
         st.markdown('<div class="add-extras-btn">', unsafe_allow_html=True)
         if st.button("NEW MATCH", use_container_width=True):
             st.query_params.clear()
@@ -543,7 +544,7 @@ def render_main(match_id):
     overs_val = f"{current_balls//6}.{current_balls%6}"
     max_overs_val = str(d['match_overs'])
     
-    st.markdown(f"""
+    render_html(f"""
         <div class="broadcast-ticker">
             <div class="ticker-gold-bar"></div>
             <div class="ticker-logo-box">
@@ -571,7 +572,7 @@ def render_main(match_id):
                 <div class="ticker-max-box">{max_overs_val}</div>
             </div>
         </div>
-    """, unsafe_allow_html=True)
+    """)
 
     if innings == 2:
         needed     = innings1_runs - current_runs + 1
@@ -673,11 +674,11 @@ def render_main(match_id):
 
     # Bottom Settings section
     if st.session_state.get("confirm_reset_active"):
-        st.markdown("""
+        render_html("""
             <div style="background:rgba(235,87,87,0.12); border:1.5px solid rgba(235,87,87,0.35); border-radius:14px; padding:12px; margin-top:10px; text-align:center;">
                 <p style="font-family:'Roboto Condensed',sans-serif; color:white; font-size:14px; font-weight:700; margin-bottom:10px;">⚠️ Confirm Reset Match?</p>
             </div>
-        """, unsafe_allow_html=True)
+        """)
         cy, cn = st.columns(2)
         with cy:
             st.markdown('<div class="premium-reset-btn">', unsafe_allow_html=True)
