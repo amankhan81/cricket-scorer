@@ -172,7 +172,7 @@ def render_main(match_id):
             .btn-out button { color: #ec4849 !important; font-size: 26px !important; }
             .btn-undo button { color: #4da6ff !important; font-size: 20px !important; }
 
-            /* ADD EXTRAS Premium Pill Button */
+            /* ADD EXTRAS Premium Pill Button matches image_f143bf.png and app new interface.png */
             .add-extras-btn button {
                 background: linear-gradient(180deg, #234075 0%, #12213f 100%) !important;
                 border: 2.5px solid #bda064 !important;
@@ -192,104 +192,124 @@ def render_main(match_id):
                 transform: scale(0.98) !important;
             }
 
-            /* POPUP EXTRAS MODAL matches app new interface.png */
+            /* POPUP EXTRAS MODAL matches image_f143bf.png exactly */
             .extras-modal {
-                background: #142850 !important;
-                border: 2.5px solid #99804a !important;
-                border-radius: 18px !important;
+                background: #12213f !important;
+                border: 2.5px solid #bda064 !important;
+                border-radius: 22px !important;
                 overflow: hidden !important;
-                box-shadow: 0 12px 30px rgba(0,0,0,0.7) !important;
+                box-shadow: inset 0 2px 4px rgba(255,255,255,0.1), 0 12px 30px rgba(0,0,0,0.7) !important;
                 margin: 10px 0 !important;
             }
             .extras-header {
-                background: linear-gradient(180deg, #99804a 0%, #7a6637 100%) !important;
+                background: linear-gradient(180deg, #9b814a 0%, #766236 100%) !important;
                 color: #ffffff !important;
                 font-family: 'Oswald', sans-serif !important;
                 font-size: 22px !important;
                 font-weight: 700 !important;
                 text-align: center !important;
-                padding: 10px 0 !important;
-                letter-spacing: 2px !important;
-                text-shadow: 0 2px 4px rgba(0,0,0,0.4) !important;
+                padding: 12px 0 !important;
+                letter-spacing: 2.5px !important;
+                text-shadow: 0 2px 4px rgba(0,0,0,0.6) !important;
                 text-transform: uppercase !important;
+                border-bottom: 2px solid #bda064 !important;
             }
             .extras-body {
-                padding: 20px 12px !important;
+                padding: 24px 16px !important;
             }
 
-            /* Wide Buttons in modal (4 col) */
+            /* Wide Buttons in modal (4 col) matching image_f143bf.png */
             .extra-wide-btn button {
-                background: linear-gradient(180deg, #1d335c 0%, #101c34 100%) !important;
-                border: 2.2px solid #bda064 !important;
-                border-radius: 18px !important;
-                box-shadow: inset 0 2px 4px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 10px rgba(0,0,0,0.4) !important;
+                background: linear-gradient(180deg, #20355c 0%, #111d33 100%) !important;
+                border: 2.5px solid #bda064 !important;
+                border-radius: 20px !important;
+                box-shadow: inset 0 2px 4px rgba(255,255,255,0.15), inset 0 -4px 8px rgba(0,0,0,0.6), 0 6px 14px rgba(0,0,0,0.5) !important;
                 color: #ffffff !important;
                 font-family: 'Oswald', sans-serif !important;
-                font-size: 26px !important;
+                font-size: 28px !important;
                 font-weight: 700 !important;
-                height: 72px !important;
+                height: 76px !important;
                 width: 100% !important;
+                text-shadow: 0 2px 3px rgba(0,0,0,0.6) !important;
             }
             
-            /* No Ball Buttons in modal (6 col) */
+            /* No Ball Buttons in modal (6 col) matching image_f143bf.png */
             .extra-no-btn button {
-                background: linear-gradient(180deg, #1d335c 0%, #101c34 100%) !important;
-                border: 1.8px solid #bda064 !important;
-                border-radius: 14px !important;
-                box-shadow: inset 0 2px 3px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.4) !important;
+                background: linear-gradient(180deg, #20355c 0%, #111d33 100%) !important;
+                border: 2px solid #bda064 !important;
+                border-radius: 16px !important;
+                box-shadow: inset 0 2px 3px rgba(255,255,255,0.15), inset 0 -3px 5px rgba(0,0,0,0.6), 0 5px 10px rgba(0,0,0,0.5) !important;
                 color: #ffffff !important;
+                font-family: 'Oswald', sans-serif !important;
+                font-size: 18px !important;
+                font-weight: 700 !important;
+                height: 52px !important;
+                width: 100% !important;
+                padding: 0 !important;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+            }
+
+            /* Cancel Pill Button matching image_f143bf.png exactly */
+            .extra-cancel-btn button {
+                background: transparent !important;
+                border: 2.5px solid #bda064 !important;
+                border-radius: 24px !important;
+                color: #ff5252 !important;
                 font-family: 'Oswald', sans-serif !important;
                 font-size: 16px !important;
                 font-weight: 700 !important;
-                height: 48px !important;
-                width: 100% !important;
-                padding: 0 !important;
-            }
-
-            /* Cancel Pill Button */
-            .extra-cancel-btn button {
-                background: transparent !important;
-                border: 2px solid #bda064 !important;
-                border-radius: 20px !important;
-                color: #ff5252 !important;
-                font-family: 'Roboto Condensed', sans-serif !important;
-                font-size: 14px !important;
-                font-weight: 700 !important;
-                height: 38px !important;
-                width: 130px !important;
-                margin: 15px auto 0 auto !important;
+                height: 42px !important;
+                width: 140px !important;
+                margin: 20px auto 5px auto !important;
                 display: block !important;
                 text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
-                transition: background 0.2s !important;
+                transition: background 0.2s, transform 0.1s !important;
+                text-transform: uppercase !important;
+                letter-spacing: 1px !important;
             }
-            .extra-cancel-btn button:hover {
-                background: rgba(255, 82, 82, 0.1) !important;
+            .extra-cancel-btn button:active {
+                transform: scale(0.96) !important;
             }
 
-            /* Redesigned Premium Reset and Theme Toggle Controls */
+            /* Redesigned Utility Buttons matching scoring buttons' glossy 3D gold-bevel style */
             .premium-reset-btn button {
-                background: linear-gradient(180deg, #3d1b1b 0%, #200d0d 100%) !important;
-                border: 1.5px solid #ff6b6b !important;
-                border-radius: 14px !important;
-                color: #ff8b8b !important;
-                font-family: 'Roboto Condensed', sans-serif !important;
-                font-size: 13px !important;
+                background: linear-gradient(180deg, #3d1515 0%, #1f0b0b 100%) !important;
+                border: 2.5px solid #ff5252 !important;
+                border-radius: 18px !important;
+                box-shadow: inset 0 2px 3px rgba(255,255,255,0.1), inset 0 -4px 8px rgba(0,0,0,0.6), 0 5px 12px rgba(0,0,0,0.5) !important;
+                color: #ff5252 !important;
+                font-family: 'Oswald', sans-serif !important;
+                font-size: 14px !important;
                 font-weight: 700 !important;
-                height: 44px !important;
-                letter-spacing: 1px !important;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.4) !important;
+                height: 48px !important;
+                letter-spacing: 1.5px !important;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+                text-transform: uppercase !important;
+                width: 100% !important;
+                transition: transform 0.1s ease !important;
             }
+            .premium-reset-btn button:active {
+                transform: scale(0.96) !important;
+            }
+            
             .premium-theme-btn button {
-                background: linear-gradient(180deg, #1d335c 0%, #101c34 100%) !important;
-                border: 1.5px solid #bda064 !important;
-                border-radius: 14px !important;
+                background: linear-gradient(180deg, #20355c 0%, #111d33 100%) !important;
+                border: 2.5px solid #bda064 !important;
+                border-radius: 18px !important;
+                box-shadow: inset 0 2px 3px rgba(255,255,255,0.1), inset 0 -4px 8px rgba(0,0,0,0.6), 0 5px 12px rgba(0,0,0,0.5) !important;
                 color: #f0c040 !important;
-                font-family: 'Roboto Condensed', sans-serif !important;
-                font-size: 13px !important;
+                font-family: 'Oswald', sans-serif !important;
+                font-size: 14px !important;
                 font-weight: 700 !important;
-                height: 44px !important;
-                letter-spacing: 1px !important;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.4) !important;
+                height: 48px !important;
+                letter-spacing: 1.5px !important;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+                text-transform: uppercase !important;
+                width: 100% !important;
+                transition: transform 0.1s ease !important;
+            }
+            .premium-theme-btn button:active {
+                transform: scale(0.96) !important;
             }
 
             /* Other layouts */
@@ -326,8 +346,9 @@ def render_main(match_id):
                 .extra-wide-btn button, .extra-no-btn button {
                     background: linear-gradient(180deg, #ffffff 0%, #e2ebf6 100%) !important;
                     color: #14223f !important;
+                    border-color: #7a6637 !important;
                 }
-                .extra-cancel-btn button { background: rgba(0,0,0,0.03) !important; }
+                .extra-cancel-btn button { background: rgba(0,0,0,0.03) !important; border-color: #ff5252 !important; }
                 .target-bar { background: rgba(0,0,0,0.03) !important; color: #7a6637 !important; }
                 .credit span { color: rgba(0,0,0,0.4) !important; }
             </style>
@@ -467,7 +488,7 @@ def render_main(match_id):
         st.markdown('<div class="extras-header">ADD EXTRAS</div>', unsafe_allow_html=True)
         st.markdown('<div class="extras-body">', unsafe_allow_html=True)
         
-        # Row 1: Wides (w+1, w+2, w+3, w+4)
+        # Row 1: Wides (w+1, w+2, w+3, w+4) as displayed in image_f143bf.png (lowercase)
         st.markdown('<div style="margin-bottom: 5px; text-align: center; color: rgba(255,255,255,0.4); font-family:\'Roboto Condensed\', sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase;">Wide Balls</div>', unsafe_allow_html=True)
         wcols = st.columns(4)
         w_options = [1, 2, 3, 4]
@@ -484,7 +505,7 @@ def render_main(match_id):
         
         st.markdown('<div style="height: 16px;"></div>', unsafe_allow_html=True)
         
-        # Row 2: No Balls (N+1, N+2, N+3, N+4, N+5, N+6)
+        # Row 2: No Balls (N+1, N+2, N+3, N+4, N+5, N+6) as displayed in image_f143bf.png (uppercase)
         st.markdown('<div style="margin-bottom: 5px; text-align: center; color: rgba(255,255,255,0.4); font-family:\'Roboto Condensed\', sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase;">No Balls</div>', unsafe_allow_html=True)
         ncols = st.columns(6)
         n_options = [1, 2, 3, 4, 5, 6]
