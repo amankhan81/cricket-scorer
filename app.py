@@ -94,7 +94,6 @@ def render_html(html_str):
     cleaned = " ".join(line.strip() for line in html_str.split("\n"))
     st.markdown(cleaned, unsafe_allow_html=True)
 
-# --- INJECTABLE SCRIPT TO PREVENT SCREEN SLEEP & DISMISS BUTTON HIGHLIGHTS ---
 WAKE_LOCK_AND_ANTI_STICK_SCRIPT = """
 <script>
 (function() {
@@ -110,17 +109,14 @@ WAKE_LOCK_AND_ANTI_STICK_SCRIPT = """
         }
     }
     
-    // Request Wake Lock on initialization
     requestWakeLock();
     
-    // Re-acquire Wake Lock when tab becomes active again
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {
             requestWakeLock();
         }
     });
     
-    // Instantly remove active focus styles from clicked buttons
     const blurActiveElement = () => {
         setTimeout(() => {
             const activeEl = document.activeElement;
@@ -136,7 +132,7 @@ WAKE_LOCK_AND_ANTI_STICK_SCRIPT = """
 """
 
 def render_main(match_id):
-    # Inject styling + the functional prevent-sleep & defocus scripts
+    # Inject wake-lock & auto-defocus scripts
     render_html(WAKE_LOCK_AND_ANTI_STICK_SCRIPT)
     
     render_html("""
@@ -144,13 +140,11 @@ def render_main(match_id):
             @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700;800&family=Roboto+Condensed:wght@400;700&display=swap');
             header, footer, #MainMenu { display: none !important; }
             
-            /* Radial Dark Metallic theme */
             .stApp { 
                 background: radial-gradient(circle at top, #141c2c 0%, #080a10 100%) !important; 
                 min-height: 100vh; 
             }
             
-            /* Tight container spacing to fit active viewport */
             .block-container { 
                 padding: 10px 8px 12px 8px !important; 
                 max-width: 440px !important; 
@@ -591,7 +585,6 @@ def render_main(match_id):
     except:
         formatted_max = f"({max_overs_val})"
 
-    # Render either victory layout or standard live scoring layout
     if match_over:
         if current_runs > innings1_runs:
             winner_text = batting_team.upper()
@@ -623,6 +616,23 @@ def render_main(match_id):
 
     else:
         # Standard Active Scoring layout (No Icons, parenthetical overs, 2 row team, space optimization)
+        
+        whatsapp_share_url = "https://easyscoring.streamlit.app/?match=" + match_id
+        whatsapp_link = "https://wa.me/?text=" + whatsapp_share_url
+        
+        render_html(f"""
+            <div class="share-pill-wrapper">
+                <a class="share-pill" href="{whatsapp_link}" target="_blank">📲 Share Scoring</a>
+            </div>
+        """)
+        
+        innings_text = "1st Innings" if innings == 1 else "2nd Innings"
+        render_html(f"""
+            <div class="innings-badge">
+                <span>{innings_text}</span>
+            </div>
+        """)
+        
         render_html(f"""
             <div class="broadcast-ticker">
                 <div class="ticker-gold-bar"></div>
@@ -660,7 +670,6 @@ def render_main(match_id):
         else:
             st.markdown('<div class="target-bar">✅ Target achieved!</div>', unsafe_allow_html=True)
 
-    # POPUP EXTRAS MODAL FLOW (Mapped exactly to image_f0409d.png parameters)
     if st.session_state.get("show_extras", False):
         st.markdown('<div class="extras-modal">', unsafe_allow_html=True)
         st.markdown('<div class="extras-header">ADD EXTRAS</div>', unsafe_allow_html=True)
@@ -703,7 +712,6 @@ def render_main(match_id):
         st.markdown('</div></div>', unsafe_allow_html=True)
 
     else:
-        # Row 1: 0, 1, 2, 3 (Glassy deep blue look with yellow glowing labels)
         c0, c1, c2, c3 = st.columns(4)
         for idx, val in enumerate(["0", "1", "2", "3"]):
             col_target = [c0, c1, c2, c3][idx]
@@ -832,7 +840,6 @@ def _render_overlay_box(overlay_url, match_id=None, confirm_key=None, reset_key=
 #  PREMIUM OVERLAY BROADCAST TICKER MODE (OBS & STREAMS)
 # ════════════════════════════════════════════════════════
 def render_overlay(match_id):
-    # Inject the wake lock utility script for overlay capturing instances
     render_html(WAKE_LOCK_AND_ANTI_STICK_SCRIPT)
 
     render_html("""
@@ -957,6 +964,7 @@ def render_overlay(match_id):
     need_val      = max(0, needed)
     balls_left    = max(0, max_balls - current_balls)
     need_color    = "#ff6b6b" if needed > 0 else "#6fcf97"
+    innings_over  = current_balls >= max_balls
     wickets       = get_wickets(d.get("history"))
 
     team1_name    = d.get("team1_name") or "Team 1"
