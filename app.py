@@ -109,10 +109,11 @@ SVG_LOGO_MARKUP = """
 </svg>
 """
 
-# --- INJECTABLE SCRIPT TO PREVENT SCREEN SLEEP & DISMISS BUTTON HIGHLIGHTS ---
-WAKE_LOCK_AND_ANTI_STICK_SCRIPT = """
+# --- INJECTABLE SCRIPT TO PREVENT SCREEN SLEEP, DISMISS BUTTON HIGHLIGHTS & INJECT STABLE CSS CLASSES ---
+WAKE_LOCK_AND_DOM_STYLER_SCRIPT = """
 <script>
 (function() {
+    /* 1. Prevent Screen sleep */
     let wakeLock = null;
     async function requestWakeLock() {
         try {
@@ -133,6 +134,7 @@ WAKE_LOCK_AND_ANTI_STICK_SCRIPT = """
         }
     });
     
+    /* 2. Remove sticky pressed state */
     const blurActiveElement = () => {
         setTimeout(() => {
             const activeEl = document.activeElement;
@@ -143,13 +145,43 @@ WAKE_LOCK_AND_ANTI_STICK_SCRIPT = """
     };
     document.addEventListener('mouseup', blurActiveElement);
     document.addEventListener('touchend', blurActiveElement);
+
+    /* 3. Resilient Client-Side Styler that targets native buttons by their plain text label */
+    const styleAppButtons = () => {
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(btn => {
+            const text = btn.textContent.trim();
+            if (text === '0' || text === '1' || text === '2' || text === '3') {
+                btn.className = 'custom-score-btn';
+            } else if (text === '4') {
+                btn.className = 'custom-score-btn btn-four';
+            } else if (text === '6') {
+                btn.className = 'custom-score-btn btn-six';
+            } else if (text === 'OUT') {
+                btn.className = 'custom-score-btn btn-out';
+            } else if (text === 'UNDO') {
+                btn.className = 'custom-score-btn btn-undo';
+            } else if (text === 'ADD EXTRAS') {
+                btn.className = 'custom-extras-btn';
+            } else if (text.includes('RESET')) {
+                btn.className = 'custom-reset-btn';
+            } else if (text.includes('MODE')) {
+                btn.className = 'custom-theme-btn';
+            }
+        });
+    };
+
+    styleAppButtons();
+    const observer = new MutationObserver(styleAppButtons);
+    observer.observe(document.body, { childList: true, subtree: true });
+    setInterval(styleAppButtons, 300);
 })();
 </script>
 """
 
 def render_main(match_id):
-    # Inject wake-lock & auto-defocus scripts
-    render_html(WAKE_LOCK_AND_ANTI_STICK_SCRIPT)
+    # Inject wake-lock, auto-defocus & dynamic styling injection scripts
+    render_html(WAKE_LOCK_AND_DOM_STYLER_SCRIPT)
     
     render_html("""
         <style>
@@ -299,30 +331,28 @@ def render_main(match_id):
             [data-testid="element-container"] { margin: 0 !important; padding: 0 !important; }
             .stButton { margin: 0 !important; padding: 0 !important; }
 
-            /* SIBLING & :HAS() NATIVE STREAMLIT BUTTON OVERRIDES
-               This guarantees styling works 100% by targeting the button container adjacent to our wrapper markers!
-            */
-
-            /* 1. Base style for scoring buttons (0, 1, 2, 3) with gold-yellow neon glow borders and Oswald Extra-Bold */
-            div[data-testid="element-container"]:has(.glossy-btn-container) + div[data-testid="element-container"] button {
+            /* NATIVE TARGET STYLING FOR COMPILATION ELEMENTS (Screenshots 2026-06-18 120145_2.png) */
+            
+            /* 1. Base style for scoring buttons (0, 1, 2, 3) with yellow-gold glow and Oswald Extra-Bold */
+            button.custom-score-btn {
                 background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
-                border: 2.5px solid #ffd700 !important; /* Yellow glowy outline border */
+                border: 2.5px solid #ffd700 !important; /* Yellow-gold beveled border outline */
                 border-radius: 20px !important;
                 box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(255, 215, 0, 0.4) !important;
                 color: #ffffff !important;
                 font-family: 'Oswald', sans-serif !important;
                 font-size: 32px !important;
-                font-weight: 800 !important; /* Bold fonts */
-                height: 84px !important; /* Increased Height */
+                font-weight: 800 !important; /* Bold font weight */
+                height: 84px !important; /* Premium 84px height */
                 width: 100% !important;
                 text-shadow: 0 0 8px rgba(255, 215, 0, 0.4) !important;
                 transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease !important;
             }
             
-            /* Settle down hover and active highlights to rest exactly to our theme styles */
-            div[data-testid="element-container"]:has(.glossy-btn-container) + div[data-testid="element-container"] button:focus,
-            div[data-testid="element-container"]:has(.glossy-btn-container) + div[data-testid="element-container"] button:active,
-            div[data-testid="element-container"]:has(.glossy-btn-container) + div[data-testid="element-container"] button:focus-visible {
+            /* Settle down hover, focused and active highlights to match the theme immediately */
+            button.custom-score-btn:focus,
+            button.custom-score-btn:active,
+            button.custom-score-btn:focus-visible {
                 outline: none !important;
                 transform: none !important;
                 background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
@@ -332,14 +362,13 @@ def render_main(match_id):
             }
             
             /* 2. Button 4 (Custom gold text color) */
-            div[data-testid="element-container"]:has(.btn-four) + div[data-testid="element-container"] button {
+            button.custom-score-btn.btn-four {
                 border-color: #f3c64f !important;
                 color: #f3c64f !important;
                 box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(243, 198, 79, 0.4) !important;
                 text-shadow: 0 0 8px rgba(243, 198, 79, 0.6) !important;
             }
-            div[data-testid="element-container"]:has(.btn-four) + div[data-testid="element-container"] button:focus,
-            div[data-testid="element-container"]:has(.btn-four) + div[data-testid="element-container"] button:active {
+            button.custom-score-btn.btn-four:focus, button.custom-score-btn.btn-four:active {
                 border-color: #f3c64f !important;
                 color: #f3c64f !important;
                 background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
@@ -347,14 +376,13 @@ def render_main(match_id):
             }
             
             /* 3. Button 6 (Custom green text color) */
-            div[data-testid="element-container"]:has(.btn-six) + div[data-testid="element-container"] button {
+            button.custom-score-btn.btn-six {
                 border-color: #52d273 !important;
                 color: #52d273 !important;
                 box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(82, 210, 115, 0.4) !important;
                 text-shadow: 0 0 8px rgba(82, 210, 115, 0.6) !important;
             }
-            div[data-testid="element-container"]:has(.btn-six) + div[data-testid="element-container"] button:focus,
-            div[data-testid="element-container"]:has(.btn-six) + div[data-testid="element-container"] button:active {
+            button.custom-score-btn.btn-six:focus, button.custom-score-btn.btn-six:active {
                 border-color: #52d273 !important;
                 color: #52d273 !important;
                 background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
@@ -362,15 +390,14 @@ def render_main(match_id):
             }
             
             /* 4. Button OUT (Custom red text color) */
-            div[data-testid="element-container"]:has(.btn-out) + div[data-testid="element-container"] button {
+            button.custom-score-btn.btn-out {
                 border-color: #ec4849 !important;
                 color: #ec4849 !important;
                 font-size: 24px !important;
                 box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(236, 72, 73, 0.4) !important;
                 text-shadow: 0 0 8px rgba(236, 72, 73, 0.6) !important;
             }
-            div[data-testid="element-container"]:has(.btn-out) + div[data-testid="element-container"] button:focus,
-            div[data-testid="element-container"]:has(.btn-out) + div[data-testid="element-container"] button:active {
+            button.custom-score-btn.btn-out:focus, button.custom-score-btn.btn-out:active {
                 border-color: #ec4849 !important;
                 color: #ec4849 !important;
                 background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
@@ -378,23 +405,22 @@ def render_main(match_id):
             }
             
             /* 5. Button UNDO (Custom blue text color) */
-            div[data-testid="element-container"]:has(.btn-undo) + div[data-testid="element-container"] button {
+            button.custom-score-btn.btn-undo {
                 border-color: #4da6ff !important;
                 color: #4da6ff !important;
                 font-size: 20px !important;
                 box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(77, 166, 255, 0.4) !important;
                 text-shadow: 0 0 8px rgba(77, 166, 255, 0.6) !important;
             }
-            div[data-testid="element-container"]:has(.btn-undo) + div[data-testid="element-container"] button:focus,
-            div[data-testid="element-container"]:has(.btn-undo) + div[data-testid="element-container"] button:active {
+            button.custom-score-btn.btn-undo:focus, button.custom-score-btn.btn-undo:active {
                 border-color: #4da6ff !important;
                 color: #4da6ff !important;
                 background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
                 box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(77, 166, 255, 0.4) !important;
             }
 
-            /* 6. Huge Add Extras Button */
-            div[data-testid="element-container"]:has(.add-extras-btn) + div[data-testid="element-container"] button {
+            /* 6. Huge Add Extras Button styled to match image perfectly */
+            button.custom-extras-btn {
                 background: linear-gradient(180deg, #182e54 0%, #0b1528 100%) !important;
                 border: 2px solid #bda064 !important;
                 border-radius: 24px !important;
@@ -409,11 +435,11 @@ def render_main(match_id):
                 text-shadow: 0 1px 3px rgba(0,0,0,0.6) !important;
                 margin: 10px 0 !important;
             }
-            div[data-testid="element-container"]:has(.add-extras-btn) + div[data-testid="element-container"] button:active {
+            button.custom-extras-btn:active {
                 transform: scale(0.97) !important;
             }
 
-            /* 7. Popups: Wide and No Ball styling wrappers */
+            /* 7. Popups: Wide and No Ball styling wrappers inside modal dialog box */
             .extras-modal {
                 background: #11203b !important;
                 border: 2px solid #bda064 !important;
@@ -439,6 +465,7 @@ def render_main(match_id):
                 padding: 16px 12px !important;
             }
 
+            /* 8. Extra popup wides/no-balls button styles mapped precisely */
             div[data-testid="element-container"]:has(.extra-wide-btn) + div[data-testid="element-container"] button {
                 background: linear-gradient(180deg, #1b2e50 0%, #0d1729 100%) !important;
                 border: 2px solid #bda064 !important;
@@ -486,7 +513,7 @@ def render_main(match_id):
             }
 
             /* Settings/Themes Redesigned Utility controls matching visual tokens */
-            div[data-testid="element-container"]:has(.premium-reset-btn) + div[data-testid="element-container"] button {
+            button.custom-reset-btn {
                 background: linear-gradient(180deg, #321010 0%, #190808 100%) !important;
                 border: 2px solid #ff5252 !important;
                 border-radius: 16px !important;
@@ -501,7 +528,7 @@ def render_main(match_id):
                 text-transform: uppercase !important;
                 width: 100% !important;
             }
-            div[data-testid="element-container"]:has(.premium-theme-btn) + div[data-testid="element-container"] button {
+            button.custom-theme-btn {
                 background: linear-gradient(180deg, #1b2e50 0%, #0d1729 100%) !important;
                 border: 2px solid #bda064 !important;
                 border-radius: 16px !important;
@@ -574,12 +601,12 @@ def render_main(match_id):
                 .ticker-val-score { color: #141c2c !important; }
                 .ticker-lbl { color: #555555 !important; }
                 .ticker-max-box { border-color: rgba(0,0,0,0.2) !important; background: rgba(0,0,0,0.03) !important; color: #141c2c !important; }
-                div[data-testid="element-container"]:has(.glossy-btn-container) + div[data-testid="element-container"] button {
+                button.custom-score-btn {
                     background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(230,238,248,0.95) 100%) !important;
                     color: #141c2c !important; border-color: #ffd700 !important;
                     box-shadow: inset 0 1.5px 3px rgba(255,255,255,1), 0 4px 8px rgba(0,0,0,0.08) !important;
                 }
-                .add-extras-btn button {
+                button.custom-extras-btn {
                     background: linear-gradient(180deg, #ffffff 0%, #eef3fb 100%) !important;
                     color: #141c2c !important; border-color: #bda064 !important;
                 }
