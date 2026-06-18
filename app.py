@@ -383,6 +383,7 @@ def render_main(match_id):
                 letter-spacing: 1.5px !important;
             }
 
+            /* Settings/Themes Redesigned Utility controls matching visual tokens */
             .premium-reset-btn button {
                 background: linear-gradient(180deg, #321010 0%, #190808 100%) !important;
                 border: 2px solid #ff5252 !important;
@@ -453,6 +454,12 @@ def render_main(match_id):
                 .credit span { color: rgba(0,0,0,0.4) !important; }
             </style>
         """)
+
+    # --- DEFINE OVERLAY LINK (Fix for NameError) ---
+    base_url = st.context.url if hasattr(st, 'context') and hasattr(st.context, 'url') else "https://your-app.streamlit.app"
+    if "?" in base_url:
+        base_url = base_url.split("?")[0]
+    overlay_url = base_url + "?mode=overlay&match=" + match_id
 
     # Create / Setup state
     if not match_id:
