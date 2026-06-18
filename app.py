@@ -302,14 +302,14 @@ def render_main(match_id):
             /* SCORING BUTTONS GLOW & EXTRA-BOLD OVERHAUL (Oswald Font-Weight 800) */
             .glossy-btn-container button {
                 background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
-                border: 2px solid rgba(195, 164, 105, 0.6) !important;
+                border: 2.5px solid #ffd700 !important; /* Yellow glowy outline border */
                 border-radius: 18px !important;
-                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4) !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(255, 215, 0, 0.4) !important; /* Glow outline shadow */
                 color: #ffd700 !important;
                 font-family: 'Oswald', sans-serif !important;
-                font-size: 28px !important;
+                font-size: 30px !important;
                 font-weight: 800 !important; /* Make fonts extra bold */
-                height: 70px !important;
+                height: 84px !important; /* Increased Height */
                 width: 100% !important;
                 text-shadow: 0 0 8px rgba(255, 215, 0, 0.7), 0 0 15px rgba(255, 215, 0, 0.3) !important;
                 transition: transform 0.08s ease, box-shadow 0.08s ease !important;
@@ -322,24 +322,24 @@ def render_main(match_id):
                 outline: none !important;
                 transform: none !important;
                 background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
-                border-color: rgba(195, 164, 105, 0.6) !important;
-                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4) !important;
+                border-color: #ffd700 !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 14px rgba(255, 215, 0, 0.6) !important;
                 color: #ffd700 !important;
                 text-shadow: 0 0 8px rgba(255, 215, 0, 0.7), 0 0 15px rgba(255, 215, 0, 0.3) !important;
             }
             
             /* Glowing Specific Overrides with Focus protection */
-            .btn-four button { color: #f3c64f !important; text-shadow: 0 0 8px rgba(243, 198, 79, 0.7), 0 0 15px rgba(243, 198, 79, 0.3) !important; }
-            .btn-four button:focus, .btn-four button:focus-visible { color: #f3c64f !important; text-shadow: 0 0 8px rgba(243, 198, 79, 0.7), 0 0 15px rgba(243, 198, 79, 0.3) !important; }
+            .btn-four button { border-color: #f3c64f !important; color: #f3c64f !important; text-shadow: 0 0 8px rgba(243, 198, 79, 0.7), 0 0 15px rgba(243, 198, 79, 0.3) !important; box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(243, 198, 79, 0.4) !important; }
+            .btn-four button:focus, .btn-four button:focus-visible { border-color: #f3c64f !important; color: #f3c64f !important; text-shadow: 0 0 8px rgba(243, 198, 79, 0.7), 0 0 15px rgba(243, 198, 79, 0.3) !important; }
             
-            .btn-six button { color: #52d273 !important; text-shadow: 0 0 8px rgba(82, 210, 115, 0.7), 0 0 15px rgba(82, 210, 115, 0.3) !important; }
-            .btn-six button:focus, .btn-six button:focus-visible { color: #52d273 !important; text-shadow: 0 0 8px rgba(82, 210, 115, 0.7), 0 0 15px rgba(82, 210, 115, 0.3) !important; }
+            .btn-six button { border-color: #52d273 !important; color: #52d273 !important; text-shadow: 0 0 8px rgba(82, 210, 115, 0.7), 0 0 15px rgba(82, 210, 115, 0.3) !important; box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(82, 210, 115, 0.4) !important; }
+            .btn-six button:focus, .btn-six button:focus-visible { border-color: #52d273 !important; color: #52d273 !important; text-shadow: 0 0 8px rgba(82, 210, 115, 0.7), 0 0 15px rgba(82, 210, 115, 0.3) !important; }
             
-            .btn-out button { color: #ec4849 !important; font-size: 22px !important; text-shadow: 0 0 8px rgba(236, 72, 73, 0.7), 0 0 15px rgba(236, 72, 73, 0.3) !important; }
-            .btn-out button:focus, .btn-out button:focus-visible { color: #ec4849 !important; text-shadow: 0 0 8px rgba(236, 72, 73, 0.7), 0 0 15px rgba(236, 72, 73, 0.3) !important; }
+            .btn-out button { border-color: #ec4849 !important; color: #ec4849 !important; font-size: 24px !important; text-shadow: 0 0 8px rgba(236, 72, 73, 0.7), 0 0 15px rgba(236, 72, 73, 0.3) !important; box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(236, 72, 73, 0.4) !important; }
+            .btn-out button:focus, .btn-out button:focus-visible { border-color: #ec4849 !important; color: #ec4849 !important; text-shadow: 0 0 8px rgba(236, 72, 73, 0.7), 0 0 15px rgba(236, 72, 73, 0.3) !important; }
             
-            .btn-undo button { color: #4da6ff !important; font-size: 18px !important; text-shadow: 0 0 8px rgba(77, 166, 255, 0.7), 0 0 15px rgba(77, 166, 255, 0.3) !important; }
-            .btn-undo button:focus, .btn-undo button:focus-visible { color: #4da6ff !important; text-shadow: 0 0 8px rgba(77, 166, 255, 0.7), 0 0 15px rgba(77, 166, 255, 0.3) !important; }
+            .btn-undo button { border-color: #4da6ff !important; color: #4da6ff !important; font-size: 20px !important; text-shadow: 0 0 8px rgba(77, 166, 255, 0.7), 0 0 15px rgba(77, 166, 255, 0.3) !important; box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(77, 166, 255, 0.4) !important; }
+            .btn-undo button:focus, .btn-undo button:focus-visible { border-color: #4da6ff !important; color: #4da6ff !important; text-shadow: 0 0 8px rgba(77, 166, 255, 0.7), 0 0 15px rgba(77, 166, 255, 0.3) !important; }
 
             .add-extras-btn button {
                 background: linear-gradient(180deg, #182e54 0%, #0b1528 100%) !important;
@@ -467,13 +467,50 @@ def render_main(match_id):
                 border-radius: 10px; padding: 6px 12px; text-align: center; margin-bottom: 10px;
                 font-family: 'Roboto Condensed', sans-serif; color: #e5c185; font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
             }
-            .credit { text-align: center; margin-top: 12px; padding-top: 8px; border-top: 1.5px solid rgba(255,255,255,0.05); }
-            .credit span { font-family: 'Roboto Condensed', sans-serif; font-size: 9px; letter-spacing: 1.5px; color: rgba(255,255,255,0.2); text-transform: uppercase; }
-            .credit strong { color: rgba(195, 164, 105, 0.5); font-weight: 700; }
+            
+            /* Credits and Glowing Signature Elements (+50% size increase & custom shadows) */
+            .credit { 
+                text-align: center; 
+                margin-top: 15px; 
+                padding-top: 10px; 
+                border-top: 1.5px solid rgba(255,255,255,0.05); 
+            }
+            .credit span { 
+                font-family: 'Roboto Condensed', sans-serif; 
+                font-size: 9px; 
+                letter-spacing: 1.5px; 
+                color: rgba(255,255,255,0.2); 
+                text-transform: uppercase; 
+            }
+            .glowing-name { 
+                font-family: 'Oswald', sans-serif !important;
+                font-size: 16px !important; /* Scaled up by over 50% from original base */
+                color: #ffd700 !important; 
+                font-weight: 800 !important; 
+                text-shadow: 0 0 10px rgba(255, 215, 0, 0.9), 0 0 20px rgba(255, 215, 0, 0.4) !important;
+                display: inline-block;
+                margin-top: 2px;
+            }
+            .credit-link {
+                font-family: 'Roboto Condensed', sans-serif;
+                font-size: 11px;
+                color: rgba(195, 164, 105, 0.8) !important;
+                letter-spacing: 1px;
+                text-decoration: none !important;
+                border-bottom: none !important;
+                transition: color 0.2s, text-shadow 0.2s;
+                display: inline-block;
+                margin-top: 5px;
+            }
+            .credit-link:hover, .credit-link:active, .credit-link:focus {
+                color: #ffd700 !important;
+                text-shadow: 0 0 6px rgba(255, 215, 0, 0.6);
+                text-decoration: none !important;
+                border-bottom: none !important;
+            }
         </style>
     """)
 
-    # Specific theme override for Light Mode
     if st.session_state.get("light_mode"):
         render_html("""
             <style>
@@ -484,7 +521,7 @@ def render_main(match_id):
                 .ticker-max-box { border-color: rgba(0,0,0,0.2) !important; background: rgba(0,0,0,0.03) !important; color: #141c2c !important; }
                 .glossy-btn-container button {
                     background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(230,238,248,0.95) 100%) !important;
-                    color: #141c2c !important; border-color: #bda064 !important;
+                    color: #141c2c !important; border-color: #ffd700 !important;
                     box-shadow: inset 0 1.5px 3px rgba(255,255,255,1), 0 4px 8px rgba(0,0,0,0.08) !important;
                 }
                 .add-extras-btn button {
@@ -499,6 +536,7 @@ def render_main(match_id):
                 .extra-cancel-btn button { background: rgba(0,0,0,0.02) !important; border-color: #bda064 !important; }
                 .target-bar { background: rgba(0,0,0,0.03) !important; color: #8c581a !important; border-color: rgba(140,88,26,0.2) !important; }
                 .credit span { color: rgba(0,0,0,0.4) !important; }
+                .credit-link { color: #8c581a !important; }
             </style>
         """)
 
@@ -529,7 +567,13 @@ def render_main(match_id):
             except Exception as e:
                 st.error(f"Failed to create match: {e}")
         st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown('<div class="credit"><span>Created by <strong>Amanullah Khan</strong></span></div>', unsafe_allow_html=True)
+        
+        render_html("""
+            <div class="credit">
+                <span>Created by <strong class="glowing-name">Amanullah Khan</strong></span><br/>
+                <a href="https://www.smartstudygrid.com/" target="_blank" class="credit-link">www.smartstudygrid.com</a>
+            </div>
+        """)
         return
 
     # Load parameters
@@ -586,6 +630,13 @@ def render_main(match_id):
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
         _render_overlay_box(overlay_url, match_id=match_id, confirm_key="confirm_reset_mid", reset_key="reset_mid", show_reset=True)
+        
+        render_html("""
+            <div class="credit">
+                <span>Created by <strong class="glowing-name">Amanullah Khan</strong></span><br/>
+                <a href="https://www.smartstudygrid.com/" target="_blank" class="credit-link">www.smartstudygrid.com</a>
+            </div>
+        """)
         return
 
     # Parse batting team words
@@ -799,7 +850,12 @@ def render_main(match_id):
     else:
         _render_overlay_box(overlay_url, match_id=match_id, confirm_key="confirm_reset_active", reset_key="reset", show_reset=True)
 
-    st.markdown('<div class="credit"><span>Created by <strong>Amanullah Khan</strong></span></div>', unsafe_allow_html=True)
+    render_html("""
+        <div class="credit">
+            <span>Created by <strong class="glowing-name">Amanullah Khan</strong></span><br/>
+            <a href="https://www.smartstudygrid.com/" target="_blank" class="credit-link">www.smartstudygrid.com</a>
+        </div>
+    """)
 
 def _render_overlay_box(overlay_url, match_id=None, confirm_key=None, reset_key=None, show_reset=False):
     """Renders the OBS Link Copy action and premium redesigned control layout."""
