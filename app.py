@@ -348,7 +348,7 @@ def render_main(match_id):
                     0 0 14px rgba(200,168,75,0.35) !important;
                 color: #ffffff !important;
                 font-family: 'Oswald', sans-serif !important;
-                font-size: 28px !important;
+                font-size: 23px !important;
                 font-weight: 800 !important;
                 height: 84px !important;
                 width: 100% !important;
@@ -358,7 +358,7 @@ def render_main(match_id):
             /* Streamlit renders text inside a <p> tag — must target it directly */
             [data-testid="stBaseButton-secondary"] p {
                 font-family: 'Oswald', sans-serif !important;
-                font-size: 28px !important;
+                font-size: 23px !important;
                 font-weight: 800 !important;
                 color: inherit !important;
                 text-shadow: inherit !important;
