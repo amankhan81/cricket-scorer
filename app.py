@@ -89,7 +89,6 @@ def start_second_innings(match_id, innings1_score):
         "runs": 0, "balls": 0, "history": "[]"
     }).eq("match_id", match_id).execute()
 
-# --- SAFE MARKDOWN RENDERER ---
 def render_html(html_str):
     """Flattens HTML strings to prevent markdown indented-code block bugs in Streamlit."""
     cleaned = " ".join(line.strip() for line in html_str.split("\n"))
@@ -128,26 +127,22 @@ SVG_LOGO_MARKUP = """
 """
 
 def render_main(match_id):
-    # Injection of custom styling optimized for zero scrolling and a premium metallic theme
     render_html("""
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Roboto+Condensed:wght@400;700&display=swap');
             header, footer, #MainMenu { display: none !important; }
             
-            /* Radial Dark Metallic theme */
             .stApp { 
                 background: radial-gradient(circle at top, #141c2c 0%, #080a10 100%) !important; 
                 min-height: 100vh; 
             }
             
-            /* Tight container spacing to fit active viewport */
             .block-container { 
                 padding: 10px 8px 12px 8px !important; 
                 max-width: 440px !important; 
                 margin: 0 auto !important; 
             }
 
-            /* Sub-badge spacing rules */
             .innings-badge { text-align: center; margin-bottom: 6px; }
             .innings-badge span {
                 background: rgba(195, 164, 105, 0.1); color: #c3a469;
@@ -165,7 +160,6 @@ def render_main(match_id):
                 border: 1px solid rgba(37, 211, 102, 0.25); text-decoration: none;
             }
 
-            /* PREMIUM OVERLAY STYLE TICKER BAR (as seen in Screenshot 2026-06-18 120122.png) */
             .broadcast-ticker {
                 display: flex; align-items: center; justify-content: space-between;
                 background: linear-gradient(180deg, #24282c 0%, #0f1113 100%);
@@ -231,7 +225,6 @@ def render_main(match_id):
                 font-size: 14px; font-weight: 700; line-height: 1.1;
             }
 
-            /* Clean layout structures to squeeze spacing completely */
             [data-testid="stHorizontalBlock"] { gap: 6px !important; flex-wrap: nowrap !important; }
             [data-testid="stColumn"] { padding: 0 !important; min-width: 0 !important; }
             [data-testid="stVerticalBlockBorderWrapper"] { gap: 0 !important; }
@@ -240,7 +233,6 @@ def render_main(match_id):
             [data-testid="element-container"] { margin: 0 !important; padding: 0 !important; }
             .stButton { margin: 0 !important; padding: 0 !important; }
 
-            /* SCORING GRID BUTTONS: Glassy, deep-blue translucent appearance (as requested) */
             .glossy-btn-container button {
                 background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
                 border: 2px solid rgba(195, 164, 105, 0.6) !important;
@@ -260,13 +252,11 @@ def render_main(match_id):
                 box-shadow: inset 0 2px 4px rgba(0,0,0,0.7) !important;
             }
             
-            /* High-contrast color assignments */
             .btn-four button { color: #f3c64f !important; }
             .btn-six button { color: #52d273 !important; }
             .btn-out button { color: #ec4849 !important; font-size: 22px !important; }
             .btn-undo button { color: #4da6ff !important; font-size: 18px !important; }
 
-            /* ADD EXTRAS: Single full-width pill button positioned cleanly underneath scoring grid */
             .add-extras-btn button {
                 background: linear-gradient(180deg, #182e54 0%, #0b1528 100%) !important;
                 border: 2px solid #bda064 !important;
@@ -286,7 +276,6 @@ def render_main(match_id):
                 transform: scale(0.97) !important;
             }
 
-            /* POPUP EXTRAS DIALOG CARD (Screenshot 2026-06-18 114423.png) */
             .extras-modal {
                 background: #11203b !important;
                 border: 2px solid #bda064 !important;
@@ -312,7 +301,6 @@ def render_main(match_id):
                 padding: 16px 12px !important;
             }
 
-            /* Extra button rows inside Dialog Card */
             .extra-wide-btn button {
                 background: linear-gradient(180deg, #1b2e50 0%, #0d1729 100%) !important;
                 border: 2px solid #bda064 !important;
@@ -342,7 +330,6 @@ def render_main(match_id):
                 text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
             }
 
-            /* Gold/Red outline Cancel pill button matching Screenshot 2026-06-18 114423.png */
             .extra-cancel-btn button {
                 background: transparent !important;
                 border: 2px solid #bda064 !important;
@@ -360,7 +347,6 @@ def render_main(match_id):
                 letter-spacing: 1.5px !important;
             }
 
-            /* Settings/Themes Redesigned Utility controls matching visual tokens */
             .premium-reset-btn button {
                 background: linear-gradient(180deg, #321010 0%, #190808 100%) !important;
                 border: 2px solid #ff5252 !important;
@@ -431,11 +417,6 @@ def render_main(match_id):
                 .credit span { color: rgba(0,0,0,0.4) !important; }
             </style>
         """)
-
-    base_url = st.context.url if hasattr(st, 'context') and hasattr(st.context, 'url') else "https://your-app.streamlit.app"
-    if "?" in base_url:
-        base_url = base_url.split("?")[0]
-    overlay_url = base_url + "?mode=overlay&match=" + match_id
 
     # Create / Setup state
     if not match_id:
@@ -627,7 +608,6 @@ def render_main(match_id):
 
     else:
         # MAIN SCORING CONTROLS AREA
-        # Row 1: 0, 1, 2, 3 (Glassy deep blue look)
         c0, c1, c2, c3 = st.columns(4)
         for idx, val in enumerate(["0", "1", "2", "3"]):
             col_target = [c0, c1, c2, c3][idx]
@@ -638,7 +618,6 @@ def render_main(match_id):
                     st.rerun()
                 st.markdown('</div>', unsafe_allow_html=True)
 
-        # Row 2: 4, 6, OUT, UNDO
         c4, c5, cout, cundo = st.columns(4)
         with c4:
             st.markdown('<div class="glossy-btn-container btn-four">', unsafe_allow_html=True)
@@ -665,7 +644,6 @@ def render_main(match_id):
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
 
-        # Huge Premium Pill Style 'ADD EXTRAS' Button directly below
         st.markdown('<div class="add-extras-btn">', unsafe_allow_html=True)
         if st.button("ADD EXTRAS", key="trigger_extras_popup", use_container_width=True):
             st.session_state.show_extras = True
@@ -756,21 +734,43 @@ def _render_overlay_box(overlay_url, match_id=None, confirm_key=None, reset_key=
 #  PREMIUM OVERLAY BROADCAST TICKER MODE (OBS & STREAMS)
 # ════════════════════════════════════════════════════════
 def render_overlay(match_id):
-    st.markdown("""
+    render_html("""
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Roboto+Condensed:wght@700&display=swap');
-            html, body { background: transparent !important; background-color: transparent !important; }
-            .stApp { background: transparent !important; background-color: transparent !important; }
-            [data-testid="stAppViewContainer"] { background: transparent !important; }
-            [data-testid="stHeader"]           { display: none !important; }
-            [data-testid="stToolbar"]          { display: none !important; }
-            [data-testid="stDecoration"]       { display: none !important; }
-            [data-testid="stStatusWidget"]     { display: none !important; }
-            [data-testid="stMainBlockContainer"]{ background: transparent !important; }
-            [data-testid="block-container"]    { background: transparent !important; }
-            .main { background: transparent !important; }
-            section[data-testid="stSidebar"]   { display: none !important; }
-            header, footer, #MainMenu          { display: none !important; }
+            
+            /* FORCE ALL STREAMLIT WRAPPER BACKGROUNDS TO TRANSPARENT */
+            html, body, .stApp, 
+            [data-testid="stAppViewContainer"], 
+            [data-testid="stMainBlockContainer"],
+            [data-testid="stAppViewBlockContainer"],
+            [data-testid="stVerticalBlock"],
+            .main, .block-container,
+            section.main,
+            div.stMain,
+            div.stMainBlockContainer,
+            div.stAppHeader,
+            div.stAppViewContainer,
+            div.stAppViewBlockContainer {
+                background: transparent !important;
+                background-color: transparent !important;
+                background-image: none !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+            
+            /* Hide distracting UI panels completely */
+            [data-testid="stHeader"], 
+            [data-testid="stSidebar"], 
+            [data-testid="stToolbar"], 
+            [data-testid="stDecoration"], 
+            [data-testid="stStatusWidget"], 
+            footer {
+                display: none !important;
+                height: 0 !important;
+                width: 0 !important;
+                opacity: 0 !important;
+            }
+
             .block-container { padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
             
             /* Premium Broadcast ticker layout exactly matching Screenshot 2026-06-18 120122.png */
@@ -835,7 +835,7 @@ def render_overlay(match_id):
                 border: 1px solid rgba(74,222,128,0.35); border-radius: 6px; white-space: nowrap;
             }
         </style>
-    """, unsafe_allow_html=True)
+    """)
 
     d = get_match(match_id)
     if not d:
