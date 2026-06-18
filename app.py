@@ -94,6 +94,22 @@ def render_html(html_str):
     cleaned = " ".join(line.strip() for line in html_str.split("\n"))
     st.markdown(cleaned, unsafe_allow_html=True)
 
+# --- HELPER SVG FOR PREMIUM LOGO (BAT & BALL SECTIONS REMOVED FOR CLEAN SPACE) ---
+SVG_LOGO_MARKUP = """
+<svg viewBox="0 0 110 90" width="46" height="40" style="filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5));">
+    <circle cx="55" cy="45" r="22" fill="url(#ballGrad)" />
+    <path d="M37,45 Q55,29 73,45" fill="none" stroke="#ffffff" stroke-width="3" stroke-dasharray="3, 2" />
+    <defs>
+        <linearGradient id="ballGrad" x1="30%" y1="30%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ff4444" />
+            <stop offset="60%" stop-color="#bd0000" />
+            <stop offset="100%" stop-color="#540000" />
+        </linearGradient>
+    </defs>
+</svg>
+"""
+
+# --- INJECTABLE SCRIPT TO PREVENT SCREEN SLEEP, DISMISS BUTTON HIGHLIGHTS & INJECT STABLE CSS CLASSES ---
 WAKE_LOCK_AND_DOM_STYLER_SCRIPT = """
 <script>
 (function() {
@@ -130,7 +146,7 @@ WAKE_LOCK_AND_DOM_STYLER_SCRIPT = """
     document.addEventListener('mouseup', blurActiveElement);
     document.addEventListener('touchend', blurActiveElement);
 
-    /* 3. Client-Side Styler that maps Streamlit buttons to Screenshot-accurate visual styles */
+    /* 3. Resilient Client-Side Styler that targets native buttons by their plain text label */
     const styleAppButtons = () => {
         const buttons = document.querySelectorAll('button');
         buttons.forEach(btn => {
@@ -143,7 +159,7 @@ WAKE_LOCK_AND_DOM_STYLER_SCRIPT = """
                 btn.className = 'custom-score-btn btn-six';
             } else if (text === 'OUT') {
                 btn.className = 'custom-score-btn btn-out';
-            } else if (text.includes('UNDO')) {
+            } else if (text === 'UNDO') {
                 btn.className = 'custom-score-btn btn-undo';
             } else if (text === 'ADD EXTRAS') {
                 btn.className = 'custom-extras-btn';
@@ -163,6 +179,7 @@ WAKE_LOCK_AND_DOM_STYLER_SCRIPT = """
 </script>
 """
 
+# Alias for backwards compatibility if referenced by other legacy blocks
 WAKE_LOCK_AND_ANTI_STICK_SCRIPT = WAKE_LOCK_AND_DOM_STYLER_SCRIPT
 
 def render_main(match_id):
@@ -175,7 +192,7 @@ def render_main(match_id):
             header, footer, #MainMenu { display: none !important; }
             
             .stApp { 
-                background: radial-gradient(circle at top, #0f1c30 0%, #080d1a 100%) !important; 
+                background: radial-gradient(circle at top, #141c2c 0%, #080a10 100%) !important; 
                 min-height: 100vh; 
             }
             
@@ -185,97 +202,131 @@ def render_main(match_id):
                 margin: 0 auto !important; 
             }
 
-            /* Header Badges Layout matching the Screenshot exactly */
-            .header-badges {
+            /* Single Row Bar for Innings and Share button side-by-side */
+            .top-row-bar {
                 display: flex !important;
-                flex-direction: column !important;
+                justify-content: space-between !important;
                 align-items: center !important;
                 gap: 8px !important;
-                margin-top: 6px !important;
-                margin-bottom: 16px !important;
+                margin-bottom: 12px !important;
                 width: 100% !important;
             }
-            .innings-capsule {
-                background: linear-gradient(180deg, #1d283f 0%, #0b111c 100%) !important;
-                color: #bda064 !important;
-                font-family: 'Oswald', sans-serif !important;
-                font-size: 11px !important;
-                font-weight: 700 !important;
-                letter-spacing: 2px !important;
-                text-transform: uppercase !important;
-                border-radius: 20px !important;
-                border: 2px solid #bda064 !important;
-                padding: 5px 16px !important;
-                box-shadow: inset 0 1px 2px rgba(255,255,255,0.1), 0 4px 10px rgba(0,0,0,0.5) !important;
-                text-shadow: 0 1px 2px rgba(0,0,0,0.6) !important;
-                display: inline-block !important;
-                text-align: center !important;
-            }
-            .share-capsule {
+            
+            /* Innings badge adjusted to look like a premium beveled capsule on left side of row */
+            .top-row-item-innings {
+                flex: 1 !important;
+                height: 38px !important;
                 display: inline-flex !important;
                 align-items: center !important;
                 justify-content: center !important;
-                gap: 6px !important;
-                background: #082d1c !important;
-                color: #2ecc71 !important;
+                background: linear-gradient(180deg, #1d283f 0%, #0b111c 100%) !important;
+                color: #f3c64f !important;
                 font-family: 'Oswald', sans-serif !important;
-                font-size: 11px !important;
+                font-size: 13px !important;
                 font-weight: 700 !important;
                 letter-spacing: 1.5px !important;
                 text-transform: uppercase !important;
-                border-radius: 20px !important;
-                border: 2px solid #14613c !important;
-                padding: 5px 16px !important;
+                border-radius: 10px !important;
+                border: 2px solid #bda064 !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.4) !important;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.6) !important;
+            }
+            
+            /* Share scoring link redesigned to match Copy Overlay Link design exactly */
+            a.top-row-item-share {
+                flex: 1 !important;
+                height: 38px !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                background: rgba(195, 164, 105, 0.15) !important;
+                color: #c3a469 !important;
+                font-family: 'Oswald', sans-serif !important;
+                font-size: 12px !important;
+                font-weight: 700 !important;
+                letter-spacing: 1.5px !important;
+                text-transform: uppercase !important;
+                border: 1.5px solid rgba(195, 164, 105, 0.4) !important;
+                border-radius: 10px !important;
                 text-decoration: none !important;
-                box-shadow: inset 0 1px 2px rgba(255,255,255,0.1), 0 4px 10px rgba(0,0,0,0.5) !important;
                 transition: background 0.2s !important;
             }
-            .share-capsule:hover {
-                background: #0c3d26 !important;
-                color: #2ecc71 !important;
+            a.top-row-item-share:hover, a.top-row-item-share:active, a.top-row-item-share:focus {
+                background: rgba(195, 164, 105, 0.25) !important;
+                text-decoration: none !important;
+                color: #c3a469 !important;
+                outline: none !important;
             }
 
-            /* Score Card Panel matching Score and Overs in screenshot */
-            .score-card-panel {
-                display: flex !important;
-                align-items: center !important;
-                background: linear-gradient(180deg, #131e33 0%, #0a1121 100%) !important;
-                border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
-                border-radius: 18px !important;
-                padding: 14px 20px !important;
-                margin-bottom: 20px !important;
-                box-shadow: inset 0 1px 2px rgba(255,255,255,0.1), 0 8px 20px rgba(0,0,0,0.6) !important;
-                width: 100% !important;
+            /* PREMIUM OVERLAY STYLE TICKER BAR */
+            .broadcast-ticker {
+                display: flex; align-items: center; justify-content: space-between;
+                background: linear-gradient(180deg, #24282c 0%, #0f1113 100%);
+                border: 1.5px solid #3c4045; border-radius: 14px;
+                padding: 6px 16px; margin-bottom: 12px;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 10px 20px rgba(0,0,0,0.6);
+                position: relative; overflow: hidden; width: 100%;
+                font-family: 'Roboto Condensed', sans-serif;
             }
-            .score-card-col {
-                flex: 1 !important;
-                display: flex !important;
-                flex-direction: column !important;
-                align-items: center !important;
+            .ticker-gold-bar {
+                position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+                background: linear-gradient(180deg, #ffb700, #c38400);
+                box-shadow: 0 0 6px rgba(255, 183, 0, 0.5);
             }
-            .score-card-lbl {
-                color: #7d8ea6 !important;
-                font-family: 'Oswald', sans-serif !important;
-                font-size: 11px !important;
-                font-weight: 700 !important;
-                letter-spacing: 2px !important;
-                text-transform: uppercase !important;
-                margin-bottom: 4px !important;
+            .ticker-divider {
+                width: 3px; height: 36px;
+                background: linear-gradient(180deg, #7f8285, #3a3c3e, #7f8285);
+                border-left: 1px solid #111; border-right: 1px solid #555;
+                margin: 0 4px; opacity: 0.8;
             }
-            .score-card-val {
-                color: #ffffff !important;
-                font-family: 'Oswald', sans-serif !important;
-                font-size: 46px !important;
-                font-weight: 700 !important;
-                line-height: 1 !important;
+            .ticker-section {
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                text-align: center;
             }
-            .score-card-divider {
-                width: 1px !important;
-                background: rgba(255, 255, 255, 0.1) !important;
-                height: 46px !important;
+            .batting-sec { flex: 1.4; min-width: 90px; }
+            .ticker-lbl {
+                color: #ffffff; font-size: 10px; font-weight: 700;
+                letter-spacing: 1px; text-transform: uppercase; margin-bottom: 1px;
+            }
+            
+            /* Two Row Team Name styling */
+            .ticker-team-rows {
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                text-align: center; font-family: 'Oswald', sans-serif; line-height: 1.1;
+                text-transform: uppercase; width: 100%;
+            }
+            .team-row-1 {
+                font-size: 16px; font-weight: 800; color: #ffffff; letter-spacing: 0.5px;
+            }
+            .team-row-2 {
+                font-size: 14px; font-weight: 700; color: #f3c64f; letter-spacing: 0.5px;
+                text-shadow: 0 0 4px rgba(243, 198, 79, 0.3);
             }
 
-            [data-testid="stHorizontalBlock"] { gap: 10px !important; flex-wrap: nowrap !important; }
+            .score-sec { flex: 1.5; }
+            .ticker-val-score {
+                color: #ffffff; font-family: 'Oswald', sans-serif;
+                font-size: 38px; font-weight: 700; line-height: 1; letter-spacing: -1px;
+            }
+            .overs-sec { flex: 1.4; position: relative; }
+            .overs-arch-wrap { display: flex; flex-direction: column; align-items: center; position: relative; }
+            .overs-arch {
+                position: absolute; top: -4px; width: 28px; height: 4px;
+                border-top: 1.5px solid rgba(255, 255, 255, 0.35);
+                border-radius: 50% 50% 0 0;
+            }
+            .ticker-val-overs {
+                color: #ffd700; font-family: 'Oswald', sans-serif;
+                font-size: 24px; font-weight: 700; line-height: 1;
+                text-shadow: 0 0 8px rgba(255, 215, 0, 0.5), 0 0 15px rgba(255, 215, 0, 0.2);
+            }
+            .max-sec { flex: 1.2; text-align: center; }
+            .ticker-val-max {
+                color: #ffd700; font-family: 'Oswald', sans-serif;
+                font-size: 20px; font-weight: 700; line-height: 1.1;
+            }
+
+            [data-testid="stHorizontalBlock"] { gap: 6px !important; flex-wrap: nowrap !important; }
             [data-testid="stColumn"] { padding: 0 !important; min-width: 0 !important; }
             [data-testid="stVerticalBlockBorderWrapper"] { gap: 0 !important; }
             [data-testid="stVerticalBlock"] > * { margin-bottom: 0 !important; }
@@ -283,107 +334,125 @@ def render_main(match_id):
             [data-testid="element-container"] { margin: 0 !important; padding: 0 !important; }
             .stButton { margin: 0 !important; padding: 0 !important; }
 
+            /* NATIVE TARGET STYLING FOR COMPILATION ELEMENTS (Screenshots 2026-06-18 120145_2.png) */
+            
+            /* 1. Base style for scoring buttons (0, 1, 2, 3) with yellow-gold glow and Oswald Extra-Bold */
             button.custom-score-btn {
-                background: radial-gradient(circle at center, #24395d 0%, #101a2f 100%) !important;
-                border: 3px solid #bca068 !important; /* Bronze-gold frame */
-                border-radius: 28px !important; /* Smooth squircle shape matching image */
-                box-shadow: 
-                    inset 0 0 0 3px #101a2f, /* Inner dark gap */
-                    inset 0 0 0 5px #bca068, /* Gold inner bevel highlight */
-                    inset 0 4px 6px rgba(255, 255, 255, 0.25), /* Gloss highlight */
-                    inset 0 -6px 10px rgba(0, 0, 0, 0.8), /* Deep 3D bottom shadow */
-                    0 6px 12px rgba(0, 0, 0, 0.6) !important; /* Soft dropdown shadow */
+                background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
+                border: 2.5px solid #ffd700 !important; /* Yellow-gold beveled border outline */
+                border-radius: 20px !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(255, 215, 0, 0.4) !important;
                 color: #ffffff !important;
                 font-family: 'Oswald', sans-serif !important;
-                font-size: 34px !important;
-                font-weight: 700 !important;
-                height: 84px !important;
+                font-size: 32px !important;
+                font-weight: 800 !important; /* Bold font weight */
+                height: 84px !important; /* Premium 84px height */
                 width: 100% !important;
-                text-shadow: 0 2px 4px rgba(0,0,0,0.8) !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                transition: transform 0.05s ease, box-shadow 0.05s ease !important;
+                text-shadow: 0 0 8px rgba(255, 215, 0, 0.4) !important;
+                transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease !important;
             }
             
+            /* Settle down hover, focused and active highlights to match the theme immediately */
             button.custom-score-btn:focus,
             button.custom-score-btn:active,
             button.custom-score-btn:focus-visible {
                 outline: none !important;
-                transform: scale(0.95) !important;
-                background: radial-gradient(circle at center, #24395d 0%, #101a2f 100%) !important;
-                border-color: #bca068 !important;
-                box-shadow: 
-                    inset 0 0 0 3px #101a2f,
-                    inset 0 0 0 5px #bca068,
-                    inset 0 2px 4px rgba(0,0,0,0.8),
-                    0 2px 4px rgba(0,0,0,0.4) !important;
+                transform: none !important;
+                background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
+                border-color: #ffd700 !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(255, 215, 0, 0.4) !important;
+                color: #ffffff !important;
             }
             
-            /* Custom Colored Buttons to Match the Image */
-            /* Button 4: Golden text */
+            /* 2. Button 4 (Custom gold text color) */
             button.custom-score-btn.btn-four {
-                color: #eec54f !important;
-                text-shadow: 0 2px 4px rgba(0,0,0,0.9), 0 0 8px rgba(238, 197, 79, 0.3) !important;
+                border-color: #f3c64f !important;
+                color: #f3c64f !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(243, 198, 79, 0.4) !important;
+                text-shadow: 0 0 8px rgba(243, 198, 79, 0.6) !important;
             }
-            /* Button 6: Green text */
+            button.custom-score-btn.btn-four:focus, button.custom-score-btn.btn-four:active {
+                border-color: #f3c64f !important;
+                color: #f3c64f !important;
+                background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(243, 198, 79, 0.4) !important;
+            }
+            
+            /* 3. Button 6 (Custom green text color) */
             button.custom-score-btn.btn-six {
-                color: #4ade80 !important;
-                text-shadow: 0 2px 4px rgba(0,0,0,0.9), 0 0 8px rgba(74, 222, 128, 0.3) !important;
+                border-color: #52d273 !important;
+                color: #52d273 !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(82, 210, 115, 0.4) !important;
+                text-shadow: 0 0 8px rgba(82, 210, 115, 0.6) !important;
             }
-            /* Button OUT: Red text */
+            button.custom-score-btn.btn-six:focus, button.custom-score-btn.btn-six:active {
+                border-color: #52d273 !important;
+                color: #52d273 !important;
+                background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(82, 210, 115, 0.4) !important;
+            }
+            
+            /* 4. Button OUT (Custom red text color) */
             button.custom-score-btn.btn-out {
-                color: #ef4444 !important;
+                border-color: #ec4849 !important;
+                color: #ec4849 !important;
                 font-size: 24px !important;
-                text-shadow: 0 2px 4px rgba(0,0,0,0.9), 0 0 8px rgba(239, 68, 68, 0.3) !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(236, 72, 73, 0.4) !important;
+                text-shadow: 0 0 8px rgba(236, 72, 73, 0.6) !important;
             }
-            /* Button UNDO: Blue label with scaled down size for double-rim alignment */
+            button.custom-score-btn.btn-out:focus, button.custom-score-btn.btn-out:active {
+                border-color: #ec4849 !important;
+                color: #ec4849 !important;
+                background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(236, 72, 73, 0.4) !important;
+            }
+            
+            /* 5. Button UNDO (Custom blue text color) */
             button.custom-score-btn.btn-undo {
-                color: #3fa9f5 !important;
-                font-size: 15px !important;
-                font-weight: 700 !important;
-                letter-spacing: 0.5px !important;
-                text-shadow: 0 1px 3px rgba(0,0,0,0.9) !important;
+                border-color: #4da6ff !important;
+                color: #4da6ff !important;
+                font-size: 20px !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(77, 166, 255, 0.4) !important;
+                text-shadow: 0 0 8px rgba(77, 166, 255, 0.6) !important;
+            }
+            button.custom-score-btn.btn-undo:focus, button.custom-score-btn.btn-undo:active {
+                border-color: #4da6ff !important;
+                color: #4da6ff !important;
+                background: linear-gradient(135deg, rgba(20, 38, 77, 0.8) 0%, rgba(10, 20, 41, 0.95) 100%) !important;
+                box-shadow: inset 0 1.5px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.5), 0 5px 12px rgba(0,0,0,0.4), 0 0 12px rgba(77, 166, 255, 0.4) !important;
             }
 
-            /* Skeuomorphic ADD EXTRAS Button */
+            /* 6. Huge Add Extras Button styled to match image perfectly */
             button.custom-extras-btn {
-                background: linear-gradient(180deg, #24395d 0%, #101a2f 100%) !important;
-                border: 3px solid #bca068 !important;
-                border-radius: 30px !important;
-                box-shadow: 
-                    inset 0 0 0 2px #101a2f,
-                    inset 0 0 0 4px #bca068,
-                    inset 0 3px 6px rgba(255,255,255,0.25),
-                    inset 0 -5px 10px rgba(0,0,0,0.8),
-                    0 6px 12px rgba(0,0,0,0.6) !important;
+                background: linear-gradient(180deg, #182e54 0%, #0b1528 100%) !important;
+                border: 2px solid #bda064 !important;
+                border-radius: 24px !important;
+                box-shadow: inset 0 2px 4px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.4), 0 6px 12px rgba(0,0,0,0.5) !important;
                 color: #ffffff !important;
                 font-family: 'Oswald', sans-serif !important;
                 font-size: 20px !important;
                 font-weight: 700 !important;
-                letter-spacing: 1.5px !important;
-                height: 58px !important;
+                height: 54px !important;
                 width: 100% !important;
-                text-shadow: 0 2px 4px rgba(0,0,0,0.8) !important;
-                text-transform: uppercase !important;
-                margin: 12px 0 !important;
-                transition: transform 0.05s ease !important;
+                letter-spacing: 1px;
+                text-shadow: 0 1px 3px rgba(0,0,0,0.6) !important;
+                margin: 10px 0 !important;
             }
             button.custom-extras-btn:active {
                 transform: scale(0.97) !important;
             }
 
-            /* Extras Popup customization */
+            /* 7. Popups: Wide and No Ball styling wrappers inside modal dialog box */
             .extras-modal {
-                background: #111d33 !important;
-                border: 2px solid #bca068 !important;
+                background: #11203b !important;
+                border: 2px solid #bda064 !important;
                 border-radius: 20px !important;
                 overflow: hidden !important;
                 box-shadow: inset 0 2px 3px rgba(255,255,255,0.1), 0 12px 28px rgba(0,0,0,0.6) !important;
                 margin: 6px 0 !important;
             }
             .extras-header {
-                background: linear-gradient(180deg, #bca068 0%, #8c7343 100%) !important;
+                background: linear-gradient(180deg, #9b814a 0%, #766236 100%) !important;
                 color: #ffffff !important;
                 font-family: 'Oswald', sans-serif !important;
                 font-size: 18px !important;
@@ -393,16 +462,16 @@ def render_main(match_id):
                 letter-spacing: 2px !important;
                 text-shadow: 0 1.5px 3px rgba(0,0,0,0.6) !important;
                 text-transform: uppercase !important;
-                border-bottom: 2px solid #bca068 !important;
+                border-bottom: 2px solid #bda064 !important;
             }
             .extras-body {
                 padding: 16px 12px !important;
             }
 
-            /* Extra popup button styles */
+            /* 8. Extra popup wides/no-balls button styles mapped precisely */
             div[data-testid="element-container"]:has(.extra-wide-btn) + div[data-testid="element-container"] button {
                 background: linear-gradient(180deg, #1b2e50 0%, #0d1729 100%) !important;
-                border: 2px solid #bca068 !important;
+                border: 2px solid #bda064 !important;
                 border-radius: 16px !important;
                 box-shadow: inset 0 2px 3px rgba(255,255,255,0.1), inset 0 -3px 5px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.4) !important;
                 color: #ffffff !important;
@@ -416,7 +485,7 @@ def render_main(match_id):
             
             div[data-testid="element-container"]:has(.extra-no-btn) + div[data-testid="element-container"] button {
                 background: linear-gradient(180deg, #1b2e50 0%, #0d1729 100%) !important;
-                border: 1.5px solid #bca068 !important;
+                border: 1.5px solid #bda064 !important;
                 border-radius: 14px !important;
                 box-shadow: inset 0 1.5px 2.5px rgba(255,255,255,0.1), inset 0 -2.5px 4px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.4) !important;
                 color: #ffffff !important;
@@ -431,7 +500,7 @@ def render_main(match_id):
 
             div[data-testid="element-container"]:has(.extra-cancel-btn) + div[data-testid="element-container"] button {
                 background: transparent !important;
-                border: 2px solid #bca068 !important;
+                border: 2px solid #bda064 !important;
                 border-radius: 20px !important;
                 color: #ff5252 !important;
                 font-family: 'Oswald', sans-serif !important;
@@ -446,7 +515,7 @@ def render_main(match_id):
                 letter-spacing: 1.5px !important;
             }
 
-            /* Utility reset/theme button styles */
+            /* Settings/Themes Redesigned Utility controls matching visual tokens */
             button.custom-reset-btn {
                 background: linear-gradient(180deg, #321010 0%, #190808 100%) !important;
                 border: 2px solid #ff5252 !important;
@@ -464,10 +533,10 @@ def render_main(match_id):
             }
             button.custom-theme-btn {
                 background: linear-gradient(180deg, #1b2e50 0%, #0d1729 100%) !important;
-                border: 2px solid #bca068 !important;
+                border: 2px solid #bda064 !important;
                 border-radius: 16px !important;
                 box-shadow: inset 0 1.5px 2px rgba(255,255,255,0.1), inset 0 -3px 6px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.4) !important;
-                color: #eec54f !important;
+                color: #f3c64f !important;
                 font-family: 'Oswald', sans-serif !important;
                 font-size: 13px !important;
                 font-weight: 700 !important;
@@ -479,12 +548,12 @@ def render_main(match_id):
             }
 
             .target-bar {
-                background: rgba(188, 160, 104, 0.08); border: 1.5px solid rgba(188, 160, 104, 0.3);
+                background: rgba(195, 164, 105, 0.08); border: 1.5px solid rgba(195, 164, 105, 0.3);
                 border-radius: 10px; padding: 6px 12px; text-align: center; margin-bottom: 10px;
                 font-family: 'Roboto Condensed', sans-serif; color: #e5c185; font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
             }
             
-            /* Credits and Glowing Signature */
+            /* Credits and Glowing Signature Elements (+50% size increase & custom shadows) */
             .credit { 
                 text-align: center; 
                 margin-top: 15px; 
@@ -500,7 +569,7 @@ def render_main(match_id):
             }
             .glowing-name { 
                 font-family: 'Oswald', sans-serif !important;
-                font-size: 16px !important;
+                font-size: 16px !important; /* Scaled up by over 50% from original base */
                 color: #ffd700 !important; 
                 font-weight: 800 !important; 
                 text-shadow: 0 0 10px rgba(255, 215, 0, 0.9), 0 0 20px rgba(255, 215, 0, 0.4) !important;
@@ -510,7 +579,7 @@ def render_main(match_id):
             .credit-link {
                 font-family: 'Roboto Condensed', sans-serif;
                 font-size: 11px;
-                color: rgba(188, 160, 104, 0.8) !important;
+                color: rgba(195, 164, 105, 0.8) !important;
                 letter-spacing: 1px;
                 text-decoration: none !important;
                 border-bottom: none !important;
@@ -518,9 +587,11 @@ def render_main(match_id):
                 display: inline-block;
                 margin-top: 5px;
             }
-            .credit-link:hover {
+            .credit-link:hover, .credit-link:active, .credit-link:focus {
                 color: #ffd700 !important;
                 text-shadow: 0 0 6px rgba(255, 215, 0, 0.6);
+                text-decoration: none !important;
+                border-bottom: none !important;
             }
         </style>
     """)
@@ -529,26 +600,26 @@ def render_main(match_id):
         render_html("""
             <style>
                 .stApp { background: radial-gradient(circle at top, #f0f4fa 0%, #d4dfec 100%) !important; }
-                .score-card-panel { background: linear-gradient(180deg, #ffffff 0%, #eef3fb 100%) !important; border-color: rgba(0,0,0,0.15) !important; box-shadow: 0 6px 15px rgba(0,0,0,0.08) !important; }
-                .score-card-val { color: #101c31 !important; }
-                .score-card-lbl { color: #555555 !important; }
+                .broadcast-ticker { background: linear-gradient(180deg, #ffffff 0%, #eef3fb 100%) !important; border-color: rgba(0,0,0,0.15) !important; box-shadow: 0 6px 15px rgba(0,0,0,0.08); }
+                .ticker-val-score { color: #141c2c !important; }
+                .ticker-lbl { color: #555555 !important; }
+                .ticker-max-box { border-color: rgba(0,0,0,0.2) !important; background: rgba(0,0,0,0.03) !important; color: #141c2c !important; }
                 button.custom-score-btn {
-                    background: radial-gradient(circle at center, rgba(255,255,255,0.9) 0%, rgba(230,238,248,0.95) 100%) !important;
-                    color: #101c31 !important; border-color: #bca068 !important;
-                    box-shadow: inset 0 0 0 2px #ffffff, inset 0 0 0 4px #bca068, 0 4px 8px rgba(0,0,0,0.08) !important;
+                    background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(230,238,248,0.95) 100%) !important;
+                    color: #141c2c !important; border-color: #ffd700 !important;
+                    box-shadow: inset 0 1.5px 3px rgba(255,255,255,1), 0 4px 8px rgba(0,0,0,0.08) !important;
                 }
                 button.custom-extras-btn {
                     background: linear-gradient(180deg, #ffffff 0%, #eef3fb 100%) !important;
-                    color: #101c31 !important; border-color: #bca068 !important;
-                    box-shadow: inset 0 0 0 1px #ffffff, inset 0 0 0 3px #bca068, 0 4px 8px rgba(0,0,0,0.08) !important;
+                    color: #141c2c !important; border-color: #bda064 !important;
                 }
-                .extras-modal { background: #f0f4fa !important; border-color: #8c7343 !important; }
+                .extras-modal { background: #f0f4fa !important; border-color: #9b814a !important; }
                 div[data-testid="element-container"]:has(.extra-wide-btn) + div[data-testid="element-container"] button,
                 div[data-testid="element-container"]:has(.extra-no-btn) + div[data-testid="element-container"] button {
                     background: linear-gradient(180deg, #ffffff 0%, #eef3fb 100%) !important;
-                    color: #101c31 !important; border-color: #8c7343 !important;
+                    color: #141c2c !important; border-color: #9b814a !important;
                 }
-                div[data-testid="element-container"]:has(.extra-cancel-btn) + div[data-testid="element-container"] button { background: rgba(0,0,0,0.02) !important; border-color: #bca068 !important; }
+                div[data-testid="element-container"]:has(.extra-cancel-btn) + div[data-testid="element-container"] button { background: rgba(0,0,0,0.02) !important; border-color: #bda064 !important; }
                 .target-bar { background: rgba(0,0,0,0.03) !important; color: #8c581a !important; border-color: rgba(140,88,26,0.2) !important; }
                 .credit span { color: rgba(0,0,0,0.4) !important; }
                 .credit-link { color: #8c581a !important; }
@@ -668,7 +739,7 @@ def render_main(match_id):
         row1 = "TEAM"
         row2 = "1"
 
-    # Setup formatted overs parenthetical value
+    # Setup formatted overs parenthetical value e.g. "(06)"
     try:
         formatted_max = f"({int(max_overs_val):02d})"
     except:
@@ -689,7 +760,8 @@ def render_main(match_id):
             outcome_banner = "🏆 MATCH TIED 🤝"
 
         render_html(f"""
-            <div class="score-card-panel" style="justify-content: center; padding: 24px 10px;">
+            <div class="broadcast-ticker" style="justify-content: center; padding: 14px 10px;">
+                <div class="ticker-gold-bar"></div>
                 <div style="font-family:'Oswald', sans-serif; font-size: 20px; font-weight: 800; color: #ffd700; text-align: center; text-transform: uppercase; letter-spacing: 0.5px;">
                     {outcome_banner}
                 </div>
@@ -703,34 +775,44 @@ def render_main(match_id):
         return
 
     else:
-        # Redesigned Innings and Share capsules centered sequentially matching screenshot
-        innings_text = "1ST INNINGS" if innings == 1 else "2ND INNINGS"
+        # Redesigned Innings Badge & Share Pill layout in a single horizontal top row
+        innings_text = "1st Innings" if innings == 1 else "2nd Innings"
         whatsapp_share_url = "https://easyscoring.streamlit.app/?match=" + match_id
         whatsapp_link = "https://wa.me/?text=" + whatsapp_share_url
         
         render_html(f"""
-            <div class="header-badges">
-                <div class="innings-capsule">
-                    {batting_team.upper()} — {innings_text}
+            <div class="top-row-bar">
+                <div class="top-row-item-innings">
+                    <span>{innings_text}</span>
                 </div>
-                <a class="share-capsule" href="{whatsapp_link}" target="_blank">
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline; vertical-align:middle; margin-right:4px;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                    SHARE SCORING
-                </a>
+                <a class="top-row-item-share" href="{whatsapp_link}" target="_blank">📲 Share Scoring</a>
             </div>
         """)
         
-        # score-card-panel layout matching the Score/Overs widget exactly
         render_html(f"""
-            <div class="score-card-panel">
-                <div class="score-card-col">
-                    <span class="score-card-lbl">SCORE</span>
-                    <span class="score-card-val">{current_runs}/{wickets}</span>
+            <div class="broadcast-ticker">
+                <div class="ticker-gold-bar"></div>
+                <div class="ticker-section batting-sec">
+                    <div class="ticker-team-rows">
+                        <div class="team-row-1">{row1}</div>
+                        <div class="team-row-2">{row2}</div>
+                    </div>
                 </div>
-                <div class="score-card-divider"></div>
-                <div class="score-card-col">
-                    <span class="score-card-lbl">OVERS</span>
-                    <span class="score-card-val">{current_balls//6}.{current_balls%6}</span>
+                <div class="ticker-divider"></div>
+                <div class="ticker-section score-sec">
+                    <span class="ticker-val-score">{current_runs}/{wickets}</span>
+                </div>
+                <div class="ticker-divider"></div>
+                <div class="ticker-section overs-sec">
+                    <div class="overs-arch-wrap">
+                        <div class="overs-arch"></div>
+                        <span class="ticker-lbl">OVERS</span>
+                    </div>
+                    <span class="ticker-val-overs">{current_balls//6}.{current_balls%6}</span>
+                </div>
+                <div class="ticker-divider"></div>
+                <div class="ticker-section max-sec">
+                    <span class="ticker-val-max">{formatted_max}</span>
                 </div>
             </div>
         """)
@@ -777,7 +859,7 @@ def render_main(match_id):
                     st.rerun()
                 st.markdown('</div>', unsafe_allow_html=True)
                 
-        # Cancel Outline Button
+        # Cancel Outline Button (Bevel Gold/Red Capsule)
         st.markdown('<div class="extra-cancel-btn">', unsafe_allow_html=True)
         if st.button("Cancel", key="cancel_extras_popup", use_container_width=True):
             st.session_state.show_extras = False
@@ -786,7 +868,6 @@ def render_main(match_id):
         st.markdown('</div></div>', unsafe_allow_html=True)
 
     else:
-        # Scoring Row 1 (0, 1, 2, 3)
         c0, c1, c2, c3 = st.columns(4)
         for idx, val in enumerate(["0", "1", "2", "3"]):
             col_target = [c0, c1, c2, c3][idx]
@@ -797,7 +878,7 @@ def render_main(match_id):
                     st.rerun()
                 st.markdown('</div>', unsafe_allow_html=True)
 
-        # Scoring Row 2 (4, 6, OUT, UNDO with icon)
+        # Row 2: 4, 6, OUT, UNDO
         c4, c5, cout, cundo = st.columns(4)
         with c4:
             st.markdown('<div class="glossy-btn-container btn-four">', unsafe_allow_html=True)
@@ -819,19 +900,19 @@ def render_main(match_id):
             st.markdown('</div>', unsafe_allow_html=True)
         with cundo:
             st.markdown('<div class="glossy-btn-container btn-undo">', unsafe_allow_html=True)
-            # Unicode back-arrow matching the screenshot aesthetic for UNDO action
-            if st.button("↩ UNDO", key="gundo", use_container_width=True):
+            if st.button("UNDO", key="gundo", use_container_width=True):
                 update_score(match_id, 0, 0, is_undo=True)
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
 
-        # Huge Premium Pill Style 'ADD EXTRAS' Button
+        # Huge Premium Pill Style 'ADD EXTRAS' Button directly below
         st.markdown('<div class="add-extras-btn">', unsafe_allow_html=True)
         if st.button("ADD EXTRAS", key="trigger_extras_popup", use_container_width=True):
             st.session_state.show_extras = True
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
+    # Bottom Settings section
     if st.session_state.get("confirm_reset_active"):
         render_html("""
             <div style="background:rgba(235,87,87,0.12); border:1.5px solid rgba(235,87,87,0.35); border-radius:14px; padding:12px; margin-top:10px; text-align:center;">
@@ -863,61 +944,41 @@ def render_main(match_id):
     """)
 
 def _render_overlay_box(overlay_url, match_id=None, confirm_key=None, reset_key=None, show_reset=False):
-    """Renders the OBS Link Copy action matching Screenshot 2026-06-18 120145.png button layout precisely."""
+    """Renders the OBS Link Copy action and premium redesigned control layout."""
     components.html(f"""
         <style>
             * {{ margin:0; padding:0; box-sizing:border-box; }}
             body {{ background:transparent; font-family:'Roboto Condensed',sans-serif; }}
             .wrap {{ display:flex; flex-direction:column; gap:5px; margin-bottom:10px; }}
-            
             .copy-btn {{
-                width: 100%; 
-                height: 40px; 
-                cursor: pointer;
-                background: #0d1322; 
-                color: #eaeaea;
-                font-family: 'Roboto Condensed', sans-serif;
-                font-size: 12px; 
-                font-weight: 700; 
-                letter-spacing: 1.5px;
-                border: 1px solid rgba(188, 160, 104, 0.4); 
-                border-radius: 20px;
-                text-transform: uppercase; 
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 0 16px;
-                box-shadow: inset 0 1px 1px rgba(255,255,255,0.05), 0 4px 10px rgba(0,0,0,0.5);
-                transition: all 0.2s;
+                width:100%; height:38px; cursor:pointer;
+                background:rgba(195, 164, 105, 0.15); color:#c3a469;
+                font-size:12px; font-weight:700; letter-spacing:1.5px;
+                border:1.5px solid rgba(195, 164, 105, 0.4); border-radius:10px;
+                text-transform:uppercase; transition: background 0.2s;
             }}
-            .copy-btn:hover {{ 
-                background: #111a30; 
-                border-color: rgba(188, 160, 104, 0.7);
-            }}
+            .copy-btn:hover {{ background:rgba(195, 164, 105, 0.25); }}
             .url-box {{
-                background:rgba(0,0,0,0.35); border:1px solid rgba(188,160,104,0.15);
+                background:rgba(0,0,0,0.35); border:1px solid rgba(195,164,105,0.25);
                 border-radius:8px; padding:6px 10px;
                 display:flex; align-items:center; gap:8px;
             }}
             .url-text {{ font-size:10px; color:#c3a469; word-break:break-all; flex:1; }}
-            .hint {{ font-size:9px; color:rgba(255,255,255,0.3); letter-spacing:1px; text-transform:uppercase; text-align:center; margin-top: 2px; }}
+            .hint {{ font-size:9px; color:rgba(255,255,255,0.3); letter-spacing:1px; text-transform:uppercase; text-align:center; }}
         </style>
         <div class="wrap">
             <button class="copy-btn" onclick="
                 navigator.clipboard.writeText('{overlay_url}').then(function(){{
-                    document.getElementById('btn-txt').innerText='✅ Copied!';
-                    setTimeout(function(){{ document.getElementById('btn-txt').innerText='Copy Overlay Link'; }}, 2000);
-                }}).catch(function(){{
-                    document.getElementById('btn-txt').innerText='⚠️ Failed to Copy';
-                }});
-            ">
-                <span>🔗 &nbsp;<span id="btn-txt">Copy Overlay Link</span></span>
-                <span>✦</span>
-            </button>
+                    this.innerText='✅ Copied!';
+                    var s=this; setTimeout(function(){{s.innerText='📋 Copy Overlay Link';}},2000);
+                }}.bind(this)).catch(function(){{
+                    this.innerText='⚠️ Failed';
+                    var s=this; setTimeout(function(){{s.innerText='📋 Copy Overlay Link';}},2000);
+                }}.bind(this));">📋 Copy Overlay Link</button>
             <div class="url-box"><span>🔗</span><span class="url-text">{overlay_url}</span></div>
             <div class="hint">Add as browser source in OBS / CameraFi / PrismLive</div>
         </div>
-    """, height=104)
+    """, height=100)
 
     if show_reset:
         is_light = st.session_state.get("light_mode", False)
@@ -940,6 +1001,7 @@ def _render_overlay_box(overlay_url, match_id=None, confirm_key=None, reset_key=
 #  PREMIUM OVERLAY BROADCAST TICKER MODE (OBS & STREAMS)
 # ════════════════════════════════════════════════════════
 def render_overlay(match_id):
+    # Fixed Reference: Updated from WAKE_LOCK_AND_ANTI_STICK_SCRIPT to WAKE_LOCK_AND_DOM_STYLER_SCRIPT
     render_html(WAKE_LOCK_AND_DOM_STYLER_SCRIPT)
 
     render_html("""
@@ -981,7 +1043,7 @@ def render_overlay(match_id):
 
             .block-container { padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
             
-            /* Premium Broadcast ticker layout */
+            /* Premium Broadcast ticker layout exactly matching Screenshot 2026-06-18 120122.png */
             .ticker-overlay-container {
                 position: fixed; bottom: 14px; left: 14px;
                 display: inline-flex; align-items: center;
@@ -1011,6 +1073,7 @@ def render_overlay(match_id):
                 letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 2px;
             }
             
+            /* Two Row Team Name styling */
             .ticker-team-rows {
                 display: flex; flex-direction: column; align-items: center; justify-content: center;
                 text-align: center; font-family: 'Oswald', sans-serif; line-height: 1.1;
@@ -1059,9 +1122,11 @@ def render_overlay(match_id):
     innings1_runs = int(d.get("innings1_runs") or 0)
     current_runs  = int(d["runs"])
     needed        = innings1_runs - current_runs + 1
+    target_val    = innings1_runs + 1
     need_val      = max(0, needed)
     balls_left    = max(0, max_balls - current_balls)
     need_color    = "#ff6b6b" if needed > 0 else "#6fcf97"
+    innings_over  = current_balls >= max_balls
     wickets       = get_wickets(d.get("history"))
 
     team1_name    = d.get("team1_name") or "Team 1"
@@ -1070,6 +1135,7 @@ def render_overlay(match_id):
     team_inn1     = team1_name if batting_first == 1 else team2_name
     team_inn2     = team2_name if batting_first == 1 else team1_name
     
+    # Fixed Reference: Correctly resolve batting and bowling teams inside overlay
     if innings == 1:
         batting_team = team_inn1
         bowling_team = team_inn2
@@ -1090,15 +1156,18 @@ def render_overlay(match_id):
         row1 = "TEAM"
         row2 = "1"
 
+    # Setup formatted parenthetical overs for overlay
     try:
         formatted_max = f"({int(max_overs):02d})"
     except:
         formatted_max = f"({max_overs})"
 
+    # Auto conclusion criteria in broadcast overlay
     target_achieved = (innings == 2 and current_runs > innings1_runs)
     innings2_completed = (innings == 2 and (current_balls >= max_balls or wickets >= 10))
     match_over = target_achieved or innings2_completed
 
+    # Setup full-width outcome banner
     if match_over:
         if current_runs > innings1_runs:
             winner_text = batting_team.upper()
@@ -1106,7 +1175,7 @@ def render_overlay(match_id):
             margin = f"{wickets_left} WICKET" + ("S" if wickets_left > 1 else "")
             outcome_banner = f"🏆 {winner_text} WON BY {margin}"
         elif current_runs < innings1_runs:
-            winner_text = bowling_team.upper()
+            winner_text = bowling_team.upper() # Fixed: bowling_team variable is now correctly defined above!
             runs_diff = innings1_runs - current_runs
             margin = f"{runs_diff} RUN" + ("S" if runs_diff > 1 else "")
             outcome_banner = f"🏆 {winner_text} WON BY {margin}"
@@ -1120,7 +1189,7 @@ def render_overlay(match_id):
         t += '  </div>'
         t += '</div>'
     else:
-        # Standard broadcast overlay layout
+        # Standard broadcast layout
         t = f'<div class="ticker-overlay-container">'
         t += '  <div class="ticker-accent-bar"></div>'
         
