@@ -355,6 +355,19 @@ def render_main(match_id):
                 text-shadow: 0 2px 4px rgba(0,0,0,0.6) !important;
                 transition: transform 0.08s ease, box-shadow 0.08s ease !important;
             }
+            /* Streamlit renders text inside a <p> tag — must target it directly */
+            [data-testid="stBaseButton-secondary"] p {
+                font-family: 'Oswald', sans-serif !important;
+                font-size: 40px !important;
+                font-weight: 800 !important;
+                color: inherit !important;
+                text-shadow: inherit !important;
+                line-height: 1 !important;
+                margin: 0 !important;
+            }
+            [data-testid="stBaseButton-secondary"][id*="gout"] p { font-size: 26px !important; font-weight: 800 !important; }
+            [data-testid="stBaseButton-secondary"][id*="gundo"] p { font-size: 20px !important; font-weight: 800 !important; }
+            [data-testid="stBaseButton-secondary"][id*="trigger_extras_popup"] p { font-size: 20px !important; font-weight: 700 !important; letter-spacing: 2px !important; }
             [data-testid="stBaseButton-secondary"]:active {
                 transform: scale(0.96) !important;
                 box-shadow: inset 0 3px 8px rgba(0,0,0,0.7) !important;
